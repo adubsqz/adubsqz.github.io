@@ -1,6 +1,6 @@
 # adubsqz — photography
 
-Live site: [adubsqz on Vercel](https://adubsqz.vercel.app/) (update the project domain in Vercel if yours differs).
+Live site: [adubsqz.github.io](https://adubsqz.github.io/).
 
 ## License and use restrictions
 
