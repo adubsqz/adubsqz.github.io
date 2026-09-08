@@ -70,9 +70,10 @@ describe('data', () => {
       const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
       const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
       expect(greyscale?.photos.length).toBe(14);
-      expect(color?.photos.length).toBe(11);
+      expect(color?.photos.length).toBe(12);
       expect(greyscale?.photos.some((p) => p.src.includes('30570008-kiln'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('000331950014-quartz'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('colorfulstairs'))).toBe(true);
     });
 
     it('does not surface import-########.jpg filenames in public collections', () => {

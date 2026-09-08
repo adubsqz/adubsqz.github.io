@@ -102,6 +102,10 @@
     {
       "path": "color/00033195-ames-psychic-readings.jpg",
       "orientation": "horizontal"
+    },
+    {
+      "path": "color/colorfulstairs.jpg",
+      "orientation": "horizontal"
     }
   ],
   "redscale": [
