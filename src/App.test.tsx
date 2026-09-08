@@ -52,12 +52,12 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: /^full spectrum$/i }));
-    expect(screen.getByRole('button', { name: /^full spectrum$/i }).className).toMatch(/bg-mcm-rust/);
+    expect(screen.getByRole('button', { name: /^full spectrum$/i }).className).toMatch(/mcm-rust/);
     await user.click(screen.getByRole('button', { name: /^redscale$/i }));
-    expect(screen.getByRole('button', { name: /^redscale$/i }).className).toMatch(/bg-mcm-rust/);
+    expect(screen.getByRole('button', { name: /^redscale$/i }).className).toMatch(/mcm-rust/);
     await user.click(screen.getByRole('button', { name: /^people$/i }));
-    expect(screen.getByRole('button', { name: /^people$/i }).className).toMatch(/bg-mcm-rust/);
-    expect(screen.getByText(/no photos found in this category/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^people$/i }).className).toMatch(/mcm-rust/);
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBeGreaterThan(0);
   });
 
   it('keeps rights copy on About only once and restores the gallery footer', async () => {

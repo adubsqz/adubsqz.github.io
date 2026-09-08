@@ -10,7 +10,7 @@ test.describe('site', () => {
     await page.getByRole('button', { name: /full spectrum/i }).click();
     await page.getByRole('button', { name: /redscale/i }).click();
     await page.getByRole('button', { name: /^people$/i }).click();
-    await expect(page.getByText(/no photos found in this category/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
     await page.getByRole('button', { name: /greyscale/i }).click();
 
     const thumb = page.getByRole('button', { name: /open photo/i }).first();

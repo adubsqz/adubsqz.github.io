@@ -46,8 +46,6 @@ function loadManifestAllowlist(): Set<string> {
 }
 
 function manifestAssetGuardPlugin(): Plugin {
-  const allowed = loadManifestAllowlist();
-
   const guard = (req: { url?: string }, res: { statusCode: number; end: (msg: string) => void }, next: () => void) => {
     const url = req.url ?? '';
     const pathname = decodeURIComponent(url.split('?')[0] ?? '');
@@ -64,6 +62,7 @@ function manifestAssetGuardPlugin(): Plugin {
       return;
     }
 
+    const allowed = loadManifestAllowlist();
     if (!allowed.has(rel)) {
       res.statusCode = 404;
       res.end('Not found');

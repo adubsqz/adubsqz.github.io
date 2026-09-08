@@ -32,15 +32,15 @@ function usePrefersReducedMotion(): boolean {
 function imageClassForReelLayout(layout: ReelLayout): string {
   switch (layout) {
     case 'hero':
-      return 'gallery-image block h-auto max-h-[min(78dvh,1120px)] w-full max-w-full object-contain sm:w-auto sm:max-w-[min(1240px,99vw)]';
+      return 'gallery-image block h-auto max-h-[min(82dvh,1120px)] w-full max-w-full object-contain sm:w-auto sm:max-w-[min(1240px,99vw)]';
     case 'horizontal-duo':
-      return 'gallery-image block h-auto max-h-[min(70dvh,980px)] w-full max-w-full object-contain sm:w-auto';
+      return 'gallery-image block h-auto max-h-[min(74dvh,980px)] w-full max-w-full object-contain sm:w-auto';
     case 'horizontal-trio':
-      return 'gallery-image block h-auto max-h-[min(62dvh,860px)] w-full max-w-full object-contain sm:w-auto';
+      return 'gallery-image block h-auto max-h-[min(64dvh,860px)] w-full max-w-full object-contain sm:w-auto';
     case 'vertical-solo':
-      return 'gallery-image block h-auto max-h-[min(78dvh,960px)] w-full max-w-full object-contain sm:w-auto';
+      return 'gallery-image block h-auto max-h-[min(82dvh,960px)] w-full max-w-full object-contain sm:w-auto';
     default:
-      return 'gallery-image block h-auto max-h-[min(68dvh,840px)] w-full max-w-full object-contain sm:w-auto';
+      return 'gallery-image block h-auto max-h-[min(72dvh,840px)] w-full max-w-full object-contain sm:w-auto';
   }
 }
 
@@ -81,7 +81,7 @@ function PhotoCard({
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (reducedMotion || !btnRef.current) return;
+      if (reducedMotion || e.pointerType === 'touch' || !btnRef.current) return;
       const r = btnRef.current.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
@@ -95,7 +95,7 @@ function PhotoCard({
   if (failed) {
     return (
       <div
-        className={`flex aspect-[4/5] w-full items-center justify-center rounded-2xl bg-mcm-paper/30 ring-1 ring-mcm-line/40 ${className}`}
+        className={`flex aspect-[4/5] w-full items-center justify-center bg-mcm-paper/30 sm:rounded-md ${className}`}
       >
         <span className="text-photo-muted/40 text-sm select-none font-mono">—</span>
       </div>
@@ -115,7 +115,7 @@ function PhotoCard({
       style={{ perspective: '880px' }}
     >
       <div
-        className="relative mx-auto w-fit max-w-full overflow-hidden rounded-2xl bg-photo-panel shadow-[0_16px_40px_rgba(26,23,20,0.12)] ring-1 ring-photo-fg/10 transition-[box-shadow,transform] duration-300 group-hover:shadow-[0_20px_48px_rgba(197,106,58,0.18)] motion-safe:duration-300 [transform-style:preserve-3d]"
+        className="relative mx-auto w-full max-w-full overflow-hidden bg-photo-bg sm:w-fit sm:rounded-md sm:shadow-[0_16px_40px_rgba(26,23,20,0.12)] sm:ring-1 sm:ring-photo-fg/10 motion-safe:duration-300 [transform-style:preserve-3d]"
         style={
           reducedMotion
             ? undefined
@@ -136,7 +136,7 @@ function PhotoCard({
           onError={handleError}
           onClick={onClick}
         />
-        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-mcm-ink/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-mcm-ink/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-md" />
       </div>
       {photo.caption && (
         <p className="mt-3 text-photo-muted/85 text-[0.7rem] leading-relaxed font-mono tracking-wide">
@@ -199,7 +199,7 @@ function Lightbox({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-photo-panel/90 text-2xl leading-none text-photo-fg shadow-[0_8px_24px_rgba(26,23,20,0.1)] sm:right-6 sm:top-6"
+          className="absolute right-3 top-3 z-20 flex h-12 w-12 items-center justify-center text-3xl leading-none text-photo-fg sm:right-6 sm:top-6 sm:h-11 sm:w-11 sm:rounded-md sm:bg-photo-panel/90"
           aria-label="Close"
         >
           ×
@@ -207,7 +207,7 @@ function Lightbox({
         <button
           type="button"
           onClick={onPrevious}
-          className="absolute left-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-photo-panel/90 text-xl text-photo-fg shadow-[0_8px_24px_rgba(26,23,20,0.1)] sm:flex"
+          className="absolute left-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md bg-photo-panel/90 text-xl text-photo-fg sm:flex"
           aria-label="View previous photo"
         >
           ‹
@@ -215,20 +215,20 @@ function Lightbox({
         <button
           type="button"
           onClick={onNext}
-          className="absolute right-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-photo-panel/90 text-xl text-photo-fg shadow-[0_8px_24px_rgba(26,23,20,0.1)] sm:flex"
+          className="absolute right-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md bg-photo-panel/90 text-xl text-photo-fg sm:flex"
           aria-label="View next photo"
         >
           ›
         </button>
 
-        <div className="mx-auto flex min-h-[100dvh] w-full max-w-[min(1200px,100vw)] flex-col justify-center px-3 pb-32 pt-16 sm:px-8 sm:pb-28 sm:pt-12">
+        <div className="mx-auto flex min-h-[100dvh] w-full max-w-[min(1200px,100vw)] flex-col justify-center px-0 pb-28 pt-4 sm:px-8 sm:pb-28 sm:pt-12">
           <figure className="flex w-full shrink-0 justify-center px-0">
-            <div className="lightbox-frame lightbox-frame--hero w-auto max-w-[calc(100vw-1.5rem)] sm:max-w-[min(1100px,calc(100vw-4rem))]">
+            <div className="lightbox-frame lightbox-frame--hero w-auto max-w-full sm:max-w-[min(1100px,calc(100vw-4rem))]">
               <WatermarkedImage
                 src={photo.src}
                 alt={photo.alt}
                 wrapperClassName="relative flex w-full max-w-full items-center justify-center"
-                className="pointer-events-none block h-auto max-h-[min(72dvh,920px)] w-auto min-h-0 max-w-full object-contain sm:max-h-[min(80dvh,960px)]"
+                className="pointer-events-none block h-auto max-h-[min(78dvh,920px)] w-auto min-h-0 max-w-full object-contain sm:max-h-[min(80dvh,960px)]"
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"
@@ -251,7 +251,7 @@ function Lightbox({
               type="button"
               onClick={onPrevious}
               variant="ghost"
-              className="h-12 w-12 shrink-0 rounded-full px-0 text-xl normal-case tracking-normal sm:hidden"
+              className="h-12 w-12 shrink-0 rounded-md px-0 text-2xl normal-case tracking-normal sm:hidden"
               aria-label="View previous photo"
             >
               ‹
@@ -260,7 +260,7 @@ function Lightbox({
               type="button"
               onClick={onContact}
               variant="lightboxPrimary"
-              className="h-12 flex-1 rounded-full text-base font-medium normal-case tracking-normal"
+              className="h-12 flex-1 rounded-md text-lg font-medium normal-case tracking-normal"
             >
               Contact me
             </Button>
@@ -268,7 +268,7 @@ function Lightbox({
               type="button"
               onClick={onNext}
               variant="ghost"
-              className="h-12 w-12 shrink-0 rounded-full px-0 text-xl normal-case tracking-normal sm:hidden"
+              className="h-12 w-12 shrink-0 rounded-md px-0 text-2xl normal-case tracking-normal sm:hidden"
               aria-label="View next photo"
             >
               ›
@@ -380,19 +380,19 @@ function CollectionSection({
             type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-xl text-photo-muted transition-colors hover:bg-photo-panel hover:text-photo-fg disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-12 w-12 items-center justify-center text-2xl text-photo-muted transition-colors hover:text-photo-fg disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Previous page"
           >
             ‹
           </button>
-          <p className="min-w-[3.5rem] text-center text-sm tabular-nums text-photo-muted">
-            {page} / {totalPages}
+          <p className="min-w-[4.5rem] text-center text-base tabular-nums text-photo-fg">
+            {page} of {totalPages}
           </p>
           <button
             type="button"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-xl text-photo-muted transition-colors hover:bg-photo-panel hover:text-photo-fg disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-12 w-12 items-center justify-center text-2xl text-photo-muted transition-colors hover:text-photo-fg disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Next page"
           >
             ›

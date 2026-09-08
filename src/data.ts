@@ -110,14 +110,15 @@ export function classifyManifestEntry(entry: string):
   if (IMPORT_NUMERIC_ONLY.test(baseName)) {
     return { kind: 'hidden', reason: 'import_numeric' };
   }
-  if (DIGITS_ONLY_FILENAME.test(baseName)) {
-    return { kind: 'hidden', reason: 'numeric_only_filename' };
-  }
 
   if (normalized.startsWith('bw/')) return { kind: 'public', bucket: GREYSCALE_ID };
   if (normalized.startsWith('color/')) return { kind: 'public', bucket: FULL_SPECTRUM_ID };
   if (normalized.startsWith('redscale/')) return { kind: 'public', bucket: REDSCALE_ID };
   if (normalized.startsWith('people/')) return { kind: 'public', bucket: PEOPLE_ID };
+
+  if (DIGITS_ONLY_FILENAME.test(baseName)) {
+    return { kind: 'hidden', reason: 'numeric_only_filename' };
+  }
   return { kind: 'hidden', reason: 'unsupported_path' };
 }
 

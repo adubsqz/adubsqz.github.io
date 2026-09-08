@@ -128,7 +128,7 @@ export default function ContactModal({ onClose, initialSubject = '', initialMess
             <Button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-full normal-case tracking-normal"
+              className="flex-1 rounded-md normal-case tracking-normal"
               variant="ghost"
               disabled={isSubmitting}
             >
@@ -136,7 +136,7 @@ export default function ContactModal({ onClose, initialSubject = '', initialMess
             </Button>
             <Button
               type="submit"
-              className="flex-1 rounded-full normal-case tracking-normal"
+              className="flex-1 rounded-md normal-case tracking-normal"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Sending...' : 'Send'}
