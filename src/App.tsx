@@ -20,13 +20,13 @@ export default function App() {
   const [showContact, setShowContact] = useState(false);
 
   return (
-    <div className="relative min-h-[100dvh] font-sans text-photo-fg antialiased selection:bg-mcm-rust/20">
+    <div className="relative min-h-[100dvh] font-sans text-photo-fg antialiased selection:bg-mcm-brick/20">
       <div className="cinematic-grid" aria-hidden />
       <div className="relative z-[1] min-h-[100dvh]">
-        <header className="sticky top-0 z-20 bg-gradient-to-b from-mcm-cream from-65% to-mcm-cream/0 pt-[max(0.6rem,env(safe-area-inset-top))] sm:static sm:bg-none sm:pt-0">
-          <div className="mx-auto flex max-w-7xl items-baseline justify-between gap-4 px-4 pb-2 sm:items-end sm:px-8 sm:pb-0 sm:pt-10 lg:px-10">
+        <header className="sticky top-0 z-20 border-b border-mcm-line/50 bg-gradient-to-b from-mcm-cream from-70% to-mcm-cream/0 pt-[max(0.6rem,env(safe-area-inset-top))] sm:static sm:border-0 sm:bg-none sm:pt-0">
+          <div className="mx-auto flex max-w-7xl items-baseline justify-between gap-4 px-4 pb-3 sm:items-end sm:px-8 sm:pb-0 sm:pt-10 lg:px-10">
             <div>
-              <h1 className="font-display text-[1.9rem] font-normal leading-none tracking-tight text-photo-fg sm:text-5xl">
+              <h1 className="font-display text-[1.9rem] font-normal leading-none tracking-normal text-photo-fg sm:text-5xl">
                 adubsqz
               </h1>
               <p className="mt-2 hidden max-w-[16rem] text-[1.05rem] leading-snug text-photo-muted sm:block">
@@ -47,7 +47,7 @@ export default function App() {
                     onClick={() => setView(tab.id)}
                     className={`min-h-11 text-[1.05rem] leading-none transition-colors sm:text-lg ${
                       active
-                        ? 'text-photo-fg underline decoration-mcm-rust decoration-2 underline-offset-[7px]'
+                        ? 'text-photo-fg underline decoration-mcm-brick decoration-2 underline-offset-[7px]'
                         : 'text-photo-muted hover:text-photo-fg'
                     }`}
                   >

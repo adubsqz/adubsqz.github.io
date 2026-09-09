@@ -96,7 +96,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
             <DialogTitle className="font-display mb-1">
               Request Invoice
             </DialogTitle>
-            <DialogDescription className="text-xs uppercase tracking-wider">
+            <DialogDescription className="text-sm tracking-wide">
               Print-on-Demand Inquiry
             </DialogDescription>
           </DialogHeader>
@@ -124,7 +124,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                   className="max-h-40 w-full object-contain sm:max-h-52 lg:max-h-60"
                 />
                 <div className="border-b border-photo-border pb-3">
-                  <p className="text-xs uppercase tracking-wider text-photo-muted mb-1">Selected print</p>
+                  <p className="text-sm tracking-wide text-photo-muted mb-1">Selected print</p>
                   <p className="text-sm text-photo-fg italic leading-snug">{photo.alt}</p>
                 </div>
                 <div className="hidden lg:flex lg:flex-col lg:gap-4">
@@ -147,7 +147,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label htmlFor="inquiry-name" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+              <label htmlFor="inquiry-name" className="block text-sm tracking-wide text-photo-muted mb-2">
                 Full Name <span className="text-photo-muted">*</span>
               </label>
               <Input
@@ -163,7 +163,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
             </div>
 
             <div>
-              <label htmlFor="inquiry-email" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+              <label htmlFor="inquiry-email" className="block text-sm tracking-wide text-photo-muted mb-2">
                 Email <span className="text-photo-muted">*</span>
               </label>
               <Input
@@ -180,7 +180,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
           </div>
 
           <div>
-            <label htmlFor="inquiry-company" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+            <label htmlFor="inquiry-company" className="block text-sm tracking-wide text-photo-muted mb-2">
               Company / Organization
             </label>
             <Input
@@ -195,7 +195,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
           </div>
 
           <div>
-            <label htmlFor="inquiry-address" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+            <label htmlFor="inquiry-address" className="block text-sm tracking-wide text-photo-muted mb-2">
               Shipping Address <span className="text-photo-muted">*</span>
             </label>
             <Textarea
@@ -211,7 +211,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
           </div>
 
           <div>
-            <label htmlFor="inquiry-size" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+            <label htmlFor="inquiry-size" className="block text-sm tracking-wide text-photo-muted mb-2">
               Print Size <span className="text-photo-muted">*</span>
             </label>
             <Select
@@ -233,7 +233,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label htmlFor="inquiry-medium" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+              <label htmlFor="inquiry-medium" className="block text-sm tracking-wide text-photo-muted mb-2">
                 Print Medium
               </label>
               <Select
@@ -250,7 +250,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               </Select>
             </div>
             <div>
-              <label htmlFor="inquiry-finish" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+              <label htmlFor="inquiry-finish" className="block text-sm tracking-wide text-photo-muted mb-2">
                 Finish
               </label>
               <Select
@@ -269,7 +269,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
 
           {printSize === 'custom' && (
             <div>
-              <label htmlFor="inquiry-custom-size" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+              <label htmlFor="inquiry-custom-size" className="block text-sm tracking-wide text-photo-muted mb-2">
                 Custom Dimensions <span className="text-photo-muted">*</span>
               </label>
               <Input
@@ -286,7 +286,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
           )}
 
           <div>
-            <label htmlFor="inquiry-notes" className="block text-xs uppercase tracking-wider text-photo-muted mb-2">
+            <label htmlFor="inquiry-notes" className="block text-sm tracking-wide text-photo-muted mb-2">
               Additional Notes
             </label>
             <Textarea

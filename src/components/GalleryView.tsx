@@ -111,7 +111,7 @@ function PhotoCard({
       onPointerLeave={onPointerLeave}
       onPointerCancel={onPointerLeave}
       aria-label={`Open photo: ${photo.alt}`}
-      className={`group flex w-full justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-mcm-rust focus-visible:ring-offset-2 focus-visible:ring-offset-photo-bg ${className}`}
+      className={`group flex w-full justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-mcm-brick focus-visible:ring-offset-2 focus-visible:ring-offset-photo-bg ${className}`}
       style={{ perspective: '880px' }}
     >
       <div
@@ -199,7 +199,7 @@ function Lightbox({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-20 flex h-12 w-12 items-center justify-center text-3xl leading-none text-photo-fg sm:right-6 sm:top-6 sm:h-11 sm:w-11 sm:rounded-md sm:bg-photo-panel/90"
+          className="absolute right-3 top-3 z-20 flex h-12 w-12 items-center justify-center text-3xl leading-none text-photo-fg sm:right-6 sm:top-6 sm:h-11 sm:w-11 sm:rounded-xl sm:bg-photo-panel/90"
           aria-label="Close"
         >
           ×
@@ -207,7 +207,7 @@ function Lightbox({
         <button
           type="button"
           onClick={onPrevious}
-          className="absolute left-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md bg-photo-panel/90 text-xl text-photo-fg sm:flex"
+          className="absolute left-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl bg-photo-panel/90 text-xl text-photo-fg sm:flex"
           aria-label="View previous photo"
         >
           ‹
@@ -215,7 +215,7 @@ function Lightbox({
         <button
           type="button"
           onClick={onNext}
-          className="absolute right-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md bg-photo-panel/90 text-xl text-photo-fg sm:flex"
+          className="absolute right-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl bg-photo-panel/90 text-xl text-photo-fg sm:flex"
           aria-label="View next photo"
         >
           ›
@@ -246,12 +246,12 @@ function Lightbox({
         </div>
 
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-mcm-cream via-mcm-cream/95 to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-10">
-          <div className="pointer-events-auto mx-auto flex max-w-md items-center gap-2">
+          <div className="pointer-events-auto mx-auto flex max-w-lg items-center gap-2">
             <Button
               type="button"
               onClick={onPrevious}
               variant="ghost"
-              className="h-12 w-12 shrink-0 rounded-md px-0 text-2xl normal-case tracking-normal sm:hidden"
+              className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
               aria-label="View previous photo"
             >
               ‹
@@ -260,7 +260,7 @@ function Lightbox({
               type="button"
               onClick={onContact}
               variant="lightboxPrimary"
-              className="h-12 flex-1 rounded-md text-lg font-medium normal-case tracking-normal"
+              className="h-12 flex-1 rounded-xl text-lg font-medium"
             >
               Contact me
             </Button>
@@ -268,7 +268,7 @@ function Lightbox({
               type="button"
               onClick={onNext}
               variant="ghost"
-              className="h-12 w-12 shrink-0 rounded-md px-0 text-2xl normal-case tracking-normal sm:hidden"
+              className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
               aria-label="View next photo"
             >
               ›

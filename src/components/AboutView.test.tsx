@@ -13,6 +13,7 @@ describe('AboutView', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Need prints, a license, or a site/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /let's talk/i }).className).toMatch(/mcm-brick/);
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     expect(screen.getByText(/copyright © 2026 Alexander Ames/i)).toBeInTheDocument();
     expect(screen.queryByAltText(/portrait/i)).not.toBeInTheDocument();

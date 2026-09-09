@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Outfit', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', 'ui-rounded', 'system-ui', 'sans-serif'],
         display: ['Newsreader', 'Georgia', 'serif'],
         mono: [
           'IBM Plex Mono',
@@ -25,13 +25,14 @@ export default {
         'photo-fg': '#1a1714',
         'photo-muted': '#5c564e',
         'photo-border': '#d4c8b4',
-        'photo-accent': '#c56a3a',
+        'photo-accent': '#a63c32',
         'photo-accent-soft': '#8eb9ce',
         mcm: {
           ink: '#1a1714',
           paper: '#f4eee4',
           cream: '#f7f1e6',
           rust: '#c56a3a',
+          brick: '#a63c32',
           sage: '#8eb9ce',
           sky: '#8eb9ce',
           line: '#cbbfa8',

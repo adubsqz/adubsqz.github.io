@@ -9,7 +9,7 @@ export function FilmTvClearanceBlock({ className = '' }: { className?: string })
     <div
       className={`rounded-2xl border border-photo-accent/35 bg-photo-accent/10 p-4 sm:p-5 space-y-2 ${className}`}
     >
-      <p className="text-[0.66rem] uppercase tracking-[0.2em] text-photo-accent">
+      <p className="text-[0.72rem] font-medium tracking-wide text-photo-accent">
         Film + TV Clearance Guarantee
       </p>
       <p className="text-sm sm:text-base text-photo-fg leading-relaxed">
@@ -30,7 +30,7 @@ export function RightsReservedBlock({
   if (plain) {
     return (
       <div className={`space-y-1.5 ${className}`}>
-        <p className="text-[0.62rem] uppercase tracking-[0.18em] text-photo-muted/70">
+        <p className="text-[0.7rem] font-medium tracking-wide text-photo-muted/70">
           Rights reserved
         </p>
         <p className="max-w-3xl text-[0.65rem] leading-relaxed text-photo-muted/60">
@@ -44,7 +44,7 @@ export function RightsReservedBlock({
 
   return (
     <Card className={`p-4 space-y-2 ${className}`}>
-      <p className="text-[0.66rem] uppercase tracking-[0.18em] text-photo-muted">
+      <p className="text-[0.72rem] font-medium tracking-wide text-photo-muted">
         Rights Reserved
       </p>
       <p className="text-xs sm:text-sm text-photo-fg/90 leading-relaxed">
@@ -73,14 +73,14 @@ export function TearsheetAndFulfillmentGrid({
   return (
     <div className={`grid gap-4 md:grid-cols-2 ${className}`}>
       <Card className={card}>
-        <p className="text-[0.66rem] uppercase tracking-[0.18em] text-photo-muted">Trade Portal + Tearsheet</p>
+        <p className="text-[0.72rem] font-medium tracking-wide text-photo-muted">Trade Portal + Tearsheet</p>
         <p className="text-xs sm:text-sm text-photo-fg/90 leading-relaxed">
           Printable 8.5×11 lookbook pages with image SKU and title under each frame—available on request; say you’re
           interested in the tearsheet when you reach out.
         </p>
       </Card>
       <Card className={card}>
-        <p className="text-[0.66rem] uppercase tracking-[0.18em] text-photo-muted">Fulfillment + licensing</p>
+        <p className="text-[0.72rem] font-medium tracking-wide text-photo-muted">Fulfillment + licensing</p>
         <p className="text-xs sm:text-sm text-photo-fg/90 leading-relaxed">
           Digital licensing: typically within 24 hours of cleared contract. Framed print production: 3-5 business
           days. Ready-to-hang NYC/NJ delivery: 5-7 business days.

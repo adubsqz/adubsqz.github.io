@@ -25,6 +25,10 @@ describe('ui primitives', () => {
     );
     expect(screen.getByRole('button', { name: 'Default' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Default' }).className).toMatch(/mcm-brick/);
+    expect(screen.getByRole('button', { name: 'Primary' }).className).toMatch(/mcm-brick/);
+    expect(screen.getByRole('button', { name: 'Submit' }).className).toMatch(/mcm-brick/);
+    expect(screen.getByRole('button', { name: 'Default' }).className).not.toMatch(/uppercase/);
   });
 
   it('renders form controls and card shells', () => {

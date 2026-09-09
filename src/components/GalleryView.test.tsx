@@ -89,6 +89,7 @@ describe('GalleryView', () => {
     const lightbox = screen.getByRole('dialog', { name: /image lightbox/i });
     expect(lightbox).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /contact me/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /contact me/i }).className).toMatch(/mcm-brick/);
     expect(screen.queryByRole('button', { name: /request invoice/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /inquire about tearsheet/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/licensing & fulfillment/i)).not.toBeInTheDocument();

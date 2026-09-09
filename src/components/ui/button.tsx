@@ -3,18 +3,18 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-photo-accent focus-visible:ring-offset-2 focus-visible:ring-offset-photo-bg disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium normal-case tracking-normal transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mcm-brick focus-visible:ring-offset-2 focus-visible:ring-offset-photo-bg disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-mcm-rust text-mcm-cream hover:bg-mcm-rust/90',
+        default: 'bg-mcm-brick text-mcm-cream hover:bg-mcm-brick/90',
         outline: 'border border-photo-border bg-photo-panel text-photo-fg hover:border-mcm-sky hover:text-mcm-sky',
-        ghost: 'text-photo-muted hover:text-mcm-rust',
+        ghost: 'text-photo-muted hover:text-mcm-brick',
         lightbox: 'border border-photo-border bg-photo-panel text-photo-fg hover:border-mcm-sky hover:text-mcm-sky',
         lightboxPrimary:
-          'border border-mcm-rust/80 bg-mcm-rust text-mcm-cream shadow-[0_8px_24px_rgba(197,106,58,0.28)] hover:bg-mcm-rust/90',
+          'border border-mcm-brick/80 bg-mcm-brick text-mcm-cream shadow-[0_8px_24px_rgba(166,60,50,0.28)] hover:bg-mcm-brick/90',
         inquirySubmit:
-          'border border-mcm-rust/80 bg-mcm-rust text-mcm-cream hover:bg-mcm-rust/90 focus-visible:ring-mcm-sky/60',
+          'border border-mcm-brick/80 bg-mcm-brick text-mcm-cream hover:bg-mcm-brick/90 focus-visible:ring-mcm-sky/60',
       },
       size: {
         default: 'h-10 px-4 py-2',

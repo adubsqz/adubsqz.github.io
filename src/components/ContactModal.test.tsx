@@ -34,6 +34,7 @@ describe('ContactModal', () => {
     expect(screen.getByLabelText(/subject/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /send/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send/i }).className).toMatch(/mcm-brick/);
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
   });
 

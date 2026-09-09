@@ -14,14 +14,14 @@ export default function AboutView({ onContactClick }: AboutViewProps) {
       </p>
       <p className="text-base leading-relaxed text-photo-muted sm:text-lg">{ABOUT.portfolioPitch}</p>
 
-      <div className="flex flex-col gap-4 border-t border-photo-fg/15 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+      <div className="flex flex-col gap-4 border-t border-mcm-line/80 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
         <p className="max-w-md text-base leading-snug text-photo-fg/85">
           Need prints, a license, or a site? One message. No funnel.
         </p>
         <Button
           type="button"
           onClick={onContactClick}
-          className="h-12 shrink-0 rounded-md px-7 text-base font-medium normal-case tracking-normal shadow-none"
+          className="h-12 shrink-0 rounded-xl px-7 text-base font-medium shadow-none"
         >
           Let&apos;s talk
         </Button>
