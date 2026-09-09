@@ -1,6 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+vi.mock('../data', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../data')>();
+  return {
+    ...actual,
+    COLLECTIONS: [
+      { ...actual.COLLECTIONS[0], photos: actual.COLLECTIONS[0]?.photos.slice(0, 1) ?? [] },
+      { ...actual.COLLECTIONS[1], photos: [] },
+    ],
+  };
+});
+
 import App from '../App';
 import { ABOUT } from '../data';
 import { FORMSUBMIT_FORM_ID } from '../inquireStatic';

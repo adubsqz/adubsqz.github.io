@@ -15,4 +15,20 @@ describe('WatermarkedImage', () => {
     fireEvent.click(shield!);
     expect(onClick).toHaveBeenCalled();
   });
+
+  it('reserves width and height so the browser can lazy-load offscreen stills', () => {
+    render(
+      <WatermarkedImage
+        src="/photos/still-life/people/camcorder-night.jpg"
+        alt="Camcorder"
+        width={1024}
+        height={680}
+        loading="lazy"
+      />,
+    );
+    const img = screen.getByAltText('Camcorder');
+    expect(img).toHaveAttribute('width', '1024');
+    expect(img).toHaveAttribute('height', '680');
+    expect(img).toHaveAttribute('loading', 'lazy');
+  });
 });

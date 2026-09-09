@@ -1,15 +1,19 @@
-import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { COLLECTIONS } from '../data';
 import { contactPrefillForPhoto } from '../inquireStatic';
 import type { Photo, PhotoCollection } from '../types';
 import type { GalleryFilter } from '../types';
 import {
-  paginateByOrientation,
-  reelLayoutFor,
-  type PhotoOrientation,
-  type ReelLayout,
-} from '../gallery-reel';
+  GALLERY_FIRST_PAINT_STILLS,
+  GALLERY_LIGHTBOX_PAD_CLASS,
+  GALLERY_LOOKBOOK_CLASS,
+  GALLERY_STILL_ITEM_CLASS,
+  GALLERY_STILL_OFFSCREEN_CLASS,
+  GALLERY_STILL_STACK_CLASS,
+  imageClassForStill,
+  intrinsicSizeForStill,
+} from '../gallery-layout';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -29,27 +33,11 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-function imageClassForReelLayout(layout: ReelLayout): string {
-  switch (layout) {
-    case 'hero':
-      return 'gallery-image block h-auto max-h-[min(82dvh,1120px)] w-full max-w-full object-contain sm:w-auto sm:max-w-[min(1240px,99vw)]';
-    case 'horizontal-duo':
-      return 'gallery-image block h-auto max-h-[min(74dvh,980px)] w-full max-w-full object-contain sm:w-auto';
-    case 'horizontal-trio':
-      return 'gallery-image block h-auto max-h-[min(64dvh,860px)] w-full max-w-full object-contain sm:w-auto';
-    case 'vertical-solo':
-      return 'gallery-image block h-auto max-h-[min(82dvh,960px)] w-full max-w-full object-contain sm:w-auto';
-    default:
-      return 'gallery-image block h-auto max-h-[min(72dvh,840px)] w-full max-w-full object-contain sm:w-auto';
-  }
-}
-
 function PhotoCard({
   photo,
   onClick,
   fetchPriority,
   loading,
-  reelLayout,
   className = '',
 }: {
   photo: Photo;
@@ -57,7 +45,6 @@ function PhotoCard({
   fetchPriority?: 'high' | 'low' | 'auto';
   /** First screenful uses eager loads so lazy+layout containment cannot starve fetches (incl. Strict Mode remounts). */
   loading?: 'lazy' | 'eager';
-  reelLayout: ReelLayout;
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);
@@ -129,7 +116,9 @@ function PhotoCard({
           src={photo.src}
           alt={photo.alt}
           wrapperClassName="relative inline-block w-full max-w-full sm:w-fit"
-          className={imageClassForReelLayout(reelLayout)}
+          className={imageClassForStill(photo.orientation)}
+          width={intrinsicSizeForStill(photo.orientation).width}
+          height={intrinsicSizeForStill(photo.orientation).height}
           loading={loading ?? 'lazy'}
           decoding="async"
           fetchPriority={fetchPriority}
@@ -221,8 +210,8 @@ function Lightbox({
           ›
         </button>
 
-        <div className="mx-auto flex min-h-[100dvh] w-full max-w-[min(1200px,100vw)] flex-col justify-center px-0 pb-28 pt-4 sm:px-8 sm:pb-28 sm:pt-12">
-          <figure className="flex w-full shrink-0 justify-center px-0">
+        <div className={`mx-auto flex min-h-[100dvh] w-full max-w-[min(1200px,100vw)] flex-col justify-center ${GALLERY_LIGHTBOX_PAD_CLASS} pb-28 pt-4 sm:pb-28 sm:pt-12`}>
+          <figure className="flex w-full shrink-0 justify-center">
             <div className="lightbox-frame lightbox-frame--hero w-auto max-w-full sm:max-w-[min(1100px,calc(100vw-4rem))]">
               <WatermarkedImage
                 src={photo.src}
@@ -281,46 +270,57 @@ function Lightbox({
   );
 }
 
-function reelGridClass(layout: ReelLayout): string {
-  switch (layout) {
-    case 'hero':
-      return 'grid grid-cols-1 place-items-center w-full';
-    case 'horizontal-duo':
-      return 'grid grid-cols-1 md:grid-cols-2 w-full gap-2 sm:gap-4';
-    case 'horizontal-trio':
-      return 'grid grid-cols-1 md:grid-cols-3 w-full gap-1.5 sm:gap-2.5';
-    case 'vertical-solo':
-      return 'grid grid-cols-1 place-items-center max-w-xl mx-auto w-full';
-    case 'vertical-duo':
-      return 'grid grid-cols-1 sm:grid-cols-2 max-w-6xl mx-auto w-full gap-3 sm:gap-6';
-  }
-}
-
-function ReelFrame({
-  photos,
-  orientation,
+function LookbookStill({
+  photo,
+  index,
   onPhotoClick,
 }: {
-  photos: Photo[];
-  orientation: PhotoOrientation;
+  photo: Photo;
+  index: number;
   onPhotoClick: (photo: Photo) => void;
 }) {
-  const layout = reelLayoutFor(photos.length, orientation);
-  const gridClass = reelGridClass(layout);
+  const itemRef = useRef<HTMLLIElement>(null);
+  const [active, setActive] = useState(index < GALLERY_FIRST_PAINT_STILLS);
+  const size = intrinsicSizeForStill(photo.orientation);
+
+  useEffect(() => {
+    if (active) return;
+    const node = itemRef.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setActive(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setActive(true);
+          io.disconnect();
+        }
+      },
+      { root: null, rootMargin: '80px 0px', threshold: 0.01 },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [active]);
 
   return (
-    <div className={gridClass}>
-      {photos.map((photo, i) => (
+    <li
+      ref={itemRef}
+      className={`${GALLERY_STILL_ITEM_CLASS}${index === 0 ? '' : ` ${GALLERY_STILL_OFFSCREEN_CLASS}`}`}
+      style={active ? undefined : { aspectRatio: `${size.width} / ${size.height}` }}
+    >
+      {active ? (
         <PhotoCard
-          key={photo.id}
           photo={photo}
-          reelLayout={layout}
           onClick={() => onPhotoClick(photo)}
-          fetchPriority={i === 0 ? 'high' : 'auto'}
-          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchPriority={index === 0 ? 'high' : 'auto'}
+          loading={index === 0 ? 'eager' : 'lazy'}
         />
-      ))}
-    </div>
+      ) : (
+        <div className="w-full bg-mcm-paper/20" aria-hidden />
+      )}
+    </li>
   );
 }
 
@@ -331,74 +331,32 @@ function CollectionSection({
   collection: PhotoCollection;
   onPhotoClick: (photo: Photo) => void;
 }) {
-  const [page, setPage] = useState(1);
   const photos = collection.photos;
-
-  const pages = useMemo(() => paginateByOrientation(photos), [photos]);
-  const totalPages = Math.max(1, pages.length);
-  const currentPage = pages[page - 1];
-  const pageSlice = currentPage?.photos ?? [];
-
-  useEffect(() => {
-    setPage(1);
-  }, [collection.id]);
 
   useEffect(() => {
     const head = document.head;
-    const lcpPhoto = pageSlice[0];
+    const lcpPhoto = photos[0];
     if (!lcpPhoto) return;
-    const links: HTMLLinkElement[] = [];
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
     link.href = lcpPhoto.src;
     link.setAttribute('fetchpriority', 'high');
     head.appendChild(link);
-    links.push(link);
     return () => {
-      links.forEach((l) => l.remove());
+      link.remove();
     };
-  }, [pageSlice]);
+  }, [photos]);
 
   if (photos.length === 0) return null;
 
   return (
-    <section aria-label={`Gallery reel for ${collection.title}`}>
-      <div
-        key={`${collection.id}-reel-${page}`}
-        className="relative isolate motion-safe:animate-slide-reveal"
-      >
-        <ReelFrame
-          photos={pageSlice}
-          orientation={currentPage?.orientation ?? 'horizontal'}
-          onPhotoClick={onPhotoClick}
-        />
-      </div>
-      {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-5">
-          <button
-            type="button"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="flex h-12 w-12 items-center justify-center text-2xl text-photo-muted transition-colors hover:text-photo-fg disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label="Previous page"
-          >
-            ‹
-          </button>
-          <p className="min-w-[4.5rem] text-center text-base tabular-nums text-photo-fg">
-            {page} of {totalPages}
-          </p>
-          <button
-            type="button"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="flex h-12 w-12 items-center justify-center text-2xl text-photo-muted transition-colors hover:text-photo-fg disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label="Next page"
-          >
-            ›
-          </button>
-        </div>
-      )}
+    <section className={GALLERY_LOOKBOOK_CLASS} aria-label={`Gallery reel for ${collection.title}`}>
+      <ul className={GALLERY_STILL_STACK_CLASS}>
+        {photos.map((photo, i) => (
+          <LookbookStill key={photo.id} photo={photo} index={i} onPhotoClick={onPhotoClick} />
+        ))}
+      </ul>
     </section>
   );
 }

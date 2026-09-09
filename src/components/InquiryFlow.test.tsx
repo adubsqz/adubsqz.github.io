@@ -43,7 +43,9 @@ describe('Lightbox contact flow (functional)', () => {
     vi.restoreAllMocks();
   });
 
-  it('opens Contact Me from a lightbox and submits via mailto:adubsqz@gmail.com', async () => {
+  it(
+    'opens Contact Me from a lightbox and submits via mailto:adubsqz@gmail.com',
+    async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);
     const prefill = contactPrefillForPhoto(fixturePhoto);

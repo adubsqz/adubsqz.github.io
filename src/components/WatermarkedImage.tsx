@@ -12,6 +12,8 @@ interface WatermarkedImageProps {
   fetchPriority?: 'high' | 'low' | 'auto';
   /** Responsive decode hint for gallery JPEGs (publish max ~2400px). */
   sizes?: string;
+  width?: number;
+  height?: number;
   onError?: () => void;
   onClick?: () => void;
   watermarkText?: string;
@@ -32,6 +34,8 @@ export default function WatermarkedImage({
   decoding = 'async',
   fetchPriority,
   sizes = '(max-width: 768px) 96vw, (max-width: 1280px) 80vw, 1240px',
+  width,
+  height,
   onError,
   onClick,
   watermarkText = 'adubsqz',
@@ -65,6 +69,8 @@ export default function WatermarkedImage({
         decoding={decoding}
         fetchPriority={fetchPriority}
         sizes={sizes}
+        width={width}
+        height={height}
         onError={onError}
         onLoad={handleImageLoad}
         style={{

@@ -10,7 +10,10 @@ test.describe('site', () => {
     await page.getByRole('button', { name: /full spectrum/i }).click();
     await page.getByRole('button', { name: /redscale/i }).click();
     await page.getByRole('button', { name: /^people$/i }).click();
-    await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
+    await expect(page.locator('.gallery-still')).toHaveCount(14);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(14, { timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
     await page.getByRole('button', { name: /greyscale/i }).click();
 
     const thumb = page.getByRole('button', { name: /open photo/i }).first();

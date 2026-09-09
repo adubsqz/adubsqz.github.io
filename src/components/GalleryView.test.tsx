@@ -5,6 +5,12 @@ import GalleryView from './GalleryView';
 import { COLLECTIONS } from '../data';
 import { HORIZONTAL_REEL_SIZE, VERTICAL_REEL_SIZE } from '../gallery-constants';
 import { paginateByOrientation } from '../gallery-reel';
+import {
+  GALLERY_LOOKBOOK_CLASS,
+  GALLERY_STILL_GAP_CLASS,
+  GALLERY_STILL_INSET_CLASS,
+  GALLERY_STILL_ITEM_CLASS,
+} from '../gallery-layout';
 
 const DEFAULT_FILTER = COLLECTIONS[0]?.id ?? 'greyscale';
 
@@ -20,36 +26,70 @@ describe('GalleryView', () => {
     expect(screen.getByText(/no photos found in this category/i)).toBeInTheDocument();
   });
 
-  it('renders thumbnail images only when photos exist', () => {
+  it('scrolls the full collection instead of paging', () => {
     render(<GalleryView filter={DEFAULT_FILTER} />);
     const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER)!;
     const imgs = screen.queryAllByRole('img').filter((el) => el.getAttribute('alt')?.startsWith('Photograph'));
-    const firstPage = paginateByOrientation(collection.photos)[0];
     if (collection.photos.length === 0) {
       expect(imgs.length).toBe(0);
-    } else if (firstPage) {
-      expect(imgs.length).toBe(firstPage.photos.length);
+      return;
     }
+    expect(imgs.length).toBe(collection.photos.length);
+    expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /previous page/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/\d+ of \d+/)).not.toBeInTheDocument();
   });
 
-  it('shows pagination when collection spans multiple orientation pages', () => {
-    render(<GalleryView filter={DEFAULT_FILTER} />);
-    const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER);
-    const pages = paginateByOrientation(collection?.photos ?? []);
-    if (pages.length > 1) {
-      expect(screen.getByText(/\d+ of \d+/)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /previous page/i })).toBeInTheDocument();
-    }
+  it('wraps the lookbook in even inset and stacks stills with matching gap', () => {
+    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
+    const lookbook = container.querySelector('.gallery-lookbook');
+    expect(lookbook).toBeTruthy();
+    expect(lookbook?.className).toContain(GALLERY_STILL_INSET_CLASS.split(' ')[0]);
+    expect(lookbook?.className.split(' ')).toEqual(expect.arrayContaining(['p-6', 'sm:p-10']));
+    GALLERY_LOOKBOOK_CLASS.split(' ').forEach((cls) => {
+      expect(lookbook?.className.split(' ')).toContain(cls);
+    });
+    const stack = container.querySelector('.gallery-still-stack');
+    GALLERY_STILL_GAP_CLASS.split(' ').forEach((cls) => {
+      expect(stack?.className.split(' ')).toContain(cls);
+    });
+    const stills = container.querySelectorAll('.gallery-still');
+    expect(stills.length).toBeGreaterThan(0);
+    stills.forEach((still) => {
+      GALLERY_STILL_ITEM_CLASS.split(' ').forEach((cls) => {
+        expect(still.className.split(' ')).toContain(cls);
+      });
+    });
   });
 
-  it('renders photos from the first reel page when present', () => {
+  it('scrolls every People still, with lookbook stills two and three in order', () => {
+    const people = COLLECTIONS.find((c) => c.id === 'people');
+    if (!people) return;
+    render(<GalleryView filter="people" />);
+    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(people.photos.length);
+    const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
+    expect(srcs[1]).toMatch(/sweetener-tour/);
+    expect(srcs[2]).toMatch(/camcorder-night/);
+  });
+
+  it('renders every still in the collection', () => {
     render(<GalleryView filter={DEFAULT_FILTER} />);
     const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER)!;
     if (collection.photos.length === 0) return;
-    const firstPagePhotos = paginateByOrientation(collection.photos)[0]?.photos ?? [];
-    firstPagePhotos.forEach((photo) => {
+    collection.photos.forEach((photo) => {
       expect(screen.getByAltText(photo.alt)).toBeInTheDocument();
     });
+  });
+
+  it('keeps even inset on the lightbox figure', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
+    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
+    if (!clickTarget) return;
+    await user.click(clickTarget);
+    const dialog = screen.getByRole('dialog', { name: /image lightbox/i });
+    const padded = dialog.querySelector('.mx-auto');
+    expect(padded?.className.split(' ')).toEqual(expect.arrayContaining(['p-6', 'sm:p-10']));
   });
 
   it('opens lightbox when a photo is clicked', async () => {
@@ -72,17 +112,9 @@ describe('GalleryView', () => {
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
   });
 
-  it('advances reels, keyboard-navigates the lightbox, and opens Contact Me only', async () => {
+  it('keyboard-navigates the lightbox and opens Contact Me only', async () => {
     const user = userEvent.setup();
     const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER);
-    const pages = paginateByOrientation(collection?.photos ?? []);
-    if (pages.length > 1) {
-      await user.click(screen.getByRole('button', { name: /next page/i }));
-      expect(screen.getByText(/^2 of /)).toBeInTheDocument();
-      await user.click(screen.getByRole('button', { name: /previous page/i }));
-      expect(screen.getByText(/^1 of /)).toBeInTheDocument();
-    }
     const clickTarget = container.querySelector('.absolute.inset-0.z-10');
     if (!clickTarget) return;
     await user.click(clickTarget);
@@ -122,7 +154,7 @@ describe('GalleryView', () => {
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('renders vertical reels and unknown filters', () => {
+  it('renders vertical stills and unknown filters', () => {
     const vertical = COLLECTIONS.find((c) => c.photos.some((p) => p.orientation === 'vertical'));
     if (vertical) {
       render(<GalleryView filter={vertical.id} />);
@@ -135,16 +167,25 @@ describe('GalleryView', () => {
   it('eager-loads the first still so LCP is not lazy', () => {
     const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER);
     if (!collection || collection.photos.length === 0) return;
-    render(<GalleryView filter={DEFAULT_FILTER} />);
+    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
     const first = screen.getAllByRole('img').find((el) => el.getAttribute('src')?.includes('still-life'));
     expect(first).toBeDefined();
     expect(first).toHaveAttribute('loading', 'eager');
     expect(first).toHaveAttribute('fetchpriority', 'high');
+    expect(first).toHaveAttribute('width');
+    expect(first).toHaveAttribute('height');
+    const lazy = screen.getAllByRole('img').filter((el) => el.getAttribute('loading') === 'lazy');
+    expect(lazy.length).toBe(Math.max(0, collection.photos.length - 1));
+    const stills = container.querySelectorAll('.gallery-still');
+    expect(stills[0]?.className).not.toContain('content-visibility:auto');
+    if (stills.length > 1) {
+      expect(stills[1]?.className).toContain('content-visibility:auto');
+    }
   });
 });
 
-describe('GalleryView regression: orientation pagination', () => {
-  it('never mixes orientations on a single page', () => {
+describe('GalleryView regression: orientation helpers', () => {
+  it('never mixes orientations on a single helper page', () => {
     COLLECTIONS.forEach((collection) => {
       paginateByOrientation(collection.photos).forEach((page) => {
         const orientations = new Set(page.photos.map((p) => p.orientation ?? 'horizontal'));
@@ -153,7 +194,7 @@ describe('GalleryView regression: orientation pagination', () => {
     });
   });
 
-  it('respects horizontal and vertical page caps', () => {
+  it('respects horizontal and vertical page caps in the helper', () => {
     COLLECTIONS.forEach((collection) => {
       paginateByOrientation(collection.photos).forEach((page) => {
         const cap = page.orientation === 'vertical' ? VERTICAL_REEL_SIZE : HORIZONTAL_REEL_SIZE;

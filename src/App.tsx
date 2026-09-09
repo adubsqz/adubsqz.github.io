@@ -79,11 +79,11 @@ export default function App() {
           )}
         </header>
 
-        <main className="mx-auto max-w-7xl px-0 pb-10 sm:px-8 sm:pb-16 lg:px-10">
+        <main className="mx-auto max-w-7xl px-0 pb-10 sm:pb-16">
           <div
             className={
               view === 'gallery'
-                ? 'animate-fade-up px-0 py-1 sm:py-6'
+                ? 'gallery-shell animate-fade-up px-0 py-1 sm:py-6'
                 : 'animate-fade-up px-4 py-6 sm:px-2 sm:py-8'
             }
             role="tabpanel"
@@ -107,7 +107,7 @@ export default function App() {
           </div>
 
           {view === 'gallery' && (
-            <footer className="hidden px-1 py-8 sm:block">
+            <footer className="hidden px-4 py-8 sm:block sm:px-6">
               <RightsReservedBlock plain />
             </footer>
           )}

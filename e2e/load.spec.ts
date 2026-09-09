@@ -51,6 +51,7 @@ for (const vp of VIEWPORTS) {
       const box = await photoButton.boundingBox();
       expect(box, `${vp.name} first frame should be on screen`).not.toBeNull();
       expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.72);
+      expect(box!.x, `${vp.name} first still flush left`).toBeGreaterThanOrEqual(12);
 
       await page.waitForTimeout(750);
       expect(

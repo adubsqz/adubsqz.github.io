@@ -17,6 +17,7 @@ export default mergeConfig(
         include: [
           'src/data.ts',
           'src/gallery-reel.ts',
+          'src/gallery-layout.ts',
           'src/gallery-shuffle.ts',
           'src/gallery-constants.ts',
           'src/inquireStatic.ts',

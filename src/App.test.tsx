@@ -57,7 +57,12 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /^redscale$/i }).className).toMatch(/mcm-rust/);
     await user.click(screen.getByRole('button', { name: /^people$/i }));
     expect(screen.getByRole('button', { name: /^people$/i }).className).toMatch(/mcm-rust/);
-    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(14);
+    expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
+    const lookbook = document.querySelector('.gallery-lookbook');
+    expect(lookbook).toBeTruthy();
+    expect(lookbook?.className.split(' ')).toEqual(expect.arrayContaining(['p-6', 'sm:p-10']));
+    expect(document.querySelector('.gallery-shell')?.className.split(' ')).toContain('px-0');
   });
 
   it('keeps rights copy on About only once and restores the gallery footer', async () => {

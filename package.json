@@ -15,7 +15,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts --coverage",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "node playwright-cli.mjs test",
-    "test:e2e:load": "node playwright-cli.mjs test e2e/load.spec.ts",
+    "test:e2e:load": "node playwright-cli.mjs test e2e/load.spec.ts e2e/gallery-layout.spec.ts",
     "test:e2e:ui": "node playwright-cli.mjs test --ui",
     "test:e2e:headed": "node playwright-cli.mjs test --headed",
     "playwright:install": "node playwright-cli.mjs install chromium",
