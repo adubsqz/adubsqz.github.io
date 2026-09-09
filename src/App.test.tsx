@@ -57,7 +57,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /^redscale$/i }).className).toMatch(/mcm-rust/);
     await user.click(screen.getByRole('button', { name: /^people$/i }));
     expect(screen.getByRole('button', { name: /^people$/i }).className).toMatch(/mcm-rust/);
-    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(14);
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(13);
     expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
     const lookbook = document.querySelector('.gallery-lookbook');
     expect(lookbook).toBeTruthy();

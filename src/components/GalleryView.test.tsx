@@ -69,7 +69,8 @@ describe('GalleryView', () => {
     expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(people.photos.length);
     const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
     expect(srcs[1]).toMatch(/sweetener-tour/);
-    expect(srcs[2]).toMatch(/camcorder-night/);
+    expect(srcs[2]).toMatch(/curls-night/);
+    expect(srcs.join(' ')).not.toMatch(/camcorder-night/);
   });
 
   it('renders every still in the collection', () => {

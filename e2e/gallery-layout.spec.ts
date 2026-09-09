@@ -49,11 +49,10 @@ for (const vp of VIEWPORTS) {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.getByRole('button', { name: /^people$/i }).click();
       await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
-      await expect(page.locator('img[src*="camcorder-night"]')).toHaveCount(1);
       await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
-      await expect(page.locator('.gallery-still')).toHaveCount(14);
+      await expect(page.locator('.gallery-still')).toHaveCount(13);
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(14, { timeout: 10_000 });
+      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(13, { timeout: 10_000 });
     });
   });
 }

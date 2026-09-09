@@ -69,11 +69,13 @@ describe('data', () => {
     it('keeps scan-id stills that already live in a category folder', () => {
       const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
       const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
-      expect(greyscale?.photos.length).toBe(14);
-      expect(color?.photos.length).toBe(12);
+      expect(greyscale?.photos.length).toBe(15);
+      expect(color?.photos.length).toBe(13);
       expect(greyscale?.photos.some((p) => p.src.includes('30570008-kiln'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('000331950014-quartz'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('colorfulstairs'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('camcorder-night'))).toBe(true);
+      expect(greyscale?.photos.some((p) => p.src.includes('000220500003-pier'))).toBe(true);
     });
 
     it('does not surface import-########.jpg filenames in public collections', () => {
@@ -115,7 +117,7 @@ describe('data', () => {
       const srcs = (people?.photos ?? []).map((p) => p.src);
       expect(srcs[0]).toMatch(/backyard-gold\.jpg$/);
       expect(srcs[srcs.length - 1]).toMatch(/exit-singer\.jpg$/);
-      expect(people?.photos).toHaveLength(14);
+      expect(people?.photos).toHaveLength(13);
 
       const byStem = Object.fromEntries(
         (people?.photos ?? []).map((p) => {
@@ -124,6 +126,7 @@ describe('data', () => {
         }),
       );
       expect(byStem['rooftop-laugh.jpg']).toBe('vertical');
+      expect(byStem['rooftop-look.jpg']).toBe('vertical');
       expect(byStem['drawer-sketch.jpg']).toBe('vertical');
       expect(byStem['exit-singer.jpg']).toBe('horizontal');
       expect(byStem['backyard-gold.jpg']).toBe('horizontal');

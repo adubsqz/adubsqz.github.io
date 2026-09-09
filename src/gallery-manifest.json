@@ -14,6 +14,10 @@
       "orientation": "horizontal"
     },
     {
+      "path": "bw/000220500003-pier.jpg",
+      "orientation": "horizontal"
+    },
+    {
       "path": "bw/30570008-kiln.JPG",
       "orientation": "horizontal"
     },
@@ -106,6 +110,10 @@
     {
       "path": "color/colorfulstairs.jpg",
       "orientation": "horizontal"
+    },
+    {
+      "path": "color/camcorder-night.jpg",
+      "orientation": "horizontal"
     }
   ],
   "redscale": [
@@ -125,7 +133,6 @@
   "people": [
     "people/backyard-gold.jpg",
     "people/sweetener-tour.jpg",
-    "people/camcorder-night.jpg",
     "people/curls-night.jpg",
     "people/bandana-night.jpg",
     "people/headphones-desk.jpg",
@@ -135,7 +142,11 @@
       "orientation": "vertical",
       "reel_orientation": "vertical"
     },
-    "people/rooftop-look.jpg",
+    {
+      "path": "people/rooftop-look.jpg",
+      "orientation": "vertical",
+      "reel_orientation": "vertical"
+    },
     "people/cyclone-fan.jpg",
     "people/skillman-punk.jpg",
     "people/club-punk-lean.jpg",
