@@ -25,4 +25,13 @@ describe('chrome CSS', () => {
     expect(statSync(tagline).size).toBeGreaterThan(20_000);
     expect(statSync(tagline).size).toBeLessThan(250_000);
   });
+
+  it('keeps unselected graffiti cores dark with cream tracing and pink selected fills', () => {
+    expect(css).toMatch(/\.graffiti-label \{[\s\S]*--graffiti-fill: #1a1714;/);
+    expect(css).toContain('.graffiti-label:not(.graffiti-label--on) .graffiti-label__core');
+    expect(css).toMatch(/0\.03em 0\.035em 0 #f4eee4/);
+    expect(css).not.toMatch(/\.graffiti-label:not\(\.graffiti-label--on\)[\s\S]{0,180}#fff/);
+    expect(css).not.toMatch(/\.graffiti-label__core \{[\s\S]{0,120}color: #fff/);
+    expect(css).toMatch(/\.graffiti-label--on\[data-tone='pink'\][\s\S]*--graffiti-throw: #f3b6c8/);
+  });
 });

@@ -5,7 +5,12 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
-      include: ['src/**/*.test.{ts,tsx}', 'tests/photo-budget.test.ts', 'tests/share-card.test.ts'],
+      include: [
+        'src/**/*.test.{ts,tsx}',
+        'tests/photo-budget.test.ts',
+        'tests/share-card.test.ts',
+        'tests/chrome-css.test.ts',
+      ],
       exclude: [
         'src/App.test.tsx',
         'src/components/**/*Flow.test.tsx',
