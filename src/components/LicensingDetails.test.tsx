@@ -17,11 +17,19 @@ describe('LicensingDetails', () => {
     render(<RightsReservedBlock plain />);
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     expect(screen.getByText(/scraping/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'adubsqz.github.io' })).toHaveAttribute(
+      'href',
+      'https://adubsqz.github.io',
+    );
   });
 
   it('renders the card rights block used in modals', () => {
     render(<RightsReservedBlock />);
     expect(screen.getByText(/AI\/ML training/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'adubsqz.github.io' })).toHaveAttribute(
+      'href',
+      'https://adubsqz.github.io',
+    );
   });
 
   it('renders tearsheet and fulfillment cards', () => {

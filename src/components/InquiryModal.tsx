@@ -16,7 +16,17 @@ interface InquiryModalProps {
   onClose: () => void;
 }
 
-type PrintSize = '8x10' | '11x14' | '16x20' | '20x24' | '24x30' | 'custom';
+const PRINT_SIZE_OPTIONS = [
+  { value: 'locket 1x1 in', label: 'locket — 1″ × 1″' },
+  { value: 'wallet 2.5x3.5 in', label: 'wallet — 2.5″ × 3.5″' },
+  { value: '8x10 in', label: '8″ × 10″' },
+  { value: '16x20 in', label: '16″ × 20″' },
+  { value: '40x60 in', label: '40″ × 60″' },
+  { value: 'house 8x10 ft', label: 'house — 8′ × 10′' },
+  { value: 'custom', label: 'custom' },
+] as const;
+
+type PrintSize = (typeof PRINT_SIZE_OPTIONS)[number]['value'];
 type PrintMedium = 'fine-art-paper' | 'canvas' | 'metal' | 'acrylic';
 type PrintFinish = 'matte' | 'gloss' | 'lustre';
 
@@ -25,7 +35,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
-  const [printSize, setPrintSize] = useState<PrintSize>('16x20');
+  const [printSize, setPrintSize] = useState<PrintSize>('16x20 in');
   const [customSize, setCustomSize] = useState('');
   const [printMedium, setPrintMedium] = useState<PrintMedium>('fine-art-paper');
   const [printFinish, setPrintFinish] = useState<PrintFinish>('matte');
@@ -222,12 +232,11 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               required
               disabled={isSubmitting}
             >
-              <option value="8x10">8&quot; × 10&quot;</option>
-              <option value="11x14">11&quot; × 14&quot;</option>
-              <option value="16x20">16&quot; × 20&quot;</option>
-              <option value="20x24">20&quot; × 24&quot;</option>
-              <option value="24x30">24&quot; × 30&quot;</option>
-              <option value="custom">Custom Size</option>
+              {PRINT_SIZE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </Select>
           </div>
 
@@ -278,7 +287,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 value={customSize}
                 onChange={(e) => setCustomSize(e.target.value)}
                 className="px-4 py-2.5"
-                placeholder="e.g., 30x40 inches"
+                placeholder="e.g., 30x40 inches, or a locket"
                 required={printSize === 'custom'}
                 disabled={isSubmitting}
               />

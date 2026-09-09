@@ -47,7 +47,7 @@ describe('data', () => {
       const ids = COLLECTIONS.map((c) => c.id).sort();
       expect(ids).toEqual(['full-spectrum', 'greyscale', 'people', 'redscale']);
       const people = COLLECTIONS.find((c) => c.id === 'people');
-      expect(people?.title).toBe('People');
+      expect(people?.title).toBe('portraits');
       expect((people?.photos.length ?? 0)).toBeGreaterThan(0);
     });
 
@@ -163,6 +163,9 @@ describe('data', () => {
         expect(typeof social.name).toBe('string');
         expect(typeof social.url).toBe('string');
       });
+      expect(ABOUT.socials).toEqual(
+        expect.arrayContaining([{ name: 'Instagram', url: 'https://www.instagram.com/adubsqz/' }]),
+      );
     });
   });
 

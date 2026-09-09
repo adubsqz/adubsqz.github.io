@@ -2,6 +2,7 @@
  * Shared licensing / fulfillment copy for inquiry and contact flows
  * (gallery browsing stays minimal; details appear when someone initiates purchase or outreach).
  */
+import { SITE_HOST, SITE_ORIGIN } from '../site';
 import { Card } from './ui/card';
 
 export function FilmTvClearanceBlock({ className = '' }: { className?: string }) {
@@ -36,7 +37,10 @@ export function RightsReservedBlock({
         <p className="max-w-3xl text-[0.65rem] leading-relaxed text-photo-muted/60">
           All photographs, site design, source code, written content, and metadata are copyright © 2026
           Alexander Ames. No copying, redistribution, scraping, or derivative use without prior written
-          permission.
+          permission.{' '}
+          <a href={SITE_ORIGIN} className="hover:underline">
+            {SITE_HOST}
+          </a>
         </p>
       </div>
     );
@@ -50,7 +54,10 @@ export function RightsReservedBlock({
       <p className="text-xs sm:text-sm text-photo-fg/90 leading-relaxed">
         All photographs, site design, source code, written content, and metadata are copyright © 2026 Alexander Ames.
         No copying, redistribution, scraping, dataset inclusion, AI/ML training, indexing, embedding, or derivative use
-        is permitted without prior written permission.
+        is permitted without prior written permission.{' '}
+        <a href={SITE_ORIGIN} className="hover:underline">
+          {SITE_HOST}
+        </a>
       </p>
     </Card>
   );

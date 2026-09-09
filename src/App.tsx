@@ -1,7 +1,10 @@
-import { lazy, Suspense, useState } from 'react';
-import type { PageView, GalleryFilter } from './types';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import type { GalleryFilter, PageView } from './types';
+import BrandMark from './components/BrandMark';
+import GraffitiLabel, { type GraffitiTone } from './components/GraffitiLabel';
 import GalleryView from './components/GalleryView';
 import { COLLECTIONS, DEFAULT_GALLERY_FILTER } from './data';
+import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 import { RightsReservedBlock } from './components/LicensingDetails';
 
 const AboutView = lazy(() => import('./components/AboutView'));
@@ -9,74 +12,88 @@ const ContactModal = lazy(() => import('./components/ContactModal'));
 
 const totalGalleryPhotos = COLLECTIONS.reduce((n, c) => n + c.photos.length, 0);
 
-const TABS: { id: PageView; label: string }[] = [
-  { id: 'gallery', label: 'Gallery' },
-  { id: 'about', label: 'About me' },
-];
+export function collectionTone(id: string): GraffitiTone {
+  switch (id) {
+    case 'greyscale':
+      return 'yellow';
+    case 'full-spectrum':
+      return 'blue';
+    case 'redscale':
+      return 'orange';
+    case 'people':
+      return 'purple';
+    default:
+      return 'orange';
+  }
+}
+
+function useWheelPan(ref: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onWheel = (event: WheelEvent) => {
+      if (el.scrollWidth <= el.clientWidth + 1) return;
+      event.preventDefault();
+      el.scrollLeft += event.deltaY + event.deltaX;
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
+}
+
+function CollectionReel({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  useWheelPan(ref);
+
+  return (
+    <nav ref={ref} className="collection-reel" aria-label="Collections">
+      {children}
+    </nav>
+  );
+}
 
 export default function App() {
   const [view, setView] = useState<PageView>('gallery');
-  const [galleryFilter, setGalleryFilter] = useState<GalleryFilter>(DEFAULT_GALLERY_FILTER);
+  const [filter, setFilter] = useState<GalleryFilter>(DEFAULT_GALLERY_FILTER);
   const [showContact, setShowContact] = useState(false);
 
   return (
     <div className="relative min-h-[100dvh] font-sans text-photo-fg antialiased selection:bg-mcm-brick/20">
       <div className="cinematic-grid" aria-hidden />
       <div className="relative z-[1] min-h-[100dvh]">
-        <header className="sticky top-0 z-20 border-b border-mcm-line/50 bg-gradient-to-b from-mcm-cream from-70% to-mcm-cream/0 pt-[max(0.6rem,env(safe-area-inset-top))] sm:static sm:border-0 sm:bg-none sm:pt-0">
-          <div className="mx-auto flex max-w-7xl items-baseline justify-between gap-4 px-4 pb-3 sm:items-end sm:px-8 sm:pb-0 sm:pt-10 lg:px-10">
-            <div>
-              <h1 className="font-display text-[1.9rem] font-normal leading-none tracking-normal text-photo-fg sm:text-5xl">
-                adubsqz
-              </h1>
-              <p className="mt-2 hidden max-w-[16rem] text-[1.05rem] leading-snug text-photo-muted sm:block">
-                film stills. one conversation.
-              </p>
-            </div>
-            <nav className="flex shrink-0 gap-5 sm:gap-8" role="tablist" aria-label="Main">
-              {TABS.map((tab) => {
-                const active = view === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    aria-controls={`panel-${tab.id}`}
-                    id={`tab-${tab.id}`}
-                    onClick={() => setView(tab.id)}
-                    className={`min-h-11 text-[1.05rem] leading-none transition-colors sm:text-lg ${
-                      active
-                        ? 'text-photo-fg underline decoration-mcm-brick decoration-2 underline-offset-[7px]'
-                        : 'text-photo-muted hover:text-photo-fg'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
+        <header className="sticky top-0 z-20 overflow-x-clip border-b border-mcm-line/50 bg-gradient-to-b from-mcm-cream from-70% to-mcm-cream/0 pt-[max(0.6rem,env(safe-area-inset-top))] sm:static sm:border-0 sm:bg-none sm:pt-0">
+          <div className="site-chrome mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 pb-3 sm:gap-4 sm:px-8 sm:pb-3 sm:pt-6 lg:px-10">
+            <BrandMark
+              pressed={view === 'about'}
+              onClick={() => setView((current) => (current === 'about' ? 'gallery' : 'about'))}
+            />
+            <p className="site-tagline">
+              <img src={SITE_TAGLINE_IMAGE} alt={SITE_TAGLINE} width={2400} height={314} />
+            </p>
+            {view === 'gallery' && (
+              <CollectionReel>
+                {COLLECTIONS.map((collection) => {
+                  const active = filter === collection.id;
+                  return (
+                    <h2 key={collection.id} className="graffiti-heading graffiti-heading--h2">
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setFilter(collection.id)}
+                        className="graffiti-nav min-h-11"
+                      >
+                        <GraffitiLabel
+                          text={collection.title}
+                          on={active}
+                          tone={collectionTone(collection.id)}
+                        />
+                      </button>
+                    </h2>
+                  );
+                })}
+              </CollectionReel>
+            )}
           </div>
-
-          {view === 'gallery' && (
-            <div className="mx-auto flex max-w-7xl flex-wrap gap-x-5 gap-y-1 px-4 pb-3 pt-2 sm:px-8 sm:pb-0 sm:pt-6 lg:px-10">
-              {COLLECTIONS.map((collection) => {
-                const active = galleryFilter === collection.id;
-                return (
-                  <button
-                    key={collection.id}
-                    type="button"
-                    onClick={() => setGalleryFilter(collection.id)}
-                    className={`min-h-11 text-[1.05rem] transition-colors ${
-                      active ? 'text-mcm-rust' : 'text-photo-muted hover:text-photo-fg'
-                    }`}
-                  >
-                    {collection.title}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </header>
 
         <main className="mx-auto max-w-7xl px-0 pb-10 sm:pb-16">
@@ -86,11 +103,12 @@ export default function App() {
                 ? 'gallery-shell animate-fade-up px-0 py-1 sm:py-6'
                 : 'animate-fade-up px-4 py-6 sm:px-2 sm:py-8'
             }
-            role="tabpanel"
+            role="region"
             id={`panel-${view}`}
-            aria-labelledby={`tab-${view}`}
+            aria-label={view === 'gallery' ? 'gallery' : undefined}
+            aria-labelledby={view === 'about' ? 'tab-about' : undefined}
           >
-            {view === 'gallery' && <GalleryView filter={galleryFilter} />}
+            {view === 'gallery' && <GalleryView filter={filter} />}
             {view === 'gallery' && totalGalleryPhotos === 0 && (
               <p className="mt-4 px-4 text-base text-photo-muted">
                 Gallery is empty. After you finish an import, finalized entries live in{' '}

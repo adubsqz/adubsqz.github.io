@@ -30,9 +30,71 @@ for (const vp of VIEWPORTS) {
       const started = Date.now();
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-      await expect(page.getByRole('tab', { name: /^gallery$/i })).toBeVisible();
-      await expect(page.getByRole('tab', { name: /about me/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: /greyscale|full spectrum|redscale|people/i }).first()).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'adubsqz' })).toBeVisible();
+      await expect(
+        page.getByRole('img', { name: /printable film photography as small as a locket for ur momma/i }),
+      ).toBeVisible();
+      await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: /full spectrum/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /redscale/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^portraits$/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: /about me/i })).toHaveCount(0);
+      await expect(page.locator('.brand-mark .graffiti-label__core')).toHaveCSS('color', 'rgb(243, 182, 200)');
+      await expect(page.getByRole('button', { name: /greyscale/i }).locator('.graffiti-label__core')).toHaveCSS(
+        'color',
+        'rgb(243, 225, 138)',
+      );
+      const unselectedCore = page.getByRole('button', { name: /^portraits$/i }).locator('.graffiti-label__core');
+      await expect(unselectedCore).toHaveCSS('color', 'rgb(26, 23, 20)');
+      const unselectedPaint = await unselectedCore.evaluate((el) => {
+        const style = getComputedStyle(el);
+        return { color: style.color, shadow: style.textShadow };
+      });
+      expect(unselectedPaint.color).not.toBe('rgb(255, 255, 255)');
+      expect(unselectedPaint.shadow).toMatch(/244,\s*238,\s*228/);
+      const unselectedThrow = await page
+        .getByRole('button', { name: /^portraits$/i })
+        .locator('.graffiti-label__throw')
+        .evaluate((el) => {
+          const style = getComputedStyle(el);
+          return { color: style.color, fill: style.webkitTextFillColor };
+        });
+      expect(unselectedThrow.color).toBe('rgba(0, 0, 0, 0)');
+      expect(unselectedThrow.fill === 'rgba(0, 0, 0, 0)' || unselectedThrow.fill === '').toBeTruthy();
+      const tagline = page.locator('.site-tagline img');
+      await expect(tagline).toBeVisible();
+      await expect(tagline).toHaveAttribute('src', '/tagline.jpg');
+      const taglineBox = await tagline.boundingBox();
+      expect(taglineBox, `${vp.name} tagline missing`).not.toBeNull();
+      expect(taglineBox!.height, `${vp.name} tagline taller than two padded lines`).toBeLessThan(
+        vp.name === 'mobile' ? 80 : 180,
+      );
+
+      const reel = page.locator('.collection-reel');
+      const reelLayout = await reel.evaluate((el) => {
+        const kids = [...el.querySelectorAll('h2')];
+        const style = getComputedStyle(el);
+        return {
+          wrap: style.flexWrap,
+          overflowX: style.overflowX,
+          scrollbarWidth: style.scrollbarWidth,
+          tops: kids.map((kid) => (kid as HTMLElement).offsetTop),
+        };
+      });
+      expect(reelLayout.wrap, `${vp.name} collection reel wraps`).toBe('nowrap');
+      expect(reelLayout.overflowX).toBe('auto');
+      expect(reelLayout.scrollbarWidth, `${vp.name} collection reel shows a scrollbar`).toBe('none');
+      expect(new Set(reelLayout.tops).size, `${vp.name} categories are not one line`).toBe(1);
+      if (vp.name === 'mobile') {
+        await reel.hover();
+        const before = await reel.evaluate((el) => el.scrollLeft);
+        await page.mouse.wheel(0, 240);
+        const after = await reel.evaluate((el) => el.scrollLeft);
+        const canScroll = await reel.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
+        if (canScroll) expect(after, `${vp.name} wheel did not pan categories`).toBeGreaterThan(before);
+      }
 
       const img = await firstGalleryImage(page);
       await expect(img).toBeVisible();
@@ -52,6 +114,9 @@ for (const vp of VIEWPORTS) {
       expect(box, `${vp.name} first frame should be on screen`).not.toBeNull();
       expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.72);
       expect(box!.x, `${vp.name} first still flush left`).toBeGreaterThanOrEqual(12);
+      const brand = await page.getByRole('button', { name: 'adubsqz' }).boundingBox();
+      expect(brand, `${vp.name} wordmark missing`).not.toBeNull();
+      expect(brand!.x + brand!.width, `${vp.name} wordmark overflows`).toBeLessThanOrEqual(vp.width + 8);
 
       await page.waitForTimeout(750);
       expect(
@@ -64,6 +129,10 @@ for (const vp of VIEWPORTS) {
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
+      test.info().annotations.push({
+        type: 'load',
+        description: `${vp.name} firstStill=${elapsed}ms unique=${stillUrls.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`,
+      });
     });
   });
 }

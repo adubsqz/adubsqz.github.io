@@ -38,7 +38,7 @@ describe('Contact me flow (functional)', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     await user.click(await screen.findByRole('button', { name: /let's talk/i }));
 
     expect(await screen.findByRole('dialog', { name: /contact/i })).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('Contact me flow (functional)', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     await user.click(await screen.findByRole('button', { name: /let's talk/i }));
     await user.type(screen.getByLabelText(/name/i), 'Jane');
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com');

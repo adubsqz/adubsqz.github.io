@@ -13,11 +13,19 @@ describe('AboutView', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Need prints, a license, or a site/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /let's talk/i }).className).toMatch(/mcm-brick/);
+    expect(screen.getByRole('button', { name: /let's talk/i }).querySelector('.graffiti-label--on')).toHaveAttribute(
+      'data-tone',
+      'pink',
+    );
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     expect(screen.getByText(/copyright © 2026 Alexander Ames/i)).toBeInTheDocument();
     expect(screen.queryByAltText(/portrait/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /instagram/i })).not.toBeInTheDocument();
+    const instagram = screen.getByRole('link', { name: /^instagram$/i });
+    expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
+    expect(instagram).toHaveAttribute('target', '_blank');
+    expect(screen.getAllByRole('link', { name: 'adubsqz.github.io' }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByRole('link', { name: /^github$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^linkedin$/i })).not.toBeInTheDocument();
   });
 
   it('invokes onContactClick from Let\'s talk', async () => {

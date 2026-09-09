@@ -1,13 +1,69 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App from './App';
+import App, { collectionTone } from './App';
+import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 
 describe('App', () => {
-  it('renders navigation with Gallery and About me tabs', () => {
+  it('maps unknown collection ids to orange graffiti', () => {
+    expect(collectionTone('nope')).toBe('orange');
+    expect(collectionTone('people')).toBe('purple');
+  });
+
+  it('pans the collection reel with the wheel while hovered', () => {
     render(<App />);
-    expect(screen.getByRole('tab', { name: /^gallery$/i })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /about me/i })).toBeInTheDocument();
+    const reel = screen.getByRole('navigation', { name: /collections/i });
+    Object.defineProperty(reel, 'scrollWidth', { configurable: true, value: 900 });
+    Object.defineProperty(reel, 'clientWidth', { configurable: true, value: 300 });
+    let left = 0;
+    Object.defineProperty(reel, 'scrollLeft', {
+      configurable: true,
+      get: () => left,
+      set: (value: number) => {
+        left = value;
+      },
+    });
+    reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+    expect(left).toBe(120);
+  });
+
+  it('renders a graffiti wordmark, tagline, and a single-line collection reel', () => {
+    render(<App />);
+    expect(screen.getByRole('heading', { level: 1, name: 'adubsqz' })).toHaveClass('brand-mark');
+    expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'adubsqz' }).querySelector('.graffiti-label--on')).toHaveAttribute(
+      'data-tone',
+      'pink',
+    );
+    const tagline = screen.getByRole('img', { name: SITE_TAGLINE });
+    expect(tagline).toHaveAttribute('src', SITE_TAGLINE_IMAGE);
+    expect(tagline.closest('.site-tagline')).toBeTruthy();
+    expect(screen.queryByText(/Patrick Hand/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/about me/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^gallery$/i })).not.toBeInTheDocument();
+    const reel = screen.getByRole('navigation', { name: /collections/i });
+    expect(reel).toHaveClass('collection-reel');
+    expect(screen.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /full spectrum/i }).querySelector('.graffiti-label--on')).toBeNull();
+    expect(screen.getByRole('button', { name: /redscale/i }).querySelector('.graffiti-label--on')).toBeNull();
+    expect(screen.getByRole('button', { name: /^portraits$/i }).querySelector('.graffiti-label--on')).toBeNull();
+    expect(screen.getByRole('button', { name: /^portraits$/i }).querySelector('.graffiti-label__core')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /about me/i })).not.toBeInTheDocument();
+    expect(reel.querySelectorAll('h2')).toHaveLength(4);
+  });
+
+  it('opens About from the adubsqz wordmark', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
+    expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('button', { name: /^gallery$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: /collections/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: SITE_TAGLINE })).toBeInTheDocument();
+    expect(await screen.findByText(/I am not an AI robot/i)).toBeInTheDocument();
+    expect(screen.getByText(/lightweight portfolio sites for photographers/i)).toBeInTheDocument();
+    const talk = screen.getByRole('button', { name: /let's talk/i });
+    expect(talk.querySelector('.graffiti-label--on')).toHaveAttribute('data-tone', 'pink');
   });
 
   it('shows Gallery view by default', () => {
@@ -15,33 +71,25 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /greyscale/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /full spectrum/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /redscale/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^people$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^portraits$/i })).toBeInTheDocument();
   });
 
-  it('switches to About view when About me tab is clicked', async () => {
+  it('returns to Gallery when the wordmark is clicked from About', async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
-    const aboutPanel = screen.getByRole('tabpanel');
-    expect(await within(aboutPanel).findByText(/I am not an AI robot/i)).toBeInTheDocument();
-    expect(
-      within(aboutPanel).getByText(/lightweight portfolio sites for photographers/i),
-    ).toBeInTheDocument();
-    expect(within(aboutPanel).getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
-    expect(within(aboutPanel).queryByText(/Originally from the Southwest/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
+    expect(screen.queryByRole('navigation', { name: /collections/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
+    expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('navigation', { name: /collections/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByText(/I am not an AI robot/i)).not.toBeInTheDocument();
   });
 
-  it('switches back to Gallery when Gallery tab is clicked after viewing About', async () => {
+  it('opens contact modal from About', async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
-    await user.click(screen.getByRole('tab', { name: /^gallery$/i }));
-  });
-
-  it('opens contact modal when Contact me is clicked from About page', async () => {
-    const user = userEvent.setup();
-    render(<App />);
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     await user.click(await screen.findByRole('button', { name: /let's talk/i }));
     expect(await screen.findByRole('dialog', { name: /contact/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
@@ -52,34 +100,31 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: /^full spectrum$/i }));
-    expect(screen.getByRole('button', { name: /^full spectrum$/i }).className).toMatch(/mcm-rust/);
+    expect(screen.getByRole('button', { name: /^full spectrum$/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'false');
     await user.click(screen.getByRole('button', { name: /^redscale$/i }));
-    expect(screen.getByRole('button', { name: /^redscale$/i }).className).toMatch(/mcm-rust/);
-    await user.click(screen.getByRole('button', { name: /^people$/i }));
-    expect(screen.getByRole('button', { name: /^people$/i }).className).toMatch(/mcm-rust/);
+    expect(screen.getByRole('button', { name: /^redscale$/i })).toHaveAttribute('aria-pressed', 'true');
+    await user.click(screen.getByRole('button', { name: /^portraits$/i }));
+    expect(screen.getByRole('button', { name: /^portraits$/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(13);
     expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
-    const lookbook = document.querySelector('.gallery-lookbook');
-    expect(lookbook).toBeTruthy();
-    expect(lookbook?.className.split(' ')).toEqual(expect.arrayContaining(['p-6', 'sm:p-10']));
-    expect(document.querySelector('.gallery-shell')?.className.split(' ')).toContain('px-0');
   });
 
   it('keeps rights copy on About only once and restores the gallery footer', async () => {
     const user = userEvent.setup();
     render(<App />);
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(await screen.findByText(/lightweight portfolio sites/i)).toBeInTheDocument();
     expect(screen.getAllByText(/rights reserved/i)).toHaveLength(1);
-    await user.click(screen.getByRole('tab', { name: /^gallery$/i }));
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
   });
 
   it('closes contact modal when Close is clicked', async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole('tab', { name: /about me/i }));
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     await user.click(await screen.findByRole('button', { name: /let's talk/i }));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /close/i }));

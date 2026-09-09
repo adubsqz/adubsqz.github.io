@@ -1,10 +1,13 @@
 import { ABOUT } from '../data';
-import { Button } from './ui/button';
+import { SITE_HOST, SITE_ORIGIN } from '../site';
+import GraffitiLabel from './GraffitiLabel';
 import { RightsReservedBlock } from './LicensingDetails';
 
 interface AboutViewProps {
   onContactClick?: () => void;
 }
+
+const instagram = ABOUT.socials.find((social) => social.name === 'Instagram');
 
 export default function AboutView({ onContactClick }: AboutViewProps) {
   return (
@@ -18,13 +21,29 @@ export default function AboutView({ onContactClick }: AboutViewProps) {
         <p className="max-w-md text-base leading-snug text-photo-fg/85">
           Need prints, a license, or a site? One message. No funnel.
         </p>
-        <Button
-          type="button"
-          onClick={onContactClick}
-          className="h-12 shrink-0 rounded-xl px-7 text-base font-medium shadow-none"
-        >
-          Let&apos;s talk
-        </Button>
+        <div className="flex shrink-0 flex-col gap-1 sm:items-end">
+          <h3 className="graffiti-heading graffiti-heading--h3">
+            <button type="button" onClick={onContactClick} className="graffiti-nav min-h-11">
+              <GraffitiLabel text="let's talk" on tone="pink" />
+            </button>
+          </h3>
+          {instagram ? (
+            <a
+              href={instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center text-base font-medium text-mcm-brick hover:underline"
+            >
+              Instagram
+            </a>
+          ) : null}
+          <a
+            href={SITE_ORIGIN}
+            className="inline-flex min-h-11 items-center text-sm text-photo-muted hover:text-mcm-brick hover:underline"
+          >
+            {SITE_HOST}
+          </a>
+        </div>
       </div>
 
       <RightsReservedBlock plain />

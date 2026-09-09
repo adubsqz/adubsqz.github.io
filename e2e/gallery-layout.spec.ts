@@ -45,9 +45,9 @@ for (const vp of VIEWPORTS) {
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
     });
 
-    test('People lookbook keeps stills two and three in one scroll', async ({ page }) => {
+    test('portraits lookbook keeps stills two and three in one scroll', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.getByRole('button', { name: /^people$/i }).click();
+      await page.getByRole('button', { name: /^portraits$/i }).click();
       await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
       await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
       await expect(page.locator('.gallery-still')).toHaveCount(13);

@@ -1,6 +1,7 @@
 import type { PhotoCollection } from './types';
 import type { Photo } from './types';
 import galleryManifest from './gallery-manifest.json';
+import { INSTAGRAM_URL } from './site';
 
 /**
  * Gallery layout is derived from gallery-manifest.json:
@@ -206,7 +207,7 @@ function buildPublicCollections(): PhotoCollection[] {
     },
     {
       id: PEOPLE_ID,
-      title: 'People',
+      title: 'portraits',
       photos: photosFromRows(peopleRows, PEOPLE_ID),
     },
   ];
@@ -242,7 +243,7 @@ export const ABOUT = {
     'I design and build lightweight portfolio sites for photographers, visual artists, musicians, and filmmakers—gallery layouts, audio and video embeds, contact flows, and hosting handled end to end. If you need a site for your own work, say what you have in mind and we can talk scope and budget.',
   bio: 'Originally from the Southwest, now residing in New York. By trade, a data scientist and software engineer at a biomolecular research company focused on fighting cancer. At night, the world of cinema, art, and storytelling awaits. Bobs your uncle, adubs is your nephew rolling tobacco by the dumpster to make it through a dull family reunion.',
   socials: [
-    { name: 'Instagram', url: 'https://www.instagram.com/adubsqz/' },
+    { name: 'Instagram', url: INSTAGRAM_URL },
     { name: 'GitHub', url: 'https://github.com/adubsqz/' },
     { name: 'LinkedIn', url: 'https://www.linkedin.com/in/alexanderames/' },
   ],
