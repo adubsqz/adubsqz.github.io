@@ -109,6 +109,27 @@ describe('data', () => {
       }
     });
 
+    it('pages rooftop-laugh and drawer-sketch as vertical in reversed people reel', () => {
+      const people = COLLECTIONS.find((c) => c.id === 'people');
+      expect(people).toBeDefined();
+      const srcs = (people?.photos ?? []).map((p) => p.src);
+      expect(srcs[0]).toMatch(/backyard-gold\.jpg$/);
+      expect(srcs[srcs.length - 1]).toMatch(/exit-singer\.jpg$/);
+      expect(people?.photos).toHaveLength(14);
+
+      const byStem = Object.fromEntries(
+        (people?.photos ?? []).map((p) => {
+          const name = decodeURIComponent(p.src.split('/').pop() ?? '');
+          return [name, p.orientation ?? 'horizontal'];
+        }),
+      );
+      expect(byStem['rooftop-laugh.jpg']).toBe('vertical');
+      expect(byStem['drawer-sketch.jpg']).toBe('vertical');
+      expect(byStem['exit-singer.jpg']).toBe('horizontal');
+      expect(byStem['backyard-gold.jpg']).toBe('horizontal');
+      expect(byStem['fdr-bridge-portrait.jpg']).toBe('horizontal');
+    });
+
   });
 
   describe('ABOUT', () => {

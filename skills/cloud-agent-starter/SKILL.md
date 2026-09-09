@@ -65,7 +65,7 @@ CI does not currently run Playwright e2e. For UI or navigation changes, run `npm
 - Production gallery auth is fail-closed on Vercel unless `GALLERY_PASSWORD` + `GALLERY_AUTH_SECRET` are set, or `GALLERY_PUBLIC=1` for an intentional public launch.
 - API routes (`/api/auth`, `/api/inquire`) require `npx vercel@latest dev` locally; inquiry needs Resend env vars (`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `INQUIRY_RECIPIENT_EMAIL`).
 - After manifest or `public/photos/` changes, run `npm run gallery:verify -- --parity-only` before push (now enforced in CI).
-- Gallery buckets: `bw`, `color`, `redscale`, `about` (manifest keys). Redscale is intentional Harman redscale work — use `GALLERY_IMPORT_SKIP_AUTO_PROMPT=1` so screening does not apply a cooler auto-prompt.
+- Gallery buckets: `bw`, `color`, `redscale`, `people`, `about` (manifest keys). UI titles: Greyscale / Full Spectrum / Redscale / People. Redscale is intentional Harman redscale work — use `GALLERY_IMPORT_SKIP_AUTO_PROMPT=1` so screening does not apply a cooler auto-prompt.
 
 ## Performance / Vercel scoring
 

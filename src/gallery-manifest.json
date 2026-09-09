@@ -123,19 +123,27 @@
     }
   ],
   "people": [
-    "people/exit-singer.jpg",
-    "people/drawer-sketch.jpg",
-    "people/club-punk-lean.jpg",
-    "people/skillman-punk.jpg",
-    "people/cyclone-fan.jpg",
-    "people/rooftop-look.jpg",
-    "people/rooftop-laugh.jpg",
-    "people/fdr-bridge-portrait.jpg",
-    "people/headphones-desk.jpg",
-    "people/bandana-night.jpg",
-    "people/curls-night.jpg",
-    "people/camcorder-night.jpg",
+    "people/backyard-gold.jpg",
     "people/sweetener-tour.jpg",
-    "people/backyard-gold.jpg"
+    "people/camcorder-night.jpg",
+    "people/curls-night.jpg",
+    "people/bandana-night.jpg",
+    "people/headphones-desk.jpg",
+    "people/fdr-bridge-portrait.jpg",
+    {
+      "path": "people/rooftop-laugh.jpg",
+      "orientation": "vertical",
+      "reel_orientation": "vertical"
+    },
+    "people/rooftop-look.jpg",
+    "people/cyclone-fan.jpg",
+    "people/skillman-punk.jpg",
+    "people/club-punk-lean.jpg",
+    {
+      "path": "people/drawer-sketch.jpg",
+      "orientation": "vertical",
+      "reel_orientation": "vertical"
+    },
+    "people/exit-singer.jpg"
   ]
 }
