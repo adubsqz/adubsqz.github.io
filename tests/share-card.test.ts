@@ -25,7 +25,7 @@ describe('share card', () => {
     expect(SITE_TAGLINE).toMatch(/apology/i);
     expect(SITE_SHARE_DESCRIPTION).toBe(SITE_TAGLINE);
     expect(SITE_TAGLINE_IMAGE).toBe('/tagline.jpg');
-    expect(SITE_HOST).toBe('adubsqz.github.io');
+    expect(SITE_HOST).toBe('adubs.site');
     expect(INSTAGRAM_URL).toBe('https://www.instagram.com/adubsqz/');
     expect(html).toContain(`name="description" content="${SITE_SHARE_DESCRIPTION}"`);
     expect(html).toContain(`rel="canonical" href="${SITE_ORIGIN}/"`);

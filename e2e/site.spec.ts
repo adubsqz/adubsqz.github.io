@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { SITE_HOST } from '../src/site';
 
 test.describe('site', () => {
   test('gallery filters, lightbox, and about/contact', async ({ page }) => {
@@ -69,7 +70,7 @@ test.describe('site', () => {
       'href',
       'https://www.instagram.com/adubsqz/',
     );
-    await expect(page.getByRole('link', { name: 'adubsqz.github.io' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: SITE_HOST }).first()).toBeVisible();
     await expect(page.getByAltText(/portrait/i)).toHaveCount(0);
 
     const talk = page.getByRole('button', { name: /let's talk/i });

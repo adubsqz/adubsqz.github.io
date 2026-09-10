@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AboutView from './AboutView';
+import { SITE_HOST } from '../site';
 
 describe('AboutView', () => {
   it('renders the human voice, portfolio pitch, contact CTA, and rights block', () => {
@@ -23,7 +24,7 @@ describe('AboutView', () => {
     const instagram = screen.getByRole('link', { name: /^instagram$/i });
     expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
     expect(instagram).toHaveAttribute('target', '_blank');
-    expect(screen.getAllByRole('link', { name: 'adubsqz.github.io' }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('link', { name: SITE_HOST }).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByRole('link', { name: /^github$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /^linkedin$/i })).not.toBeInTheDocument();
   });

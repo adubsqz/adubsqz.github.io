@@ -1,6 +1,6 @@
 # adubsqz — photography
 
-Live site: [adubsqz.github.io](https://adubsqz.github.io/).
+Live site: [adubs.site](https://adubs.site) (GitHub Pages).
 
 ## License and use restrictions
 

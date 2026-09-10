@@ -85,7 +85,7 @@ function manifestAssetGuardPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), manifestAssetGuardPlugin()],
-  // User site https://adubsqz.github.io/ and custom domains both serve from /
+  // User site (adubsqz.github.io / adubs.site) serves from /
   base: '/',
   build: {
     target: 'es2020',
