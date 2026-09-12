@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { SITE_HOST } from '../src/site';
-import { revealAllStills } from './reveal-stills';
+import { clickOpenPhoto, revealAllStills } from './reveal-stills';
 
 test.describe('site', () => {
   test('gallery filters, lightbox, and about/contact', async ({ page }) => {
@@ -39,8 +39,7 @@ test.describe('site', () => {
     await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(14, { timeout: 10_000 });
     await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
 
-    const thumb = page.getByRole('button', { name: /open photo/i }).first();
-    await thumb.click();
+    await clickOpenPhoto(page);
     const lightbox = page.getByRole('dialog', { name: /image lightbox/i });
     await expect(lightbox).toBeVisible();
     await page.getByRole('button', { name: /view next photo/i }).click();
@@ -48,7 +47,7 @@ test.describe('site', () => {
     await page.keyboard.press('Escape');
     await expect(lightbox).toBeHidden();
 
-    await thumb.click();
+    await clickOpenPhoto(page);
     await expect(lightbox).toBeVisible();
     await expect(lightbox.getByRole('button', { name: /contact me/i })).toBeVisible();
     await expect(lightbox.getByRole('button', { name: /request invoice/i })).toHaveCount(0);

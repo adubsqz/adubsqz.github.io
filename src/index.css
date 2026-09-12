@@ -210,6 +210,7 @@ body {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 16rem;
   min-height: 100dvh;
   background-color: #f4eee4;
 }
@@ -220,6 +221,10 @@ html {
 }
 
 /* Enhanced image protection */
+.gallery-still {
+  scroll-margin-top: 16rem;
+}
+
 .gallery-image {
   user-select: none;
   -webkit-user-select: none;

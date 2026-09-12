@@ -6,6 +6,11 @@ const css = readFileSync(join(process.cwd(), 'src/index.css'), 'utf8');
 const html = readFileSync(join(process.cwd(), 'index.html'), 'utf8');
 
 describe('chrome CSS', () => {
+  it('clears sticky collection chrome when scrolling to a still', () => {
+    expect(css).toMatch(/html \{[\s\S]*scroll-padding-top: 16rem;/);
+    expect(css).toMatch(/\.gallery-still \{[\s\S]*scroll-margin-top: 16rem;/);
+  });
+
   it('keeps collection categories on one hidden-scrollbar reel', () => {
     expect(css).toMatch(
       /\.collection-reel \{[\s\S]*flex-wrap: nowrap;[\s\S]*overflow-x: auto;[\s\S]*touch-action: pan-x;[\s\S]*scrollbar-width: none;/,

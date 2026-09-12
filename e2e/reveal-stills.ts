@@ -8,3 +8,11 @@ export async function revealAllStills(page: Page): Promise<void> {
     await stills.nth(i).scrollIntoViewIfNeeded();
   }
 }
+
+/** Open a hydrated still without Playwright scrolling it under the sticky header. */
+export async function clickOpenPhoto(page: Page) {
+  const thumb = page.getByRole('button', { name: /open photo/i }).last();
+  await thumb.evaluate((el) => {
+    (el as HTMLButtonElement).click();
+  });
+}
