@@ -45,7 +45,7 @@ describe('GalleryView', () => {
     const lookbook = container.querySelector('.gallery-lookbook');
     expect(lookbook).toBeTruthy();
     expect(lookbook?.className).toContain(GALLERY_STILL_INSET_CLASS.split(' ')[0]);
-    expect(lookbook?.className.split(' ')).toEqual(expect.arrayContaining(['p-6', 'sm:p-10']));
+    expect(lookbook?.className.split(' ')).toEqual(expect.arrayContaining(['p-10', 'sm:p-16', 'bg-white']));
     GALLERY_LOOKBOOK_CLASS.split(' ').forEach((cls) => {
       expect(lookbook?.className.split(' ')).toContain(cls);
     });

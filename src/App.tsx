@@ -7,6 +7,7 @@ import { collectionTone } from './collectionTone';
 import { COLLECTIONS, DEFAULT_GALLERY_FILTER } from './data';
 import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 import { RightsReservedBlock } from './components/LicensingDetails';
+import BackToTop from './components/BackToTop';
 
 const AboutView = lazy(() => import('./components/AboutView'));
 const ContactModal = lazy(() => import('./components/ContactModal'));
@@ -49,7 +50,10 @@ export default function App() {
     <div className="relative min-h-[100dvh] font-sans text-photo-fg antialiased selection:bg-mcm-brick/20">
       <div className="cinematic-grid" aria-hidden />
       <div className="relative z-[1] min-h-[100dvh]">
-        <header className="site-header sticky top-0 z-20 overflow-x-clip border-b border-mcm-line/50 bg-mcm-cream pt-[max(0.6rem,env(safe-area-inset-top))] sm:pt-0">
+        <header
+          id="top"
+          className="site-header overflow-x-clip border-b border-mcm-line/50 bg-mcm-cream pt-[max(0.6rem,env(safe-area-inset-top))] sm:pt-0"
+        >
           <div className="site-chrome mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 pb-3 sm:gap-3 sm:px-8 sm:pb-3 sm:pt-6 lg:px-10">
             <BrandMark
               pressed={view === 'about'}
@@ -84,11 +88,13 @@ export default function App() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-0 pb-10 sm:pb-16">
+        <main
+          className={`mx-auto max-w-none px-0 pb-10 sm:pb-16 ${view === 'gallery' ? 'bg-white' : 'max-w-7xl'}`}
+        >
           <div
             className={
               view === 'gallery'
-                ? 'gallery-shell animate-fade-up px-0 py-1 sm:py-6'
+                ? 'gallery-shell animate-fade-up bg-white px-0 py-1 sm:py-6'
                 : 'animate-fade-up px-4 py-6 sm:px-2 sm:py-8'
             }
             role="region"
@@ -118,6 +124,7 @@ export default function App() {
             </footer>
           )}
         </main>
+        {view === 'gallery' && <BackToTop />}
         {showContact && (
           <Suspense fallback={null}>
             <ContactModal onClose={() => setShowContact(false)} />

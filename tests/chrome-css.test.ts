@@ -6,9 +6,9 @@ const css = readFileSync(join(process.cwd(), 'src/index.css'), 'utf8');
 const html = readFileSync(join(process.cwd(), 'index.html'), 'utf8');
 
 describe('chrome CSS', () => {
-  it('clears sticky collection chrome when scrolling to a still', () => {
-    expect(css).toMatch(/html \{[\s\S]*scroll-padding-top: 16rem;/);
-    expect(css).toMatch(/\.gallery-still \{[\s\S]*scroll-margin-top: 16rem;/);
+  it('does not reserve sticky-header scroll offset', () => {
+    expect(css).not.toMatch(/scroll-padding-top/);
+    expect(css).not.toMatch(/\.gallery-still \{[\s\S]*scroll-margin-top/);
   });
 
   it('keeps collection categories on one hidden-scrollbar reel', () => {

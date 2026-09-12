@@ -89,8 +89,7 @@ for (const vp of VIEWPORTS) {
       expect(new Set(reelLayout.tops).size, `${vp.name} categories are not one line`).toBe(1);
 
       const header = page.locator('header.site-header');
-      await expect(header).toHaveCSS('position', 'sticky');
-      await expect(header).toHaveCSS('top', '0px');
+      await expect(header).not.toHaveCSS('position', 'sticky');
 
       const img = await firstGalleryImage(page);
       await expect(img).toBeVisible();
@@ -124,11 +123,20 @@ for (const vp of VIEWPORTS) {
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
+      const lookbookPad = await page
+        .locator('.gallery-lookbook')
+        .evaluate((el) => parseFloat(getComputedStyle(el).paddingTop));
+      const loadLine = `${vp.name} firstStill=${elapsed}ms unique=${stillUrls.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`;
+      console.log(loadLine);
       test.info().annotations.push({
         type: 'load',
-        description: `${vp.name} firstStill=${elapsed}ms unique=${stillUrls.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`,
+        description: loadLine,
       });
-      expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.72);
+      // Chrome must leave the first frame on screen; lookbook inset is spacing, not extra chrome.
+      expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(
+        vp.height * 0.72 + lookbookPad,
+      );
+      expect(box!.y + 48, `${vp.name} first frame off screen`).toBeLessThan(vp.height);
 
       if (vp.name === 'mobile') {
         await reel.hover();
@@ -138,7 +146,9 @@ for (const vp of VIEWPORTS) {
         expect(afterVertical, `${vp.name} vertical wheel hijacked page scroll`).toBe(before);
         const canScroll = await reel.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
         if (canScroll) {
-          await page.mouse.wheel(240, 0);
+          await reel.evaluate((el) => {
+            el.dispatchEvent(new WheelEvent('wheel', { deltaX: 240, deltaY: 0, bubbles: true, cancelable: true }));
+          });
           const afterHorizontal = await reel.evaluate((el) => el.scrollLeft);
           expect(afterHorizontal, `${vp.name} horizontal wheel did not pan categories`).toBeGreaterThan(before);
         }

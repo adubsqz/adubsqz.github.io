@@ -1,10 +1,10 @@
 import type { Photo } from './types';
 
-/** Even inset around every still and between stills (1.5rem / 2.5rem). */
-export const GALLERY_STILL_INSET_CLASS = 'p-6 sm:p-10';
-export const GALLERY_STILL_GAP_CLASS = 'gap-6 sm:gap-10';
+/** Even inset around every still and between stills. */
+export const GALLERY_STILL_INSET_CLASS = 'p-10 sm:p-16';
+export const GALLERY_STILL_GAP_CLASS = 'gap-16 sm:gap-24';
 
-export const GALLERY_LOOKBOOK_CLASS = `gallery-lookbook mx-auto w-full max-w-5xl ${GALLERY_STILL_INSET_CLASS}`;
+export const GALLERY_LOOKBOOK_CLASS = `gallery-lookbook mx-auto w-full max-w-5xl bg-white ${GALLERY_STILL_INSET_CLASS}`;
 export const GALLERY_STILL_STACK_CLASS = `gallery-still-stack flex flex-col ${GALLERY_STILL_GAP_CLASS}`;
 export const GALLERY_STILL_ITEM_CLASS = 'gallery-still w-full';
 export const GALLERY_STILL_OFFSCREEN_CLASS =
@@ -12,7 +12,7 @@ export const GALLERY_STILL_OFFSCREEN_CLASS =
 /** Eager + lazy src only for the first screenful; the rest hydrate on intersect. */
 export const GALLERY_FIRST_PAINT_STILLS = 3;
 
-export const GALLERY_LIGHTBOX_PAD_CLASS = GALLERY_STILL_INSET_CLASS;
+export const GALLERY_LIGHTBOX_PAD_CLASS = 'p-6 sm:p-10';
 
 export function intrinsicSizeForStill(orientation: Photo['orientation']): {
   width: number;

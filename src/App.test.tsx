@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
@@ -26,12 +26,35 @@ describe('App', () => {
     expect(left).toBe(130);
   });
 
-  it('keeps the site header sticky so collection nav stays at the top while scrolling', () => {
+  it('lets the site header scroll away so it does not cover stills', () => {
     const { container } = render(<App />);
     const header = container.querySelector('header.site-header');
     expect(header).toBeTruthy();
-    expect(header).toHaveClass('sticky', 'top-0');
-    expect(header?.className ?? '').not.toMatch(/\bsm:static\b/);
+    expect(header).not.toHaveClass('sticky');
+    expect(header?.className ?? '').not.toMatch(/\bsticky\b/);
+    expect(header).toHaveAttribute('id', 'top');
+    expect(container.querySelector('main')?.className.split(' ')).toContain('bg-white');
+    expect(container.querySelector('.gallery-shell')?.className.split(' ')).toContain('bg-white');
+    expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
+  });
+
+  it('shows back to top after the gallery is scrolled', async () => {
+    render(<App />);
+    act(() => {
+      Object.defineProperty(window, 'scrollY', { configurable: true, value: 400, writable: true });
+      window.dispatchEvent(new Event('scroll'));
+    });
+    expect(await screen.findByRole('button', { name: /back to top/i })).toBeInTheDocument();
+  });
+
+  it('does not mount back to top on About', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'adubsqz' }));
+    expect(await screen.findByText(/I am not an AI robot/i)).toBeInTheDocument();
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 400, writable: true });
+    window.dispatchEvent(new Event('scroll'));
+    expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
   it('renders a graffiti wordmark, tagline, and a single-line collection reel', () => {

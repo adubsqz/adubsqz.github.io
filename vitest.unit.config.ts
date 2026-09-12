@@ -31,6 +31,7 @@ export default mergeConfig(
           'src/lib/utils.ts',
           'src/utils/security.ts',
           'src/components/AboutView.tsx',
+          'src/components/BackToTop.tsx',
           'src/components/BrandMark.tsx',
           'src/components/GraffitiLabel.tsx',
           'src/components/ContactModal.tsx',

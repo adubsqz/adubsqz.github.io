@@ -9,7 +9,7 @@ export async function revealAllStills(page: Page): Promise<void> {
   }
 }
 
-/** Open a hydrated still without Playwright scrolling it under the sticky header. */
+/** Open a hydrated still without Playwright fighting scroll position. */
 export async function clickOpenPhoto(page: Page) {
   const thumb = page.getByRole('button', { name: /open photo/i }).last();
   await thumb.evaluate((el) => {

@@ -25,12 +25,18 @@ for (const vp of VIEWPORTS) {
           right: parseFloat(s.paddingRight),
           bottom: parseFloat(s.paddingBottom),
           left: parseFloat(s.paddingLeft),
+          bg: s.backgroundColor,
         };
       });
-      expect(inset.top).toBeGreaterThanOrEqual(23);
+      expect(inset.bg).toBe('rgb(255, 255, 255)');
+      const minInset = vp.name === 'mobile' ? 39 : 63;
+      expect(inset.top).toBeGreaterThanOrEqual(minInset);
       expect(inset.right).toBe(inset.top);
       expect(inset.bottom).toBe(inset.top);
       expect(inset.left).toBe(inset.top);
+
+      const stackGap = await page.locator('.gallery-still-stack').evaluate((el) => parseFloat(getComputedStyle(el).rowGap));
+      expect(stackGap).toBeGreaterThanOrEqual(vp.name === 'mobile' ? 63 : 95);
 
       const still = page.locator('.gallery-still').first();
       const box = await still.boundingBox();
@@ -46,15 +52,18 @@ for (const vp of VIEWPORTS) {
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
     });
 
-    test('keeps collection nav stuck to the top after scroll', async ({ page }) => {
+    test('lets collection chrome scroll away and offers back to top', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
       const header = page.locator('header.site-header');
-      await expect(header).toHaveCSS('position', 'sticky');
+      await expect(header).not.toHaveCSS('position', 'sticky');
+      await expect(page.getByRole('button', { name: /back to top/i })).toHaveCount(0);
       await page.evaluate(() => window.scrollTo(0, 900));
       const top = await header.evaluate((el) => el.getBoundingClientRect().top);
-      expect(top, `${vp.name} header left the top`).toBeLessThanOrEqual(1);
-      await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
+      expect(top, `${vp.name} header stayed on screen`).toBeLessThan(0);
+      await expect(page.getByRole('button', { name: /back to top/i })).toBeVisible();
+      await page.getByRole('button', { name: /back to top/i }).click();
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(8);
     });
 
     test('portraits lookbook keeps stills two and three in one scroll', async ({ page }) => {
