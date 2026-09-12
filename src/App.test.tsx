@@ -1,15 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App, { collectionTone } from './App';
+import App from './App';
 import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 
 describe('App', () => {
-  it('maps unknown collection ids to orange graffiti', () => {
-    expect(collectionTone('nope')).toBe('orange');
-    expect(collectionTone('people')).toBe('purple');
-  });
-
   it('pans the collection reel with the wheel while hovered', () => {
     render(<App />);
     const reel = screen.getByRole('navigation', { name: /collections/i });
@@ -24,7 +19,19 @@ describe('App', () => {
       },
     });
     reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
-    expect(left).toBe(120);
+    expect(left).toBe(0);
+    reel.dispatchEvent(new WheelEvent('wheel', { deltaX: 80, deltaY: 10, bubbles: true, cancelable: true }));
+    expect(left).toBe(90);
+    reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, shiftKey: true, bubbles: true, cancelable: true }));
+    expect(left).toBe(130);
+  });
+
+  it('keeps the site header sticky so collection nav stays at the top while scrolling', () => {
+    const { container } = render(<App />);
+    const header = container.querySelector('header.site-header');
+    expect(header).toBeTruthy();
+    expect(header).toHaveClass('sticky', 'top-0');
+    expect(header?.className ?? '').not.toMatch(/\bsm:static\b/);
   });
 
   it('renders a graffiti wordmark, tagline, and a single-line collection reel', () => {
@@ -106,7 +113,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /^redscale$/i })).toHaveAttribute('aria-pressed', 'true');
     await user.click(screen.getByRole('button', { name: /^portraits$/i }));
     expect(screen.getByRole('button', { name: /^portraits$/i })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(13);
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(14);
     expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
   });
 

@@ -105,7 +105,7 @@ export default defineConfig({
   },
   server: {
     watch: {
-      ignored: ['**/.tmp/**', '**/.tmp'],
+      ignored: ['**/.tmp/**', '**/.tmp', '**/playwright-report/**', '**/test-results/**'],
     },
   },
   test: {

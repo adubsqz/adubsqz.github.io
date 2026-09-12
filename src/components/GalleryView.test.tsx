@@ -62,14 +62,26 @@ describe('GalleryView', () => {
     });
   });
 
-  it('scrolls every People still, with lookbook stills two and three in order', () => {
+  it('shows the imported Full Spectrum stills in that reel', () => {
+    const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
+    if (!color) return;
+    render(<GalleryView filter="full-spectrum" />);
+    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(color.photos.length);
+    expect(color.photos).toHaveLength(15);
+    const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
+    expect(srcs.join(' ')).toMatch(/hospitalwindows/);
+    expect(srcs.join(' ')).toMatch(/colorfulhousegreenery/);
+    expect(srcs.join(' ')).not.toMatch(/sangerhall/);
+  });
+
+  it('scrolls every People still and keeps camcorder-night out of that reel', () => {
     const people = COLLECTIONS.find((c) => c.id === 'people');
     if (!people) return;
     render(<GalleryView filter="people" />);
     expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(people.photos.length);
     const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
-    expect(srcs[1]).toMatch(/sweetener-tour/);
-    expect(srcs[2]).toMatch(/curls-night/);
+    expect(srcs.join(' ')).toMatch(/sangerhall/);
+    expect(srcs.join(' ')).toMatch(/sweetener-tour/);
     expect(srcs.join(' ')).not.toMatch(/camcorder-night/);
   });
 

@@ -3,7 +3,7 @@
  * Manifest category arrays are the reel source of truth; this seed produced
  * the current `src/gallery-manifest.json` permutation (not Math.random on load).
  */
-export const GALLERY_SHUFFLE_SEED = 20260906;
+export const GALLERY_SHUFFLE_SEED = 20260912;
 
 /** Per-category seeds so each reel gets its own permutation of the same algorithm. */
 export const GALLERY_CATEGORY_SEEDS = {

@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { GalleryFilter, PageView } from './types';
 import BrandMark from './components/BrandMark';
-import GraffitiLabel, { type GraffitiTone } from './components/GraffitiLabel';
+import GraffitiLabel from './components/GraffitiLabel';
 import GalleryView from './components/GalleryView';
+import { collectionTone } from './collectionTone';
 import { COLLECTIONS, DEFAULT_GALLERY_FILTER } from './data';
 import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 import { RightsReservedBlock } from './components/LicensingDetails';
@@ -12,27 +13,14 @@ const ContactModal = lazy(() => import('./components/ContactModal'));
 
 const totalGalleryPhotos = COLLECTIONS.reduce((n, c) => n + c.photos.length, 0);
 
-export function collectionTone(id: string): GraffitiTone {
-  switch (id) {
-    case 'greyscale':
-      return 'yellow';
-    case 'full-spectrum':
-      return 'blue';
-    case 'redscale':
-      return 'orange';
-    case 'people':
-      return 'purple';
-    default:
-      return 'orange';
-  }
-}
-
 function useWheelPan(ref: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const onWheel = (event: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth + 1) return;
+      const horizontalIntent = event.shiftKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY);
+      if (!horizontalIntent) return;
       event.preventDefault();
       el.scrollLeft += event.deltaY + event.deltaX;
     };
@@ -61,8 +49,8 @@ export default function App() {
     <div className="relative min-h-[100dvh] font-sans text-photo-fg antialiased selection:bg-mcm-brick/20">
       <div className="cinematic-grid" aria-hidden />
       <div className="relative z-[1] min-h-[100dvh]">
-        <header className="sticky top-0 z-20 overflow-x-clip border-b border-mcm-line/50 bg-gradient-to-b from-mcm-cream from-70% to-mcm-cream/0 pt-[max(0.6rem,env(safe-area-inset-top))] sm:static sm:border-0 sm:bg-none sm:pt-0">
-          <div className="site-chrome mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 pb-3 sm:gap-4 sm:px-8 sm:pb-3 sm:pt-6 lg:px-10">
+        <header className="site-header sticky top-0 z-20 overflow-x-clip border-b border-mcm-line/50 bg-mcm-cream pt-[max(0.6rem,env(safe-area-inset-top))] sm:pt-0">
+          <div className="site-chrome mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 pb-3 sm:gap-3 sm:px-8 sm:pb-3 sm:pt-6 lg:px-10">
             <BrandMark
               pressed={view === 'about'}
               onClick={() => setView((current) => (current === 'about' ? 'gallery' : 'about'))}

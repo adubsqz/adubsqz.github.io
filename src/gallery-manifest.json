@@ -2,39 +2,15 @@
   "about": [],
   "bw": [
     {
-      "path": "bw/bw-06-57530032.jpg",
-      "orientation": "horizontal"
-    },
-    {
       "path": "bw/000220500009-otter.jpg",
       "orientation": "vertical"
-    },
-    {
-      "path": "bw/000220500023-moth.jpg",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "bw/000220500003-pier.jpg",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "bw/30570008-kiln.JPG",
-      "orientation": "horizontal"
     },
     {
       "path": "bw/30570009-loam.JPG",
       "orientation": "horizontal"
     },
     {
-      "path": "bw/30570010-dusk.JPG",
-      "orientation": "vertical"
-    },
-    {
       "path": "bw/30570011-hail.JPG",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "bw/30570012-fern.JPG",
       "orientation": "horizontal"
     },
     {
@@ -42,7 +18,11 @@
       "orientation": "horizontal"
     },
     {
-      "path": "bw/30570022-brim.JPG",
+      "path": "bw/000220500005xy.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/000220500003-pier.jpg",
       "orientation": "horizontal"
     },
     {
@@ -50,41 +30,41 @@
       "orientation": "vertical"
     },
     {
-      "path": "bw/bw-police-car-1.jpg",
+      "path": "bw/30570022-brim.JPG",
       "orientation": "horizontal"
     },
     {
-      "path": "bw/000220500005xy.jpg",
+      "path": "bw/bw-06-57530032.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/bw-police-car-1.jpg",
       "orientation": "horizontal"
     },
     {
       "path": "bw/bw-02-000230040012.jpg",
       "orientation": "horizontal"
+    },
+    {
+      "path": "bw/30570010-dusk.JPG",
+      "orientation": "vertical"
+    },
+    {
+      "path": "bw/000220500023-moth.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/30570012-fern.JPG",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/30570008-kiln.JPG",
+      "orientation": "horizontal"
     }
   ],
   "color": [
     {
-      "path": "color/color-04-260604000055080021.jpg",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "color/color-kodak-000008.jpg",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "color/00033195-ames-gitsum.jpg",
-      "orientation": "vertical"
-    },
-    {
-      "path": "color/00033195-ames-neon-moon.jpg",
-      "orientation": "horizontal"
-    },
-    {
       "path": "color/00033195-ames-skatepark-reflection.jpg",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "color/00033195-ames-chinatown.jpg",
       "orientation": "horizontal"
     },
     {
@@ -92,19 +72,19 @@
       "orientation": "horizontal"
     },
     {
-      "path": "color/000331950015-ember.jpg",
+      "path": "color/color-04-260604000055080021.jpg",
       "orientation": "horizontal"
     },
     {
-      "path": "color/00033195-ames-reflection.jpg",
+      "path": "color/00033195-ames-chinatown.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/00033195-ames-gitsum.jpg",
       "orientation": "vertical"
     },
     {
       "path": "color/color-01-000255310036.jpg",
-      "orientation": "horizontal"
-    },
-    {
-      "path": "color/00033195-ames-psychic-readings.jpg",
       "orientation": "horizontal"
     },
     {
@@ -114,9 +94,35 @@
     {
       "path": "color/camcorder-night.jpg",
       "orientation": "horizontal"
+    },
+    {
+      "path": "color/00033195-ames-reflection.jpg",
+      "orientation": "vertical"
+    },
+    "color/hospitalwindows.jpg",
+    {
+      "path": "color/00033195-ames-psychic-readings.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/color-kodak-000008.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/00033195-ames-neon-moon.jpg",
+      "orientation": "horizontal"
+    },
+    "color/colorfulhousegreenery.jpg",
+    {
+      "path": "color/000331950015-ember.jpg",
+      "orientation": "horizontal"
     }
   ],
   "redscale": [
+    {
+      "path": "redscale/redscale-03-harmon-red-0017.jpg",
+      "orientation": "vertical"
+    },
     {
       "path": "redscale/redscale-00-harmon-red-drop-the-blacks-and-this-one-is-great-0028.jpg",
       "orientation": "horizontal"
@@ -124,19 +130,11 @@
     {
       "path": "redscale/redscale-04-harmon-red-0037.jpg",
       "orientation": "vertical"
-    },
-    {
-      "path": "redscale/redscale-03-harmon-red-0017.jpg",
-      "orientation": "vertical"
     }
   ],
   "people": [
-    "people/backyard-gold.jpg",
-    "people/sweetener-tour.jpg",
-    "people/curls-night.jpg",
-    "people/bandana-night.jpg",
-    "people/headphones-desk.jpg",
-    "people/fdr-bridge-portrait.jpg",
+    "people/sangerhall.jpg",
+    "people/skillman-punk.jpg",
     {
       "path": "people/rooftop-laugh.jpg",
       "orientation": "vertical",
@@ -147,14 +145,19 @@
       "orientation": "vertical",
       "reel_orientation": "vertical"
     },
+    "people/exit-singer.jpg",
+    "people/sweetener-tour.jpg",
     "people/cyclone-fan.jpg",
-    "people/skillman-punk.jpg",
-    "people/club-punk-lean.jpg",
+    "people/curls-night.jpg",
     {
       "path": "people/drawer-sketch.jpg",
       "orientation": "vertical",
       "reel_orientation": "vertical"
     },
-    "people/exit-singer.jpg"
+    "people/club-punk-lean.jpg",
+    "people/bandana-night.jpg",
+    "people/backyard-gold.jpg",
+    "people/fdr-bridge-portrait.jpg",
+    "people/headphones-desk.jpg"
   ]
 }

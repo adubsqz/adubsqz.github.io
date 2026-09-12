@@ -2,6 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { GALLERY_CATEGORY_SEEDS, GALLERY_SHUFFLE_SEED, shufflePublicRows, shuffleSeeded } from './gallery-shuffle';
 
 describe('shuffleSeeded', () => {
+  it('pins the current gallery shuffle seed', () => {
+    expect(GALLERY_SHUFFLE_SEED).toBe(20260912);
+  });
+
   it('is deterministic for the gallery seed', () => {
     const items = ['a', 'b', 'c', 'd', 'e', 'f'];
     expect(shuffleSeeded(items, GALLERY_SHUFFLE_SEED)).toEqual(

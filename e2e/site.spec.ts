@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { SITE_HOST } from '../src/site';
+import { revealAllStills } from './reveal-stills';
 
 test.describe('site', () => {
   test('gallery filters, lightbox, and about/contact', async ({ page }) => {
@@ -26,11 +27,16 @@ test.describe('site', () => {
     await page.getByRole('button', { name: /full spectrum/i }).click();
     await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label--on')).toHaveCount(1);
+    await expect(page.locator('.gallery-still')).toHaveCount(15);
+    await revealAllStills(page);
+    await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
+    await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
     await page.getByRole('button', { name: /redscale/i }).click();
     await page.getByRole('button', { name: /^portraits$/i }).click();
-    await expect(page.locator('.gallery-still')).toHaveCount(13);
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(13, { timeout: 10_000 });
+    await expect(page.locator('.gallery-still')).toHaveCount(14);
+    await revealAllStills(page);
+    await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
+    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(14, { timeout: 10_000 });
     await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
 
     const thumb = page.getByRole('button', { name: /open photo/i }).first();

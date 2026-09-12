@@ -87,14 +87,10 @@ for (const vp of VIEWPORTS) {
       expect(reelLayout.overflowX).toBe('auto');
       expect(reelLayout.scrollbarWidth, `${vp.name} collection reel shows a scrollbar`).toBe('none');
       expect(new Set(reelLayout.tops).size, `${vp.name} categories are not one line`).toBe(1);
-      if (vp.name === 'mobile') {
-        await reel.hover();
-        const before = await reel.evaluate((el) => el.scrollLeft);
-        await page.mouse.wheel(0, 240);
-        const after = await reel.evaluate((el) => el.scrollLeft);
-        const canScroll = await reel.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
-        if (canScroll) expect(after, `${vp.name} wheel did not pan categories`).toBeGreaterThan(before);
-      }
+
+      const header = page.locator('header.site-header');
+      await expect(header).toHaveCSS('position', 'sticky');
+      await expect(header).toHaveCSS('top', '0px');
 
       const img = await firstGalleryImage(page);
       await expect(img).toBeVisible();
@@ -112,7 +108,6 @@ for (const vp of VIEWPORTS) {
       await expect(photoButton).toBeVisible();
       const box = await photoButton.boundingBox();
       expect(box, `${vp.name} first frame should be on screen`).not.toBeNull();
-      expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.72);
       expect(box!.x, `${vp.name} first still flush left`).toBeGreaterThanOrEqual(12);
       const brand = await page.getByRole('button', { name: 'adubsqz' }).boundingBox();
       expect(brand, `${vp.name} wordmark missing`).not.toBeNull();
@@ -133,6 +128,22 @@ for (const vp of VIEWPORTS) {
         type: 'load',
         description: `${vp.name} firstStill=${elapsed}ms unique=${stillUrls.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`,
       });
+      expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.72);
+
+      if (vp.name === 'mobile') {
+        await reel.hover();
+        const before = await reel.evaluate((el) => el.scrollLeft);
+        await page.mouse.wheel(0, 240);
+        const afterVertical = await reel.evaluate((el) => el.scrollLeft);
+        expect(afterVertical, `${vp.name} vertical wheel hijacked page scroll`).toBe(before);
+        const canScroll = await reel.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
+        if (canScroll) {
+          await page.mouse.wheel(240, 0);
+          const afterHorizontal = await reel.evaluate((el) => el.scrollLeft);
+          expect(afterHorizontal, `${vp.name} horizontal wheel did not pan categories`).toBeGreaterThan(before);
+        }
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
     });
   });
 }

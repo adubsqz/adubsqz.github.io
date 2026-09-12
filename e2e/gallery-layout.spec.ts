@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { revealAllStills } from './reveal-stills';
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 800 },
@@ -45,14 +46,35 @@ for (const vp of VIEWPORTS) {
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
     });
 
+    test('keeps collection nav stuck to the top after scroll', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
+      const header = page.locator('header.site-header');
+      await expect(header).toHaveCSS('position', 'sticky');
+      await page.evaluate(() => window.scrollTo(0, 900));
+      const top = await header.evaluate((el) => el.getBoundingClientRect().top);
+      expect(top, `${vp.name} header left the top`).toBeLessThanOrEqual(1);
+      await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
+    });
+
     test('portraits lookbook keeps stills two and three in one scroll', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.getByRole('button', { name: /^portraits$/i }).click();
-      await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
+      await expect(page.locator('.gallery-still')).toHaveCount(14);
       await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
-      await expect(page.locator('.gallery-still')).toHaveCount(13);
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(13, { timeout: 10_000 });
+      await revealAllStills(page);
+      await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
+      await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
+      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(14, { timeout: 10_000 });
+    });
+
+    test('full spectrum lookbook includes the imported color stills', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.getByRole('button', { name: /^full spectrum$/i }).click();
+      await expect(page.locator('.gallery-still')).toHaveCount(15);
+      await revealAllStills(page);
+      await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
+      await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
     });
   });
 }

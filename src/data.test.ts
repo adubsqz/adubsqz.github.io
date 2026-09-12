@@ -70,10 +70,12 @@ describe('data', () => {
       const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
       const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
       expect(greyscale?.photos.length).toBe(15);
-      expect(color?.photos.length).toBe(13);
+      expect(color?.photos.length).toBe(15);
       expect(greyscale?.photos.some((p) => p.src.includes('30570008-kiln'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('000331950014-quartz'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('colorfulstairs'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('hospitalwindows'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('colorfulhousegreenery'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('camcorder-night'))).toBe(true);
       expect(greyscale?.photos.some((p) => p.src.includes('000220500003-pier'))).toBe(true);
     });
@@ -111,13 +113,12 @@ describe('data', () => {
       }
     });
 
-    it('pages rooftop-laugh and drawer-sketch as vertical in reversed people reel', () => {
+    it('pages rooftop-laugh and drawer-sketch as vertical in the people reel', () => {
       const people = COLLECTIONS.find((c) => c.id === 'people');
       expect(people).toBeDefined();
       const srcs = (people?.photos ?? []).map((p) => p.src);
-      expect(srcs[0]).toMatch(/backyard-gold\.jpg$/);
-      expect(srcs[srcs.length - 1]).toMatch(/exit-singer\.jpg$/);
-      expect(people?.photos).toHaveLength(13);
+      expect(srcs.some((src) => /sangerhall\.jpg$/.test(src))).toBe(true);
+      expect(people?.photos).toHaveLength(14);
 
       const byStem = Object.fromEntries(
         (people?.photos ?? []).map((p) => {
@@ -129,6 +130,7 @@ describe('data', () => {
       expect(byStem['rooftop-look.jpg']).toBe('vertical');
       expect(byStem['drawer-sketch.jpg']).toBe('vertical');
       expect(byStem['exit-singer.jpg']).toBe('horizontal');
+      expect(byStem['sangerhall.jpg']).toBe('horizontal');
       expect(byStem['backyard-gold.jpg']).toBe('horizontal');
       expect(byStem['fdr-bridge-portrait.jpg']).toBe('horizontal');
     });
