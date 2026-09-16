@@ -26,6 +26,8 @@ class MasterUpdate:
     master_width: int
     master_height: int
     original: Path
+    original_path: str
+    master_bytes: int
 
 
 @dataclass
@@ -37,10 +39,35 @@ class BackfillResult:
 
 
 def originals_dir() -> Path:
+    for candidate in candidate_originals_dirs():
+        if candidate.is_dir():
+            return candidate
     env = os.environ.get("GALLERY_ORIGINALS", "").strip()
     if env:
         return Path(env).expanduser().resolve()
     return Path.home() / "photography" / "originals"
+
+
+def candidate_originals_dirs() -> list[Path]:
+    """Look for an originals tree without guessing filenames.
+
+    Recursion into the tree happens in ``_index_originals``. This only picks
+    the root: ``$GALLERY_ORIGINALS``, then ``~/photography/originals``,
+    ``~/originals``, and ``<repo>/originals``.
+    """
+    seen: list[Path] = []
+    env = os.environ.get("GALLERY_ORIGINALS", "").strip()
+    if env:
+        seen.append(Path(env).expanduser().resolve())
+    home = Path.home()
+    seen.append((home / "photography" / "originals").resolve())
+    seen.append((home / "originals").resolve())
+    seen.append((repo_root() / "originals").resolve())
+    unique: list[Path] = []
+    for path in seen:
+        if path not in unique:
+            unique.append(path)
+    return unique
 
 
 def repo_root() -> Path:
@@ -97,11 +124,40 @@ def _index_originals(root: Path) -> tuple[dict[str, list[Path]], dict[str, list[
 
 
 def _unique_or_ambiguous(hits: list[Path]) -> Path | str | None:
-    if len(hits) == 1:
-        return hits[0]
-    if len(hits) > 1:
+    """Treat duplicate copies of the same scan as one original.
+
+    Recursive ``originals/`` trees often keep the same Noritsu file in two
+    folders. Same inode or same pixel size → pick one path. Different pixel
+    sizes stay ambiguous so we do not guess which master to trust.
+    """
+    ordered: list[Path] = []
+    seen: set[Path] = set()
+    for path in hits:
+        if path not in seen:
+            seen.add(path)
+            ordered.append(path)
+    if not ordered:
+        return None
+    if len(ordered) == 1:
+        return ordered[0]
+
+    resolved: list[Path] = []
+    seen_res: set[Path] = set()
+    for path in ordered:
+        res = path.resolve()
+        if res not in seen_res:
+            seen_res.add(res)
+            resolved.append(path)
+    if len(resolved) == 1:
+        return resolved[0]
+
+    by_size: dict[tuple[int, int], list[Path]] = {}
+    for path in resolved:
+        by_size.setdefault(_read_size(path), []).append(path)
+    if len(by_size) != 1:
         return "ambiguous"
-    return None
+    copies = next(iter(by_size.values()))
+    return min(copies, key=lambda path: (len(path.parts), path.as_posix().lower()))
 
 
 def match_original(
@@ -154,6 +210,112 @@ def _read_size(path: Path) -> tuple[int, int]:
     return int(width), int(height)
 
 
+def _original_relpath(original: Path, originals_root: Path) -> str:
+    try:
+        return original.resolve().relative_to(originals_root.resolve()).as_posix()
+    except ValueError:
+        return original.name
+
+
+def _to_positive_int(value: object) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, int):
+        return None
+    if value <= 0:
+        return None
+    return value
+
+
+def publish_still_path(repo: Path, token: str) -> Path:
+    return repo / "public" / "photos" / "still-life" / token
+
+
+def check_rendered_knows_originals(
+    *,
+    manifest_path: Path,
+    originals: Path,
+    repo: Path,
+    require_original_match: bool | None = None,
+) -> list[str]:
+    """Every published still must record original path + scan resolution.
+
+    Master pixels must be the original scan, never the downscaled web JPEG.
+    When ``originals`` exists, dest basenames are matched recursively under that
+    tree. Missing originals only skip the match requirement.
+    """
+    errors: list[str] = []
+    if not manifest_path.is_file():
+        return [f"manifest not found: {manifest_path}"]
+
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return [f"manifest must be a JSON object: {manifest_path}"]
+
+    originals_exist = originals.is_dir()
+    must_match = originals_exist if require_original_match is None else require_original_match
+    by_name, by_stem = _index_originals(originals) if originals_exist else ({}, {})
+
+    for bucket in MANIFEST_BUCKETS:
+        rows = payload.get(bucket)
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            token = _row_token(row)
+            if token is None:
+                continue
+            published = publish_still_path(repo, token)
+            if not published.is_file():
+                errors.append(f"{token}: missing published still {published}")
+                continue
+            pub_w, pub_h = _read_size(published)
+            row_obj = row if isinstance(row, dict) else {}
+            master_w = _to_positive_int(row_obj.get("master_width"))
+            master_h = _to_positive_int(row_obj.get("master_height"))
+            original_path = row_obj.get("original_path") if isinstance(row_obj, dict) else None
+            master_bytes = _to_positive_int(row_obj.get("master_bytes"))
+
+            matched = match_original(Path(token).name, by_name, by_stem) if originals_exist else None
+            if matched == "ambiguous":
+                errors.append(f"{token}: ambiguous original under {originals}")
+                continue
+
+            if isinstance(matched, Path):
+                orig_w, orig_h = _read_size(matched)
+                orig_bytes = int(matched.stat().st_size)
+                rel = _original_relpath(matched, originals)
+                if master_w != orig_w or master_h != orig_h:
+                    errors.append(
+                        f"{token}: master {master_w}x{master_h} != original {orig_w}x{orig_h} at {rel}"
+                    )
+                if original_path != rel:
+                    errors.append(
+                        f"{token}: original_path {original_path!r} != recursive match {rel!r}"
+                    )
+                if master_bytes != orig_bytes:
+                    errors.append(
+                        f"{token}: master_bytes {master_bytes!r} != original size {orig_bytes} at {rel}"
+                    )
+                if master_w is not None and master_h is not None and (
+                    master_w < pub_w or master_h < pub_h
+                ):
+                    errors.append(
+                        f"{token}: master {master_w}x{master_h} is smaller than published {pub_w}x{pub_h}"
+                    )
+                continue
+
+            if must_match:
+                errors.append(f"{token}: no original found recursively under {originals}")
+                continue
+
+            if master_w is not None and master_h is not None and (
+                master_w < pub_w or master_h < pub_h
+            ):
+                errors.append(
+                    f"{token}: master {master_w}x{master_h} is smaller than published {pub_w}x{pub_h}"
+                )
+
+    return errors
+
+
 def backfill_master_size(
     *,
     manifest_path: Path,
@@ -191,12 +353,16 @@ def backfill_master_size(
                 new_rows.append(row)
                 continue
             width, height = _read_size(matched)
+            original_path = _original_relpath(matched, originals)
+            master_bytes = int(matched.stat().st_size)
             result.updates.append(
                 MasterUpdate(
                     path=token,
                     master_width=width,
                     master_height=height,
                     original=matched,
+                    original_path=original_path,
+                    master_bytes=master_bytes,
                 )
             )
             if isinstance(row, dict):
@@ -205,6 +371,8 @@ def backfill_master_size(
                 updated = {"path": token}
             updated["master_width"] = width
             updated["master_height"] = height
+            updated["original_path"] = original_path
+            updated["master_bytes"] = master_bytes
             new_rows.append(updated)
             changed = True
         payload[bucket] = new_rows
@@ -239,7 +407,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{mode}: originals={originals} manifest={manifest}")
     for update in result.updates:
         print(
-            f"  {update.path}: {update.master_width}x{update.master_height} <- {update.original}"
+            f"  {update.path}: {update.master_width}x{update.master_height} "
+            f"{update.master_bytes}B <- {update.original_path}"
         )
     for token in result.unmatched:
         print(f"  unmatched: {token}")

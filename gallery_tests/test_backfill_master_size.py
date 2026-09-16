@@ -89,6 +89,8 @@ def test_write_sets_master_pixels_on_object_rows(tmp_path: Path) -> None:
     assert row["orientation"] == "horizontal"
     assert row["master_width"] == 5120
     assert row["master_height"] == 4096
+    assert row["original_path"] == "nested/scan-otter.jpg"
+    assert row["master_bytes"] == (originals / "nested" / "scan-otter.jpg").stat().st_size
 
 
 def test_write_does_not_modify_original_bytes(tmp_path: Path) -> None:
@@ -247,3 +249,66 @@ def test_write_does_not_emit_photo_binaries(tmp_path: Path) -> None:
     photos = list(repo.rglob("*.jpg")) + list(repo.rglob("*.JPG")) + list(repo.rglob("*.jpeg"))
     assert photos == []
     assert (repo / "src" / "gallery-manifest.json").is_file()
+
+
+def test_duplicate_scan_id_copies_with_same_pixels_fill_kiln(tmp_path: Path) -> None:
+    """Local backfill marked 30570008-kiln ambiguous when originals/ had two copies."""
+    originals = tmp_path / "originals"
+    _write_jpeg(originals / "rolls" / "30570008.jpg", 6000, 4000)
+    _write_jpeg(originals / "backup" / "30570008.jpg", 6000, 4000)
+    _, manifest_path = _repo_with_manifest(
+        tmp_path,
+        _empty_manifest(bw=[{"path": "bw/30570008-kiln.JPG", "orientation": "horizontal"}]),
+    )
+
+    result = backfill_master_size(
+        manifest_path=manifest_path,
+        originals=originals,
+        write=True,
+    )
+
+    assert result.ambiguous == []
+    row = json.loads(manifest_path.read_text(encoding="utf-8"))["bw"][0]
+    assert row["master_width"] == 6000
+    assert row["master_height"] == 4000
+
+
+def test_otter_suffix_dest_with_duplicate_scan_id_copies(tmp_path: Path) -> None:
+    originals = tmp_path / "originals"
+    _write_jpeg(originals / "000220500009.jpg", 4492, 6774)
+    _write_jpeg(originals / "scans" / "000220500009.jpg", 4492, 6774)
+    _, manifest_path = _repo_with_manifest(
+        tmp_path,
+        _empty_manifest(bw=[{"path": "bw/000220500009-otter.jpg", "orientation": "vertical"}]),
+    )
+
+    result = backfill_master_size(
+        manifest_path=manifest_path,
+        originals=originals,
+        write=True,
+    )
+
+    assert result.ambiguous == []
+    row = json.loads(manifest_path.read_text(encoding="utf-8"))["bw"][0]
+    assert row["master_width"] == 4492
+    assert row["master_height"] == 6774
+
+
+def test_duplicate_scan_id_copies_with_different_pixels_stay_ambiguous(tmp_path: Path) -> None:
+    originals = tmp_path / "originals"
+    _write_jpeg(originals / "a" / "30570008.jpg", 6000, 4000)
+    _write_jpeg(originals / "b" / "30570008.jpg", 100, 80)
+    _, manifest_path = _repo_with_manifest(
+        tmp_path,
+        _empty_manifest(bw=[{"path": "bw/30570008-kiln.JPG"}]),
+    )
+
+    result = backfill_master_size(
+        manifest_path=manifest_path,
+        originals=originals,
+        write=True,
+    )
+
+    assert "bw/30570008-kiln.JPG" in result.ambiguous
+    row = json.loads(manifest_path.read_text(encoding="utf-8"))["bw"][0]
+    assert "master_width" not in row
