@@ -37,6 +37,27 @@ describe('offeredPrintSizes', () => {
     ]);
   });
 
+  it('hides 16×20, 40×60, and house when master pixels are missing', () => {
+    const missing = offeredPrintSizes().map((option) => option.value);
+    expect(missing).not.toContain('16x20 in');
+    expect(missing).not.toContain('40x60 in');
+    expect(missing).not.toContain('house 8x10 ft');
+    expect(missing).toContain('custom');
+  });
+
+  it('treats one-sided master dims as missing so 16×20 stays hidden', () => {
+    const widthOnly = offeredPrintSizes(5000, undefined).map((option) => option.value);
+    const heightOnly = offeredPrintSizes(undefined, 5000).map((option) => option.value);
+    const nanHeight = offeredPrintSizes(5000, Number.NaN).map((option) => option.value);
+    const infWidth = offeredPrintSizes(Number.POSITIVE_INFINITY, 5000).map((option) => option.value);
+    const negative = offeredPrintSizes(-5000, 5000).map((option) => option.value);
+
+    for (const values of [widthOnly, heightOnly, nanHeight, infWidth, negative]) {
+      expect(values).toEqual(['locket 1x1 in', 'wallet 2.5x3.5 in', '8x10 in', 'custom']);
+      expect(values).not.toContain('16x20 in');
+    }
+  });
+
   it('requires 300 PPI for 8×10 and smaller and 150 PPI for 16×20 and larger', () => {
     const justWallet = offeredPrintSizes(1050, 800).map((option) => option.value);
     expect(justWallet).toEqual(['locket 1x1 in', 'wallet 2.5x3.5 in', 'custom']);
@@ -68,7 +89,9 @@ describe('offeredPrintSizes', () => {
   });
 
   it('always includes custom', () => {
+    expect(offeredPrintSizes().some((option) => option.value === 'custom')).toBe(true);
     expect(offeredPrintSizes(1, 1).some((option) => option.value === 'custom')).toBe(true);
+    expect(offeredPrintSizes(2999, 2400).some((option) => option.value === 'custom')).toBe(true);
     expect(offeredPrintSizes(18000, 18000).some((option) => option.value === 'custom')).toBe(true);
   });
 });

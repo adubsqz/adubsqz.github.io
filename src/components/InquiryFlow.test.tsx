@@ -63,7 +63,11 @@ describe('Lightbox invoice flow (functional)', () => {
     const invoice = await screen.findByRole('dialog', { name: /request invoice/i });
     expect(invoice).toBeInTheDocument();
     expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/print size/i)).toBeInTheDocument();
+    const printSize = screen.getByLabelText(/print size/i);
+    expect(printSize).toBeInTheDocument();
+    expect(printSize).toHaveDisplayValue(/8″ × 10″/);
+    expect(printSize).not.toContainHTML('16″ × 20″');
+    expect(printSize).toContainHTML('custom');
 
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
@@ -72,6 +76,8 @@ describe('Lightbox invoice flow (functional)', () => {
 
     expect(window.location.href).toContain('mailto:adubsqz@gmail.com');
     expect(window.location.href).toContain(encodeURIComponent(fixturePhoto.id));
+    expect(window.location.href).not.toMatch(/stripe/i);
+    expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
     expect(await screen.findByText(/inquiry submitted/i)).toBeInTheDocument();
   });
 
@@ -104,7 +110,9 @@ describe('Lightbox invoice flow (functional)', () => {
     const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
     expect(body._subject).toMatch(/print inquiry/i);
     expect(body.message).toContain(fixturePhoto.id);
+    expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/stripe/i);
     expect(window.location.href).not.toMatch(/^mailto:/);
+    expect(window.location.href).not.toMatch(/stripe/i);
     expect(await screen.findByText(/inquiry submitted/i)).toBeInTheDocument();
   });
 
