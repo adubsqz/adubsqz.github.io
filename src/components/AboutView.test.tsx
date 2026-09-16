@@ -24,6 +24,7 @@ describe('AboutView', () => {
     const instagram = screen.getByRole('link', { name: /^instagram$/i });
     expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
     expect(instagram).toHaveAttribute('target', '_blank');
+    expect(instagram).toHaveAttribute('rel', 'noopener noreferrer');
     expect(screen.getAllByRole('link', { name: SITE_HOST }).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByRole('link', { name: /^github$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /^linkedin$/i })).not.toBeInTheDocument();

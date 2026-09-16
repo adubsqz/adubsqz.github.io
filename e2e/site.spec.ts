@@ -79,11 +79,11 @@ test.describe('site', () => {
     await expect(page.getByText(/lightweight portfolio sites for photographers/i)).toBeVisible();
     await expect(page.getByText(/Need prints, a license, or a site/i)).toBeVisible();
     await expect(page.getByText(/rights reserved/i)).toBeVisible();
-    await expect(page.getByRole('link', { name: /^instagram$/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /^instagram$/i })).toHaveAttribute(
-      'href',
-      'https://www.instagram.com/adubsqz/',
-    );
+    const instagram = page.getByRole('link', { name: /^instagram$/i });
+    await expect(instagram).toBeVisible();
+    await expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
+    await expect(instagram).toHaveAttribute('target', '_blank');
+    await expect(instagram).toHaveAttribute('rel', 'noopener noreferrer');
     await expect(page.getByRole('link', { name: SITE_HOST }).first()).toBeVisible();
     await expect(page.getByAltText(/portrait/i)).toHaveCount(0);
 
