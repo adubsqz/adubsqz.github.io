@@ -5,27 +5,6 @@ import App from './App';
 import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 
 describe('App', () => {
-  it('pans the collection reel with the wheel while hovered', () => {
-    render(<App />);
-    const reel = screen.getByRole('navigation', { name: /collections/i });
-    Object.defineProperty(reel, 'scrollWidth', { configurable: true, value: 900 });
-    Object.defineProperty(reel, 'clientWidth', { configurable: true, value: 300 });
-    let left = 0;
-    Object.defineProperty(reel, 'scrollLeft', {
-      configurable: true,
-      get: () => left,
-      set: (value: number) => {
-        left = value;
-      },
-    });
-    reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
-    expect(left).toBe(0);
-    reel.dispatchEvent(new WheelEvent('wheel', { deltaX: 80, deltaY: 10, bubbles: true, cancelable: true }));
-    expect(left).toBe(90);
-    reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, shiftKey: true, bubbles: true, cancelable: true }));
-    expect(left).toBe(130);
-  });
-
   it('lets the site header scroll away so it does not cover stills', () => {
     const { container } = render(<App />);
     const header = container.querySelector('header.site-header');
@@ -57,7 +36,7 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
-  it('renders a graffiti wordmark, tagline, and a single-line collection reel', () => {
+  it('renders a graffiti wordmark, tagline, and a wrapping collection reel', () => {
     render(<App />);
     expect(screen.getByRole('heading', { level: 1, name: 'adubsqz' })).toHaveClass('brand-mark');
     expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'false');

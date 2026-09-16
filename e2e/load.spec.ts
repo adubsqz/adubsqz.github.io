@@ -78,15 +78,18 @@ for (const vp of VIEWPORTS) {
         const style = getComputedStyle(el);
         return {
           wrap: style.flexWrap,
-          overflowX: style.overflowX,
-          scrollbarWidth: style.scrollbarWidth,
-          tops: kids.map((kid) => (kid as HTMLElement).offsetTop),
+          scrollable: el.scrollWidth - el.clientWidth,
+          rows: new Set(kids.map((kid) => (kid as HTMLElement).offsetTop)).size,
         };
       });
-      expect(reelLayout.wrap, `${vp.name} collection reel wraps`).toBe('nowrap');
-      expect(reelLayout.overflowX).toBe('auto');
-      expect(reelLayout.scrollbarWidth, `${vp.name} collection reel shows a scrollbar`).toBe('none');
-      expect(new Set(reelLayout.tops).size, `${vp.name} categories are not one line`).toBe(1);
+      expect(reelLayout.wrap, `${vp.name} collection reel must wrap`).toBe('wrap');
+      expect(reelLayout.scrollable, `${vp.name} reel still scrolls horizontally`).toBeLessThanOrEqual(
+        1,
+      );
+      // Desktop still fits one line; the phone takes two rows rather than hiding labels.
+      expect(reelLayout.rows, `${vp.name} unexpected collection row count`).toBe(
+        vp.name === 'mobile' ? 2 : 1,
+      );
 
       const header = page.locator('header.site-header');
       await expect(header).not.toHaveCSS('position', 'sticky');
