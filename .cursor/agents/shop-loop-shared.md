@@ -53,6 +53,7 @@ Titles, editions, from-prices; Stripe; public un-gated lookbook; reconstituting 
 | shop-brand | `tests/inquireEmail.test.ts`; strip `adubs.shop` / `adubsqz.shop` from tests and `src/` only |
 | shop-pages-analytics | `package.json` deps (`@vercel/analytics`, `@vercel/speed-insights`), `src/main.tsx`, `src/vite-env.d.ts`, `.env.example`, `.github/workflows/pages.yml`, `README.md`, `SETUP.md`, `AGENTS.md`, `skills/cloud-agent-starter/SKILL.md` |
 | pages-shop-email | `src/inquireStatic.ts` and email submit paths; shop-invoice must reuse it, not fork |
+| shop-loop-test-sentinel | No feature files. After each task, runs tests, adds edge-case tests in that task’s test files, flags failures. Use proactively. |
 
 `e2e/site.spec.ts` is split: shop-invoice owns lightbox/invoice lines; shop-about owns About copy lines. Sequential execution. If you need a file you do not own, stop and report NEEDS_CONTEXT.
 
