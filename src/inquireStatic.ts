@@ -45,6 +45,15 @@ export function confirmationAutoresponse(name: string, code: string): string {
   return `Hi ${name}, we received your message. Your inquiry number is ${code}. Keep this code to track the conversation. — adubsqz`;
 }
 
+/** After send, tell the visitor to look in *their* inbox — not the studio recipient. */
+export function sentConfirmationHint(visitorEmail: string): string {
+  const inbox = visitorEmail.trim();
+  if (!inbox) {
+    return 'Check your inbox (and spam). If nothing arrives, Send again and your mail app will open.';
+  }
+  return `Check ${inbox} (and spam). If nothing arrives, Send again and your mail app will open.`;
+}
+
 function bodyText(p: InquirePayload, inquiryCode: string): string {
   return [
     `Inquiry #: ${inquiryCode}`,

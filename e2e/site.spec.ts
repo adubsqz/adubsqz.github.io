@@ -112,6 +112,8 @@ test.describe('site', () => {
     await page.getByLabel(/message/i).fill('Hello');
     await page.getByRole('button', { name: /send/i }).click();
     await expect(page.getByText(/message sent/i)).toBeVisible();
+    await expect(page.getByText(/check ada@example.com/i)).toBeVisible();
+    await expect(page.getByText(/check adubsqz@gmail.com/i)).toHaveCount(0);
 
     const coverage = await page.coverage.stopJSCoverage();
     const src = coverage.filter(

@@ -86,6 +86,8 @@ describe('ContactModal', () => {
     await user.click(submitButton);
 
     expect(await screen.findByText(/message sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/check jane@example.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
     expect(window.location.href).toContain('mailto:adubsqz@gmail.com');
     expect(window.location.href).toContain(ABOUT.contactEmail);
     expect(window.location.href).toContain('subject=');
@@ -114,6 +116,8 @@ describe('ContactModal', () => {
     );
     expect(window.location.href).not.toMatch(/^mailto:/);
     expect(await screen.findByText(/message sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/check jane@example.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
   });
 });
 

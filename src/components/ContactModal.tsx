@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { submitContactMessage } from '../inquireStatic';
+import { sentConfirmationHint, submitContactMessage } from '../inquireStatic';
 import { FilmTvClearanceBlock, RightsReservedBlock, TearsheetAndFulfillmentGrid } from './LicensingDetails';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
@@ -42,7 +42,7 @@ export default function ContactModal({ onClose, initialSubject = '', initialMess
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Message sent</DialogTitle>
             <DialogDescription className="text-sm text-photo-muted">
-              Check adubsqz@gmail.com (and spam). If nothing arrives, Send again and your mail app will open.
+              {sentConfirmationHint(email)}
             </DialogDescription>
           </DialogHeader>
           <Button type="button" className="mt-6" onClick={onClose}>

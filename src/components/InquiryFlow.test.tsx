@@ -77,6 +77,8 @@ describe('Lightbox contact flow (functional)', () => {
     expect(window.location.href).toContain('mailto:adubsqz@gmail.com');
     expect(window.location.href).toContain(encodeURIComponent(prefill.subject));
     expect(await screen.findByText(/message sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/check jane@example.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
   });
 
   it('posts lightbox Contact Me to FormSubmit at adubsqz@gmail.com when fetch succeeds', async () => {
@@ -110,5 +112,7 @@ describe('Lightbox contact flow (functional)', () => {
     expect(body.message).toContain(fixturePhoto.id);
     expect(window.location.href).not.toMatch(/^mailto:/);
     expect(await screen.findByText(/message sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/check jane@example.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
   });
 });
