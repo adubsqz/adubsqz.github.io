@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Photo } from '../types';
 import { submitPrintInquiry } from '../inquireStatic';
+import { defaultPrintSize, offeredPrintSizes, type PrintSize } from '../printSizes';
 import { FilmTvClearanceBlock, RightsReservedBlock, TearsheetAndFulfillmentGrid } from './LicensingDetails';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
@@ -16,26 +17,18 @@ interface InquiryModalProps {
   onClose: () => void;
 }
 
-const PRINT_SIZE_OPTIONS = [
-  { value: 'locket 1x1 in', label: 'locket — 1″ × 1″' },
-  { value: 'wallet 2.5x3.5 in', label: 'wallet — 2.5″ × 3.5″' },
-  { value: '8x10 in', label: '8″ × 10″' },
-  { value: '16x20 in', label: '16″ × 20″' },
-  { value: '40x60 in', label: '40″ × 60″' },
-  { value: 'house 8x10 ft', label: 'house — 8′ × 10′' },
-  { value: 'custom', label: 'custom' },
-] as const;
-
-type PrintSize = (typeof PRINT_SIZE_OPTIONS)[number]['value'];
 type PrintMedium = 'fine-art-paper' | 'canvas' | 'metal' | 'acrylic';
 type PrintFinish = 'matte' | 'gloss' | 'lustre';
 
 export default function InquiryModal({ photo, initialNotes, onClose }: InquiryModalProps) {
+  const printSizeOptions = offeredPrintSizes(photo.masterWidth, photo.masterHeight);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
-  const [printSize, setPrintSize] = useState<PrintSize>('16x20 in');
+  const [printSize, setPrintSize] = useState<PrintSize>(() =>
+    defaultPrintSize(photo.masterWidth, photo.masterHeight),
+  );
   const [customSize, setCustomSize] = useState('');
   const [printMedium, setPrintMedium] = useState<PrintMedium>('fine-art-paper');
   const [printFinish, setPrintFinish] = useState<PrintFinish>('matte');
@@ -46,7 +39,8 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
 
   useEffect(() => {
     setNotes(initialNotes ?? '');
-  }, [initialNotes, photo.id]);
+    setPrintSize(defaultPrintSize(photo.masterWidth, photo.masterHeight));
+  }, [initialNotes, photo.id, photo.masterWidth, photo.masterHeight]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,7 +226,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               required
               disabled={isSubmitting}
             >
-              {PRINT_SIZE_OPTIONS.map((option) => (
+              {printSizeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>

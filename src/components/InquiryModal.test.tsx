@@ -35,9 +35,10 @@ describe('InquiryModal (unit)', () => {
     expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/print size/i)).toBeInTheDocument();
     const printSize = screen.getByLabelText(/print size/i);
-    expect(printSize).toHaveDisplayValue(/16″ × 20″/);
+    expect(printSize).toHaveDisplayValue(/8″ × 10″/);
     expect(printSize).toContainHTML('locket');
-    expect(printSize).toContainHTML('house');
+    expect(printSize).not.toContainHTML('house');
+    expect(printSize).not.toContainHTML('40″');
     expect(screen.getByRole('button', { name: /submit inquiry/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
   });
@@ -106,9 +107,27 @@ describe('InquiryModal (unit)', () => {
     expect(window.location.href).toContain(encodeURIComponent('30x40 inches'));
   });
 
+  it('offers house and 40×60 only when master pixels are huge', () => {
+    render(
+      <InquiryModal
+        photo={{ ...photo, masterWidth: 18000, masterHeight: 14400 }}
+        onClose={onClose}
+      />,
+    );
+    const printSize = screen.getByLabelText(/print size/i);
+    expect(printSize).toContainHTML('house');
+    expect(printSize).toContainHTML('40″');
+    expect(printSize).toHaveDisplayValue(/40″ × 60″/);
+  });
+
   it('maps house print size into the mailto body', async () => {
     const user = userEvent.setup();
-    render(<InquiryModal photo={photo} onClose={onClose} />);
+    render(
+      <InquiryModal
+        photo={{ ...photo, masterWidth: 18000, masterHeight: 14400 }}
+        onClose={onClose}
+      />,
+    );
 
     await user.selectOptions(screen.getByLabelText(/print size/i), 'house 8x10 ft');
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');

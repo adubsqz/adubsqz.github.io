@@ -49,11 +49,20 @@ test.describe('site', () => {
 
     await clickOpenPhoto(page);
     await expect(lightbox).toBeVisible();
-    await expect(lightbox.getByRole('button', { name: /contact me/i })).toBeVisible();
-    await expect(lightbox.getByRole('button', { name: /request invoice/i })).toHaveCount(0);
+    await expect(lightbox.getByRole('button', { name: /request invoice/i })).toBeVisible();
+    await expect(lightbox.getByRole('button', { name: /licensing or hire/i })).toBeVisible();
+    await expect(lightbox.getByRole('button', { name: /contact me/i })).toHaveCount(0);
     await expect(lightbox.getByText(/tearsheet/i)).toHaveCount(0);
-    await expect(lightbox.getByText(/request invoice/i)).toHaveCount(0);
-    await lightbox.getByRole('button', { name: /contact me/i }).click();
+    await lightbox.getByRole('button', { name: /request invoice/i }).click();
+    const invoiceFromPhoto = page.getByRole('dialog', { name: /request invoice/i });
+    await expect(invoiceFromPhoto).toBeVisible();
+    await expect(page.getByLabel(/shipping address/i)).toBeVisible();
+    await page.getByRole('button', { name: /cancel/i }).click();
+    await expect(invoiceFromPhoto).toHaveCount(0);
+
+    await clickOpenPhoto(page);
+    await expect(lightbox).toBeVisible();
+    await lightbox.getByRole('button', { name: /licensing or hire/i }).click();
     const contactFromPhoto = page.getByRole('dialog', { name: /contact/i });
     await expect(contactFromPhoto).toBeVisible();
     await expect(page.getByRole('dialog', { name: /request invoice/i })).toHaveCount(0);

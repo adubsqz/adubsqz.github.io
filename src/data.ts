@@ -36,6 +36,8 @@ type ManifestRow =
       palette?: string;
       vibe?: string[];
       versatility?: string[];
+      master_width?: number;
+      master_height?: number;
     };
 
 type GalleryManifest = {
@@ -130,8 +132,26 @@ export function resolveGalleryImagePath(collectionId: string, entry: string): st
   return `${galleryPhotosBase}/${collectionId}/${normalized}`;
 }
 
-function photosFromRows(rows: { path: string; orientation?: Photo['orientation'] }[], collectionId: string) {
-  return rows.map(({ path: entry, orientation }, i) => {
+function parseMasterPixels(row: ManifestRow): Pick<Photo, 'masterWidth' | 'masterHeight'> {
+  if (typeof row === 'string') return {};
+  const masterWidth = toPositivePixel(row.master_width);
+  const masterHeight = toPositivePixel(row.master_height);
+  return {
+    ...(masterWidth !== undefined ? { masterWidth } : {}),
+    ...(masterHeight !== undefined ? { masterHeight } : {}),
+  };
+}
+
+function toPositivePixel(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return undefined;
+  return Math.round(value);
+}
+
+function photosFromRows(
+  rows: { path: string; orientation?: Photo['orientation']; masterWidth?: number; masterHeight?: number }[],
+  collectionId: string,
+) {
+  return rows.map(({ path: entry, orientation, masterWidth, masterHeight }, i) => {
     const slug = entry.replace(/\.[^.]+$/, '').replace(/[^a-z0-9/_-]/gi, '_');
     return {
       id: `${collectionId}-${i + 1}`,
@@ -139,16 +159,38 @@ function photosFromRows(rows: { path: string; orientation?: Photo['orientation']
       alt: `Photograph ${slug.replace(/\//g, ' ')}`,
       caption: '',
       orientation,
+      ...(masterWidth !== undefined ? { masterWidth } : {}),
+      ...(masterHeight !== undefined ? { masterHeight } : {}),
     };
   });
 }
 
 function buildPublicCollections(): PhotoCollection[] {
   const raw = galleryManifest as GalleryManifest;
-  const greyscaleRows: { path: string; orientation?: Photo['orientation'] }[] = [];
-  const fullSpectrumRows: { path: string; orientation?: Photo['orientation'] }[] = [];
-  const redscaleRows: { path: string; orientation?: Photo['orientation'] }[] = [];
-  const peopleRows: { path: string; orientation?: Photo['orientation'] }[] = [];
+  const greyscaleRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
+  const fullSpectrumRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
+  const redscaleRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
+  const peopleRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
   const seenGrey = new Set<string>();
   const seenColor = new Set<string>();
   const seenRedscale = new Set<string>();
@@ -165,25 +207,26 @@ function buildPublicCollections(): PhotoCollection[] {
       const result = classifyManifestEntry(entry);
       if (result.kind !== 'public') continue;
       const orientation = parseReelOrientation(rawEntry);
+      const master = parseMasterPixels(rawEntry);
       if (result.bucket === GREYSCALE_ID) {
         if (!seenGrey.has(entry)) {
           seenGrey.add(entry);
-          greyscaleRows.push({ path: entry, orientation });
+          greyscaleRows.push({ path: entry, orientation, ...master });
         }
       } else if (result.bucket === FULL_SPECTRUM_ID) {
         if (!seenColor.has(entry)) {
           seenColor.add(entry);
-          fullSpectrumRows.push({ path: entry, orientation });
+          fullSpectrumRows.push({ path: entry, orientation, ...master });
         }
       } else if (result.bucket === REDSCALE_ID) {
         if (!seenRedscale.has(entry)) {
           seenRedscale.add(entry);
-          redscaleRows.push({ path: entry, orientation });
+          redscaleRows.push({ path: entry, orientation, ...master });
         }
       } else if (result.bucket === PEOPLE_ID) {
         if (!seenPeople.has(entry)) {
           seenPeople.add(entry);
-          peopleRows.push({ path: entry, orientation });
+          peopleRows.push({ path: entry, orientation, ...master });
         }
       }
     }
