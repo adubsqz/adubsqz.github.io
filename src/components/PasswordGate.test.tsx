@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PasswordGate from './PasswordGate';
 import { GALLERY_JWT_TTL_MS, mintGalleryJwt, writeStoredGalleryJwt } from '../galleryJwt';
+import { INSTAGRAM_URL } from '../site';
 
 describe('PasswordGate', () => {
   beforeEach(() => {
@@ -15,6 +16,20 @@ describe('PasswordGate', () => {
     vi.unstubAllEnvs();
     vi.useRealTimers();
     window.localStorage.clear();
+  });
+
+  it('links Instagram DMs for the password and never prints sqz', async () => {
+    render(
+      <PasswordGate>
+        <p>gallery</p>
+      </PasswordGate>,
+    );
+
+    const dm = await screen.findByRole('link', {
+      name: 'Need the lookbook password? DM @adubsqz.',
+    });
+    expect(dm).toHaveAttribute('href', INSTAGRAM_URL);
+    expect(document.body.textContent ?? '').not.toMatch(/(^|[^a-z0-9])sqz([^a-z0-9]|$)/i);
   });
 
   it('asks for the password until sqz mints a JWT', async () => {

@@ -21,6 +21,10 @@ describe('galleryJwt', () => {
     window.localStorage.clear();
   });
 
+  it('uses a 30-day TTL so a biz-card visit still has a session', () => {
+    expect(GALLERY_JWT_TTL_MS).toBe(30 * 24 * 60 * 60 * 1000);
+  });
+
   it('mints a three-part JWT for sqz and rejects other passwords', async () => {
     expect(await mintGalleryJwt('nope')).toBeNull();
     const token = await mintGalleryJwt('sqz');
