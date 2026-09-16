@@ -137,6 +137,9 @@ describe('GalleryView', () => {
     expect(screen.getByRole('button', { name: /request invoice/i }).className).toMatch(/mcm-brick/);
     expect(screen.getByRole('button', { name: /licensing or hire/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /contact me/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /checkout/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /inquire about tearsheet/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/licensing & fulfillment/i)).not.toBeInTheDocument();
     await user.keyboard('{ArrowRight}');
