@@ -16,6 +16,11 @@ written agreement. See [LICENSE](./LICENSE) for the full terms.
 
 The deployed portfolio also publishes photo-specific terms at `/PHOTO_TERMS.md`.
 
+These terms are asserted to crawlers by `public/robots.txt` (Content Signals) and
+`public/.well-known/tdmrep.json` (EU Article 4 opt-out). Those are stated preferences, not
+enforcement — see [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for what
+actually blocks non-compliant AI crawlers and why it is not active yet.
+
 ## Development
 
 ```bash
@@ -124,3 +129,6 @@ Maps use **`{ "entries": [ { "source", "bucket", "link_mode", "dest_basename"?, 
 ## More
 
 See [SETUP.md](./SETUP.md) for the inquiry-to-email (Resend) workflow and environment variables.
+
+See [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for the AI crawler posture
+and the Cloudflare runbook.
