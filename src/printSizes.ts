@@ -16,7 +16,10 @@ type SizedPrint = Extract<PrintSizeOption, { widthIn: number; heightIn: number; 
 const CUSTOM = PRINT_SIZE_OPTIONS[PRINT_SIZE_OPTIONS.length - 1]!;
 const CONSERVATIVE_VALUES: readonly PrintSize[] = ['locket 1x1 in', 'wallet 2.5x3.5 in', '8x10 in', 'custom'];
 
-function hasMasterPixels(masterWidth?: number, masterHeight?: number): boolean {
+function hasMasterPixels(
+  masterWidth?: number,
+  masterHeight?: number,
+): masterWidth is number {
   return (
     typeof masterWidth === 'number' &&
     typeof masterHeight === 'number' &&
@@ -36,7 +39,7 @@ function requiredLongEdgePx(option: SizedPrint): number {
 }
 
 export function offeredPrintSizes(masterWidth?: number, masterHeight?: number): PrintSizeOption[] {
-  if (!hasMasterPixels(masterWidth, masterHeight)) {
+  if (!hasMasterPixels(masterWidth, masterHeight) || typeof masterHeight !== 'number') {
     return PRINT_SIZE_OPTIONS.filter((option) => CONSERVATIVE_VALUES.includes(option.value));
   }
 
