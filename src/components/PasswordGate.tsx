@@ -120,6 +120,8 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         </Button>
         <a
           href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-center text-sm text-photo-muted underline-offset-4 hover:text-photo-fg hover:underline"
         >
           Need the lookbook password? DM @adubsqz.

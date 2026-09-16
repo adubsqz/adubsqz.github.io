@@ -30,6 +30,8 @@ describe('PasswordGate', () => {
     });
     expect(INSTAGRAM_URL).toBe('https://www.instagram.com/adubsqz/');
     expect(dm).toHaveAttribute('href', INSTAGRAM_URL);
+    expect(dm).toHaveAttribute('target', '_blank');
+    expect(dm).toHaveAttribute('rel', 'noopener noreferrer');
     expect(document.body.textContent ?? '').not.toMatch(/(^|[^a-z0-9])sqz([^a-z0-9]|$)/i);
   });
 
