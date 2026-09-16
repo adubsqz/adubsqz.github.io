@@ -80,6 +80,13 @@ describe('data', () => {
       expect(greyscale?.photos.some((p) => p.src.includes('000220500003-pier'))).toBe(true);
     });
 
+    it('tracks original-scan pixels for skatepark, not the 2400px web JPEG', () => {
+      const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
+      const skatepark = color?.photos.find((p) => p.src.includes('00033195-ames-skatepark-reflection'));
+      expect(skatepark?.masterWidth).toBe(6611);
+      expect(skatepark?.masterHeight).toBe(4384);
+    });
+
     it('does not surface import-########.jpg filenames in public collections', () => {
       const allSrc = COLLECTIONS.flatMap((c) => c.photos.map((p) => p.src));
       for (const src of allSrc) {

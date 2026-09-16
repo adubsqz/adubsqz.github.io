@@ -88,6 +88,13 @@ describe('offeredPrintSizes', () => {
     expect(offeredPrintSizes(2400, 3000).map((option) => option.value)).toContain('16x20 in');
   });
 
+  it('offers 16×20 for the skatepark original scan 6611×4384', () => {
+    const values = offeredPrintSizes(6611, 4384).map((option) => option.value);
+    expect(values).toContain('16x20 in');
+    expect(values).toContain('8x10 in');
+    expect(values).not.toContain('40x60 in');
+  });
+
   it('always includes custom', () => {
     expect(offeredPrintSizes().some((option) => option.value === 'custom')).toBe(true);
     expect(offeredPrintSizes(1, 1).some((option) => option.value === 'custom')).toBe(true);
