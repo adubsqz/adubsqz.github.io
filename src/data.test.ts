@@ -87,6 +87,13 @@ describe('data', () => {
       expect(skatepark?.masterHeight).toBe(4384);
     });
 
+    it('tracks kiln scan pixels after duplicate originals collapsed', () => {
+      const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
+      const kiln = greyscale?.photos.find((p) => p.src.includes('30570008-kiln'));
+      expect(kiln?.masterWidth).toBe(6305);
+      expect(kiln?.masterHeight).toBe(4181);
+    });
+
     it('does not surface import-########.jpg filenames in public collections', () => {
       const allSrc = COLLECTIONS.flatMap((c) => c.photos.map((p) => p.src));
       for (const src of allSrc) {
