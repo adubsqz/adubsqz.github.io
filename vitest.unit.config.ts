@@ -10,6 +10,7 @@ export default mergeConfig(
         'tests/photo-budget.test.ts',
         'tests/share-card.test.ts',
         'tests/chrome-css.test.ts',
+        'tests/crawler-controls.test.ts',
       ],
       exclude: [
         'src/App.test.tsx',

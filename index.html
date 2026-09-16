@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noai, noimageai" />
+  <!-- Indexing stays on; image previews and AI reuse do not. `noai`/`noimageai` are
+       honored by a minority of crawlers, so robots.txt and the Cloudflare edge do the
+       real work — see docs/ai-crawler-controls.md. -->
+  <meta name="robots" content="noai, noimageai, max-image-preview:none" />
+  <!-- EU CDSM Directive Article 4 opt-out, mirroring /.well-known/tdmrep.json. -->
+  <meta name="tdm-reservation" content="1" />
   <meta name="rights" content="Copyright © 2026 Alexander Ames. All rights reserved. No AI training or reuse without written permission." />
   <title>adubsqz — photography</title>
   <meta name="description" content="printable film photography as small as a locket for ur momma or prints the size of ur house for when you need to make an impression (or an apology)" />
