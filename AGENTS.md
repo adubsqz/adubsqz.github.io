@@ -24,8 +24,8 @@
 - Root package `build` runs `vite build` only.
 - E2E entry is `playwright-cli.mjs` (pins `PLAYWRIGHT_BROWSERS_PATH` to `.pw-browsers/`). Agents: `node playwright-cli.mjs --wrapper-help` for copy-paste examples; all other args pass through to Playwright.
 - `.venv-gallery/`, `__pycache__/`, and `.pytest_cache/` are gitignored.
-- Cloud-agent onboarding: `skills/cloud-agent-starter/SKILL.md`. Run commands: `npm ci`; `npm run dev` (Vite); `npx vercel@latest dev` (API routes); `VITE_E2E=1` for Playwright gate bypass; `npm run test:run`; `npm run gallery:test`; `npm run playwright:install && npm run test:e2e`; CI does not run Playwright.
-- Vercel CLI via `npx vercel@latest` only — do not add `vercel` to app dependencies (transitive `npm audit` vulnerabilities).
+- Cloud-agent onboarding: `skills/cloud-agent-starter/SKILL.md`. Live shop is GitHub Pages (not Vercel). Run: `npm ci`; `npm run dev` (Vite); `VITE_E2E=1` for Playwright gate bypass; `npm run test:run`; `npm run gallery:test`; `npm run playwright:install && npm run test:e2e`; CI does not run Playwright.
+- Inquiry on Pages uses FormSubmit / Web3Forms / mailto via `src/inquireStatic.ts`. `api/` is unused at runtime. Do not add the Vercel CLI to app dependencies.
 
 ## Cursor Cloud specific instructions
 
@@ -33,20 +33,20 @@
 
 | Service | Start command | Notes |
 | --- | --- | --- |
-| Vite dev server (frontend) | `npm run dev` | SPA on port 5173; for API routes use `npx vercel@latest dev` instead |
+| Vite dev server (frontend) | `npm run dev` | SPA on port 5173; this is the Pages-shaped shop (gate + Request Invoice) |
 | Gallery Python tests | `npm run gallery:test` | Auto-creates `.venv-gallery/` if missing |
 
 ### Running the app
 
-- `npm run dev` serves the React SPA. API routes (`/api/auth`, `/api/inquire`) require Vercel CLI (`npx vercel@latest dev`) — plain Vite returns 404 for those.
-- Set `VITE_E2E=1` to bypass the password gate without needing `GALLERY_PASSWORD`/`GALLERY_AUTH_SECRET`.
+- `npm run dev` serves the React SPA, client JWT password gate, and FormSubmit inquiry forms. You do not need `vercel dev` for the live shop path.
+- Set `VITE_E2E=1` to bypass the password gate. There is no `GALLERY_PASSWORD` cookie on Pages.
 - No database or external service is required to start the frontend.
 
 ### Lint / Test / Build
 
 - **Lint:** `npm run lint` (runs `tsc --noEmit` against both `tsconfig.json` and `tsconfig.api.json`)
-- **Unit tests:** `npm run test:run` (Vitest, 48 tests, mocks Resend SDK)
-- **Gallery tests:** `npm run gallery:test` (pytest, 29 tests)
+- **Unit tests:** `npm run test:run` (Vitest; inquiry tests mock FormSubmit / mailto)
+- **Gallery tests:** `npm run gallery:test` (pytest)
 - **E2E:** `npm run playwright:install` (one-time), then `npm run test:e2e` (starts its own Vite server with `VITE_E2E=1`)
 - **Build:** `npm run build` (Vite production build → `dist/`)
 

@@ -14,47 +14,43 @@ permitted without prior written permission.
 Any print sale, image license, film/TV clearance, syndication, rental, or commercial use must be confirmed in a separate
 written agreement. See [LICENSE](./LICENSE) for the full terms.
 
-The deployed portfolio also publishes photo-specific terms at `/PHOTO_TERMS.md`.
+Photo-specific terms on the deployed site live in the lookbook UI (rights / licensing copy), not a separate `/PHOTO_TERMS.md` file.
+
+## Runtime (read this first)
+
+**Production is GitHub Pages + Cloudflare DNS at [adubs.site](https://adubs.site).** There is no Vercel production app, no `adubs.shop` origin, and no live `/api/auth` or `/api/inquire`. `api/` may remain in the repo for unused experiments; the published shop does not call it.
+
+Inquiries go from the browser through FormSubmit (then Web3Forms, then `mailto:adubsqz@gmail.com`). See [SETUP.md](./SETUP.md).
+
+### Password gate
+
+The live lookbook uses a **client JWT** in `localStorage` (`src/galleryJwt.ts`), not a Vercel cookie. Visitors type the lookbook password, get a 30-day signed token, and re-enter when it expires. Share the password in Instagram Stories/DMs (or on cards), not in the Instagram bio. The UI never prints the password; the gate links to [Instagram @adubsqz](https://www.instagram.com/adubsqz/) in a new tab.
+
+`VITE_E2E=1` skips the gate for Playwright. Do not put `GALLERY_PASSWORD` / `GALLERY_AUTH_SECRET` in README as if they were the Pages runtime — those names belong to the unused Vercel `/api/auth` path.
+
+### www TLS
+
+GitHub Pages custom domain must list **both** `adubs.site` and `www.adubs.site`. Apex A/AAAA → GitHub Pages IPs; `www` CNAME → `adubsqz.github.io`. Cloudflare DNS should be DNS-only (grey cloud) for those records until you intentionally proxy. Enforce HTTPS in the Pages settings after GitHub issues the cert. If `www` shows a certificate error, the Pages custom-domain list is incomplete.
 
 ## Development
 
 ```bash
 npm install
-npm run dev           # Vite only — UI at http://localhost:5173 (no API routes)
+npm run dev           # lookbook UI at http://localhost:5173
 ```
 
-To test API routes (`/api/auth`, `/api/inquire`) locally, use the Vercel dev server instead:
-
-```bash
-npx vercel@latest dev
-```
+That is the production-shaped stack. You do not need `vercel dev` to click Gallery, Request Invoice, or Contact.
 
 ## Tests
 
 - **Unit / component (Vitest):** `npm run test` or `npm run test:run`
 - **E2E (Playwright):** `npm run playwright:install` once per machine, then `npm run test:e2e`
 
-### Password gate
-
-The gallery is gated by a **server-side** password check (`/api/auth`). The password is never shipped to the browser; the client only gets a signed, HttpOnly auth cookie after a successful submit.
-
-Required environment variables (server-only — **no `VITE_` prefix**):
-
-- `**GALLERY_PASSWORD`** — the password visitors type into the gate. If unset, the site is public.
-- `**GALLERY_AUTH_SECRET`** — a long random string used to sign the auth cookie. Rotate it to invalidate all existing sessions. Generate one with:
-  ```bash
-  node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
-  ```
-- **Local:** set both in `.env.local` (see [SETUP.md](./SETUP.md)). Run the app with `vercel dev` so `/api/auth` is available.
-- **Production (Vercel):** add both under Project → Settings → Environment Variables for **Production** (and Preview if you want). Changing `GALLERY_PASSWORD` takes effect on the next request — **no rebuild required**.
-
-If you omit `GALLERY_PASSWORD` on **Vercel**, the gallery **stays locked** (fail-safe) until you set a password or set `GALLERY_PUBLIC=1` to intentionally ship a public build. Local `npm run dev` without a password remains public for convenience.
-
 ### Playwright and the password gate
 
-Playwright starts the dev server with `VITE_E2E=1`, which makes the client skip the `/api/auth` check entirely during e2e runs.
+Playwright starts Vite with `VITE_E2E=1`, which skips the client JWT gate.
 
-**If `reuseExistingServer` reuses a `npm run dev` you started without `VITE_E2E=1`, you’ll still see the password screen when a gallery password is configured.** Stop that dev server so Playwright can start one with the right env, or run dev with `VITE_E2E=1` while debugging e2e.
+If `reuseExistingServer` reuses a `npm run dev` you started without `VITE_E2E=1`, you will still see the password screen. Stop that server so Playwright can start one with the right env, or run `VITE_E2E=1 npm run dev` while debugging e2e.
 
 ## Build
 
@@ -72,7 +68,7 @@ Requirements:
 - **`python3`** on PATH (npm scripts create **`./.venv-gallery`** automatically via the shell wrappers).
 - **`bash`** (for **`tools/run_gallery_*.sh`**).
 
-**Environment:** Gallery commands load **`.env`** then **`.env.local`** from the repo root (and from **`GALLERY_REPO_ROOT`**, when set), without overriding variables already exported in your shell. Put paths like **`GALLERY_PHOTO_PROMPT`** in **`.env.local`** so `npm run gallery:import` and related scripts pick them up alongside Vite/`vercel dev`.
+**Environment:** Gallery commands load **`.env`** then **`.env.local`** from the repo root (and from **`GALLERY_REPO_ROOT`**, when set), without overriding variables already exported in your shell. Put paths like **`GALLERY_PHOTO_PROMPT`** in **`.env.local`**.
 
 Commands:
 
@@ -83,6 +79,8 @@ npm run gallery:verify                           # parity + max dimensions + bur
 npm run gallery:import -- --map YOUR_MAP.json   # optional: --dry-run, --limit N, --stage-only (HITL)
 npm run gallery:promote -- --list             # human review queue → then --tokens … or --approve-all
 npm run gallery:draft-probe-map -- -o .tmp/staged-curation.json   # 8 random ~/originals not in manifest
+npm run gallery:backfill-master-size                             # dry-run original-scan pixels into the manifest
+npm run gallery:backfill-master-size -- --write                  # write master_width/master_height only (never originals)
 ```
 
 **Human-in-the-loop (`--stage-only`):** By default, **`gallery:import`** writes into **`public/`** and **`src/gallery-manifest.json`**. With **`--stage-only`**, nothing touches **`public/`** or the main manifest. Optimized files go to **`.tmp/gallery-hitl/photos/still-life/…`** (same layout as **`public/photos/still-life/`**), and **``.tmp/gallery-hitl/pending.json`** records the queue. Review those files locally, delete any you don’t want from that tree, edit **`pending.json`** if needed, then promote approved rows:
@@ -123,4 +121,4 @@ Maps use **`{ "entries": [ { "source", "bucket", "link_mode", "dest_basename"?, 
 
 ## More
 
-See [SETUP.md](./SETUP.md) for the inquiry-to-email (Resend) workflow and environment variables.
+See [SETUP.md](./SETUP.md) for the Pages inquiry path (FormSubmit / mailto) and DNS / www TLS.
