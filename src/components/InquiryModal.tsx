@@ -26,6 +26,9 @@ interface InquiryModalProps {
 type PrintMedium = 'fine-art-paper' | 'canvas' | 'metal' | 'acrylic';
 type PrintFinish = 'matte' | 'gloss' | 'lustre';
 
+/** 16px type + 44px-tall controls so iOS does not zoom and thumbs can hit the sheet. */
+const MOBILE_FIELD_CLASS = 'min-h-11 px-4 py-2.5 text-base sm:text-sm';
+
 export default function InquiryModal({ photo, initialNotes, onClose }: InquiryModalProps) {
   const printSizeOptions = offeredPrintSizes(photo.masterWidth, photo.masterHeight);
   const [name, setName] = useState('');
@@ -100,9 +103,12 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
 
   return (
     <Dialog open onOpenChange={(open) => !open && !isSubmitting && onClose()}>
-      <DialogContent className="fixed inset-0 z-[110] flex h-[100dvh] max-h-[100dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 p-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[min(94dvh,56rem)] sm:w-[calc(100%-2rem)] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border">
-        <div className="flex shrink-0 items-center justify-between border-b border-photo-border bg-photo-panel px-4 py-4 sm:px-6 sm:py-5">
-          <DialogHeader className="space-y-1">
+      <DialogContent
+        data-inquiry-sheet
+        className="fixed inset-0 z-[110] flex h-[100dvh] max-h-[100dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 p-0 touch-manipulation sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[min(94dvh,56rem)] sm:w-[calc(100%-2rem)] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"
+      >
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-photo-border bg-photo-panel px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:py-5">
+          <DialogHeader className="min-w-0 space-y-1">
             <DialogTitle className="font-display mb-1">
               Request Invoice
             </DialogTitle>
@@ -113,7 +119,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
           <Button
             onClick={onClose}
             disabled={isSubmitting}
-            className="h-8 px-2 text-lg leading-none"
+            className="h-11 w-11 min-h-11 min-w-11 shrink-0 px-0 text-lg leading-none"
             variant="ghost"
             aria-label="Close"
           >
@@ -165,7 +171,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="px-4 py-2.5"
+                className={MOBILE_FIELD_CLASS}
                 placeholder="John Doe"
                 required
                 disabled={isSubmitting}
@@ -181,7 +187,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-2.5"
+                className={MOBILE_FIELD_CLASS}
                 placeholder="john@example.com"
                 required
                 disabled={isSubmitting}
@@ -198,7 +204,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               type="text"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="px-4 py-2.5"
+              className={MOBILE_FIELD_CLASS}
               placeholder="Interior Design Studio"
               disabled={isSubmitting}
             />
@@ -213,7 +219,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               value={shippingAddress}
               onChange={(e) => setShippingAddress(e.target.value)}
               rows={3}
-              className="resize-y px-4 py-2.5"
+              className={`resize-y ${MOBILE_FIELD_CLASS}`}
               placeholder="123 Main St, Suite 100&#10;New York, NY 10001"
               required
               disabled={isSubmitting}
@@ -228,7 +234,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               id="inquiry-size"
               value={printSize}
               onChange={(e) => setPrintSize(e.target.value as PrintSize)}
-              className="px-4 py-2.5"
+              className={MOBILE_FIELD_CLASS}
               required
               disabled={isSubmitting}
             >
@@ -254,7 +260,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 id="inquiry-medium"
                 value={printMedium}
                 onChange={(e) => setPrintMedium(e.target.value as PrintMedium)}
-                className="px-4 py-2.5"
+                className={MOBILE_FIELD_CLASS}
                 disabled={isSubmitting}
               >
                 <option value="fine-art-paper">Fine Art Paper</option>
@@ -271,7 +277,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 id="inquiry-finish"
                 value={printFinish}
                 onChange={(e) => setPrintFinish(e.target.value as PrintFinish)}
-                className="px-4 py-2.5"
+                className={MOBILE_FIELD_CLASS}
                 disabled={isSubmitting}
               >
                 <option value="matte">Matte</option>
@@ -291,7 +297,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 type="text"
                 value={customSize}
                 onChange={(e) => setCustomSize(e.target.value)}
-                className="px-4 py-2.5"
+                className={MOBILE_FIELD_CLASS}
                 placeholder="e.g., 30x40 inches, or a locket"
                 required={printSize === 'custom'}
                 disabled={isSubmitting}
@@ -308,7 +314,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
-              className="resize-y px-4 py-2.5"
+              className={`resize-y ${MOBILE_FIELD_CLASS}`}
               placeholder="Special instructions, framing preferences, quantity, etc."
               disabled={isSubmitting}
             />
@@ -327,13 +333,16 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
             </div>
           </div>
 
-          <div className="sticky bottom-0 z-10 shrink-0 border-t border-photo-border bg-photo-panel/95 px-4 py-4 backdrop-blur-sm sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div
+            data-inquiry-actions
+            className="sticky bottom-0 z-10 shrink-0 border-t border-photo-border bg-photo-panel/95 px-4 py-4 backdrop-blur-sm sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          >
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Button
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex-1 px-5 py-3"
+                className="min-h-12 flex-1 px-5 py-3 text-base sm:text-sm"
                 variant="outline"
               >
                 Cancel
@@ -341,7 +350,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 px-5 py-3"
+                className="min-h-12 flex-1 px-5 py-3 text-base sm:text-sm"
                 variant="inquirySubmit"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit inquiry'}

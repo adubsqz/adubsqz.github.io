@@ -49,6 +49,36 @@ describe('InquiryModal (unit)', () => {
     expect(screen.queryByText(/shopify/i)).not.toBeInTheDocument();
   });
 
+  it('keeps a full-viewport sheet with 44px taps and 16px fields for phones', () => {
+    render(<InquiryModal photo={photo} onClose={onClose} />);
+    const dialog = screen.getByRole('dialog', { name: /request invoice/i });
+    expect(dialog).toHaveAttribute('data-inquiry-sheet');
+    expect(dialog.className).toMatch(/inset-0/);
+    expect(dialog.className).toMatch(/h-\[100dvh\]/);
+    expect(dialog.className).toMatch(/rounded-none/);
+    expect(dialog.className).toMatch(/sm:rounded-2xl/);
+    expect(dialog.className).toMatch(/touch-manipulation/);
+
+    const close = screen.getByRole('button', { name: /close/i });
+    expect(close.className).toMatch(/min-h-11/);
+    expect(close.className).toMatch(/min-w-11/);
+
+    for (const label of [/full name/i, /email/i, /print size/i, /print medium/i, /^finish$/i]) {
+      expect(screen.getByLabelText(label).className).toMatch(/text-base/);
+      expect(screen.getByLabelText(label).className).toMatch(/min-h-11/);
+    }
+
+    const submit = screen.getByRole('button', { name: /submit inquiry/i });
+    const cancel = screen.getByRole('button', { name: /cancel/i });
+    expect(submit.className).toMatch(/min-h-12/);
+    expect(cancel.className).toMatch(/min-h-12/);
+    const actions = dialog.querySelector('[data-inquiry-actions]');
+    expect(actions).not.toBeNull();
+    expect(actions?.className).toMatch(/sticky/);
+    expect(actions?.querySelector('.flex')?.className).toMatch(/flex-col/);
+    expect(actions?.querySelector('.flex')?.className).toMatch(/sm:flex-row/);
+  });
+
   it('hides 16×20 when only one master dimension is set', () => {
     const { rerender } = render(
       <InquiryModal photo={{ ...photo, masterWidth: 8000 }} onClose={onClose} />,
