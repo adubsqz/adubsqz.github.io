@@ -31,8 +31,6 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "playwright-cli": "^0.262.0",

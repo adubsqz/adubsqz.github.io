@@ -7,5 +7,5 @@ interface ImportMetaEnv {
   readonly VITE_FORMSUBMIT_ID?: string;
   readonly VITE_FORMSUBMIT_EMAIL?: string;
   readonly VITE_WEB3FORMS_ACCESS_KEY?: string;
-  readonly VITE_GOATCOUNTER_CODE?: string;
+  readonly VITE_CF_BEACON_TOKEN?: string;
 }

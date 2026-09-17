@@ -20,6 +20,7 @@ Create `.env.local` in the repo root when you need overrides. None of these are 
 | `VITE_FORMSUBMIT_ID` | No (code has a default hash) | FormSubmit form id from the activation email, never the naked inbox |
 | `VITE_WEB3FORMS_ACCESS_KEY` | No | Optional public Web3Forms key |
 | `VITE_E2E` | Tests only | Set to `1` to skip the password gate in Playwright |
+| `VITE_CF_BEACON_TOKEN` | No | Cloudflare Web Analytics beacon; GitHub Actions secret of the same name for Pages builds |
 | `GALLERY_PHOTO_PROMPT` | Gallery CLI only | Absolute path to the `photo-prompt` binary |
 | `GALLERY_ORIGINALS` | Backfill only | Override `~/photography/originals` when recording scan pixels |
 

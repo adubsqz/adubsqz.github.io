@@ -32,6 +32,10 @@ The live lookbook uses a **client JWT** in `localStorage` (`src/galleryJwt.ts`),
 
 GitHub Pages custom domain must list **both** `adubs.site` and `www.adubs.site`. Apex A/AAAA → GitHub Pages IPs; `www` CNAME → `adubsqz.github.io`. Cloudflare DNS should be DNS-only (grey cloud) for those records until you intentionally proxy. Enforce HTTPS in the Pages settings after GitHub issues the cert. If `www` shows a certificate error, the Pages custom-domain list is incomplete.
 
+### Analytics
+
+Cloudflare Web Analytics (not GoatCounter, not Vercel Speed Insights). Create a beacon token for `adubs.site`, put it in GitHub Actions secret `VITE_CF_BEACON_TOKEN`, and it is baked in at `npm run build` via `.github/workflows/pages.yml`. Locally, set `VITE_CF_BEACON_TOKEN` in `.env.local`. Empty token means no beacon.
+
 ## Development
 
 ```bash
