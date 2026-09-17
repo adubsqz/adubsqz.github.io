@@ -48,7 +48,11 @@ export function usesConservativePrintSizes(
 export const MORE_SIZING_OPTIONS_HINT = 'Inquire via email for more sizing options';
 
 export function offeredPrintSizes(masterWidth?: number, masterHeight?: number): PrintSizeOption[] {
-  if (usesConservativePrintSizes(masterWidth, masterHeight) || typeof masterHeight !== 'number') {
+  if (
+    usesConservativePrintSizes(masterWidth, masterHeight) ||
+    typeof masterWidth !== 'number' ||
+    typeof masterHeight !== 'number'
+  ) {
     return PRINT_SIZE_OPTIONS.filter((option) => CONSERVATIVE_VALUES.includes(option.value));
   }
 
