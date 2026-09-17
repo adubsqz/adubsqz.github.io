@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { defaultPrintSize, offeredPrintSizes, PRINT_SIZE_OPTIONS } from './printSizes';
+import {
+  defaultPrintSize,
+  offeredPrintSizes,
+  PRINT_SIZE_OPTIONS,
+  usesConservativePrintSizes,
+} from './printSizes';
 
 describe('PRINT_SIZE_OPTIONS', () => {
   it('lists locket through house plus custom', () => {
@@ -100,6 +105,16 @@ describe('offeredPrintSizes', () => {
     expect(offeredPrintSizes(1, 1).some((option) => option.value === 'custom')).toBe(true);
     expect(offeredPrintSizes(2999, 2400).some((option) => option.value === 'custom')).toBe(true);
     expect(offeredPrintSizes(18000, 18000).some((option) => option.value === 'custom')).toBe(true);
+  });
+});
+
+describe('usesConservativePrintSizes', () => {
+  it('is true when master pixels are missing or one-sided', () => {
+    expect(usesConservativePrintSizes()).toBe(true);
+    expect(usesConservativePrintSizes(undefined, 4000)).toBe(true);
+    expect(usesConservativePrintSizes(4000, undefined)).toBe(true);
+    expect(usesConservativePrintSizes(0, 0)).toBe(true);
+    expect(usesConservativePrintSizes(6611, 4384)).toBe(false);
   });
 });
 

@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import type { Photo } from '../types';
 import { submitPrintInquiry } from '../inquireStatic';
-import { defaultPrintSize, offeredPrintSizes, type PrintSize } from '../printSizes';
+import {
+  defaultPrintSize,
+  MORE_SIZING_OPTIONS_HINT,
+  offeredPrintSizes,
+  usesConservativePrintSizes,
+  type PrintSize,
+} from '../printSizes';
 import { FilmTvClearanceBlock, RightsReservedBlock, TearsheetAndFulfillmentGrid } from './LicensingDetails';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
@@ -232,6 +238,11 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
                 </option>
               ))}
             </Select>
+            {usesConservativePrintSizes(photo.masterWidth, photo.masterHeight) && (
+              <p className="mt-2 text-xs text-photo-muted leading-relaxed">
+                {MORE_SIZING_OPTIONS_HINT}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

@@ -41,6 +41,7 @@ describe('InquiryModal (unit)', () => {
     expect(printSize).not.toContainHTML('40″');
     expect(printSize).not.toContainHTML('16″ × 20″');
     expect(printSize).toContainHTML('custom');
+    expect(screen.getByText(/inquire via email for more sizing options/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submit inquiry/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
@@ -61,6 +62,11 @@ describe('InquiryModal (unit)', () => {
     printSize = screen.getByLabelText(/print size/i);
     expect(printSize).not.toContainHTML('16″ × 20″');
     expect(printSize).toContainHTML('custom');
+  });
+
+  it('points unmatched stills to email for more sizes', () => {
+    render(<InquiryModal photo={{ ...photo, masterWidth: 8000 }} onClose={onClose} />);
+    expect(screen.getByText(/inquire via email for more sizing options/i)).toBeInTheDocument();
   });
 
   it('shows the custom size input when selecting "custom"', async () => {
@@ -138,6 +144,7 @@ describe('InquiryModal (unit)', () => {
     expect(printSize).toContainHTML('house');
     expect(printSize).toContainHTML('40″');
     expect(printSize).toHaveDisplayValue(/40″ × 60″/);
+    expect(screen.queryByText(/inquire via email for more sizing options/i)).not.toBeInTheDocument();
   });
 
   it('maps house print size into the mailto body', async () => {

@@ -68,6 +68,7 @@ describe('Lightbox invoice flow (functional)', () => {
     expect(printSize).toHaveDisplayValue(/8″ × 10″/);
     expect(printSize).not.toContainHTML('16″ × 20″');
     expect(printSize).toContainHTML('custom');
+    expect(screen.getByText(/inquire via email for more sizing options/i)).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
