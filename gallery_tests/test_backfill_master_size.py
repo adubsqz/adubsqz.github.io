@@ -312,3 +312,24 @@ def test_duplicate_scan_id_copies_with_different_pixels_stay_ambiguous(tmp_path:
     assert "bw/30570008-kiln.JPG" in result.ambiguous
     row = json.loads(manifest_path.read_text(encoding="utf-8"))["bw"][0]
     assert "master_width" not in row
+
+
+def test_dusk_vertical_picks_portrait_when_scan_id_copies_disagree(tmp_path: Path) -> None:
+    originals = tmp_path / "originals"
+    _write_jpeg(originals / "a" / "30570010.jpg", 6305, 4181)
+    _write_jpeg(originals / "b" / "30570010.jpg", 4181, 6305)
+    _, manifest_path = _repo_with_manifest(
+        tmp_path,
+        _empty_manifest(bw=[{"path": "bw/30570010-dusk.JPG", "orientation": "vertical"}]),
+    )
+
+    result = backfill_master_size(
+        manifest_path=manifest_path,
+        originals=originals,
+        write=True,
+    )
+
+    assert result.ambiguous == []
+    row = json.loads(manifest_path.read_text(encoding="utf-8"))["bw"][0]
+    assert row["master_width"] == 4181
+    assert row["master_height"] == 6305

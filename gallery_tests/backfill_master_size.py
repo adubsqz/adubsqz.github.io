@@ -123,7 +123,11 @@ def _index_originals(root: Path) -> tuple[dict[str, list[Path]], dict[str, list[
     return by_name, by_stem
 
 
-def _unique_or_ambiguous(hits: list[Path]) -> Path | str | None:
+def _unique_or_ambiguous(
+    hits: list[Path],
+    *,
+    orientation: str | None = None,
+) -> Path | str | None:
     """Treat duplicate copies of the same scan as one original.
 
     Recursive ``originals/`` trees often keep the same Noritsu file in two
@@ -155,28 +159,53 @@ def _unique_or_ambiguous(hits: list[Path]) -> Path | str | None:
     for path in resolved:
         by_size.setdefault(_read_size(path), []).append(path)
     if len(by_size) != 1:
+        oriented = _paths_matching_orientation(by_size, orientation)
+        if oriented is not None:
+            return oriented
         return "ambiguous"
     copies = next(iter(by_size.values()))
     return min(copies, key=lambda path: (len(path.parts), path.as_posix().lower()))
+
+
+def _paths_matching_orientation(
+    by_size: dict[tuple[int, int], list[Path]],
+    orientation: str | None,
+) -> Path | str | None:
+    if orientation not in {"vertical", "horizontal"}:
+        return None
+    want_portrait = orientation == "vertical"
+    chosen: list[Path] = []
+    chosen_sizes: set[tuple[int, int]] = set()
+    for (width, height), paths in by_size.items():
+        is_portrait = height > width
+        if is_portrait == want_portrait:
+            chosen.extend(paths)
+            chosen_sizes.add((width, height))
+    if len(chosen_sizes) != 1:
+        return None
+    return min(chosen, key=lambda path: (len(path.parts), path.as_posix().lower()))
 
 
 def match_original(
     dest_basename: str,
     by_name: dict[str, list[Path]],
     by_stem: dict[str, list[Path]],
+    orientation: str | None = None,
 ) -> Path | str | None:
     """Match dest basename to an original file.
 
     Prefers unique case-insensitive basename, then unique stem (any suffix),
     then unique longest original stem that is a hyphen prefix of the dest stem
-    (``30570008.jpg`` → dest ``30570008-kiln.JPG``).
+    (``30570008.jpg`` → dest ``30570008-kiln.JPG``). When several copies remain
+    with different pixel sizes, a dest ``vertical`` / ``horizontal`` orientation
+    may pick the matching aspect.
     """
-    name_hit = _unique_or_ambiguous(by_name.get(dest_basename.lower(), []))
+    name_hit = _unique_or_ambiguous(by_name.get(dest_basename.lower(), []), orientation=orientation)
     if name_hit is not None:
         return name_hit
 
     dest_stem = Path(dest_basename).stem.lower()
-    stem_hit = _unique_or_ambiguous(by_stem.get(dest_stem, []))
+    stem_hit = _unique_or_ambiguous(by_stem.get(dest_stem, []), orientation=orientation)
     if stem_hit is not None:
         return stem_hit
 
@@ -190,7 +219,7 @@ def match_original(
     longest = max(length for length, _ in prefix_hits)
     longest_paths = [path for length, path in prefix_hits if length == longest]
     unique = list(dict.fromkeys(longest_paths))
-    return _unique_or_ambiguous(unique)
+    return _unique_or_ambiguous(unique, orientation=orientation)
 
 
 def _row_token(row: object) -> str | None:
@@ -201,6 +230,18 @@ def _row_token(row: object) -> str | None:
         raw = row.get("path")
         if isinstance(raw, str) and raw.strip():
             return raw.strip()
+    return None
+
+
+def _row_orientation(row: object) -> str | None:
+    if not isinstance(row, dict):
+        return None
+    raw = row.get("orientation")
+    if not isinstance(raw, str):
+        return None
+    value = raw.strip().lower()
+    if value in {"vertical", "horizontal", "square"}:
+        return value
     return None
 
 
@@ -273,7 +314,12 @@ def check_rendered_knows_originals(
             original_path = row_obj.get("original_path") if isinstance(row_obj, dict) else None
             master_bytes = _to_positive_int(row_obj.get("master_bytes"))
 
-            matched = match_original(Path(token).name, by_name, by_stem) if originals_exist else None
+            matched = match_original(
+                Path(token).name,
+                by_name,
+                by_stem,
+                orientation=_row_orientation(row),
+            ) if originals_exist else None
             if matched == "ambiguous":
                 errors.append(f"{token}: ambiguous original under {originals}")
                 continue
@@ -343,7 +389,12 @@ def backfill_master_size(
                 new_rows.append(row)
                 continue
             dest = Path(token).name
-            matched = match_original(dest, by_name, by_stem)
+            matched = match_original(
+                dest,
+                by_name,
+                by_stem,
+                orientation=_row_orientation(row),
+            )
             if matched == "ambiguous":
                 result.ambiguous.append(token)
                 new_rows.append(row)
