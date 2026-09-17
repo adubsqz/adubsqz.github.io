@@ -281,9 +281,9 @@ export const ABOUT = {
   contactEmail: 'adubsqz@gmail.com',
   photoCredit: 'Photo captured by Cayla Holling.',
   voice:
-    "I am not an AI robot. You don't need to prompt me a million times or sign up for a subscription. One flat rate and your business, your dream app, comes to life - Let's talk, like humans do and make something distinctly creative and complex.",
+    'I take 35mm and medium format film photography, print, license, and sell my work.',
   portfolioPitch:
-    'I design and build lightweight portfolio sites for photographers, visual artists, musicians, and filmmakers—gallery layouts, audio and video embeds, contact flows, and hosting handled end to end. If you need a site for your own work, say what you have in mind and we can talk scope and budget.',
+    'I am an experienced software engineer. I build portfolio sites like this for pictures, video, and music. I am an AWS Certified AI Practitioner for apps-to-AI work.',
   bio: 'Originally from the Southwest, now residing in New York. By trade, a data scientist and software engineer at a biomolecular research company focused on fighting cancer. At night, the world of cinema, art, and storytelling awaits. Bobs your uncle, adubs is your nephew rolling tobacco by the dumpster to make it through a dull family reunion.',
   socials: [
     { name: 'Instagram', url: INSTAGRAM_URL },

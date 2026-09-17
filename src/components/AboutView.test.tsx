@@ -7,11 +7,12 @@ import { SITE_HOST } from '../site';
 describe('AboutView', () => {
   it('renders the human voice, portfolio pitch, contact CTA, and rights block', () => {
     render(<AboutView />);
-    expect(screen.getByText(/I am not an AI robot/i)).toBeInTheDocument();
-    expect(screen.getByText(/Let's talk, like humans do/i)).toBeInTheDocument();
+    expect(screen.getByText(/I take 35mm and medium format film photography/i)).toBeInTheDocument();
+    expect(screen.getByText(/print, license, and sell my work/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/I design and build lightweight portfolio sites for photographers/i),
+      screen.getByText(/AWS Certified AI Practitioner/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/portfolio sites like this for pictures, video, and music/i)).toBeInTheDocument();
     expect(screen.getByText(/Need prints, a license, or a site/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i }).querySelector('.graffiti-label--on')).toHaveAttribute(

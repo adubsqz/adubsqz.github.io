@@ -165,9 +165,8 @@ describe('data', () => {
       expect(typeof ABOUT.name).toBe('string');
       expect(typeof ABOUT.bio).toBe('string');
       expect(typeof ABOUT.voice).toBe('string');
-      expect(ABOUT.voice).toContain('I am not an AI robot');
-      expect(ABOUT.voice).toContain("Let's talk, like humans do");
-      expect(ABOUT.portfolioPitch).toContain('lightweight portfolio sites');
+      expect(ABOUT.voice).toContain('35mm and medium format film photography');
+      expect(ABOUT.portfolioPitch).toContain('AWS Certified AI Practitioner');
       expect(typeof ABOUT.photoCredit).toBe('string');
       expect(Array.isArray(ABOUT.socials)).toBe(true);
     });

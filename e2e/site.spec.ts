@@ -75,8 +75,8 @@ test.describe('site', () => {
     await page.getByRole('button', { name: 'adubsqz' }).click();
     await expect(page.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
-    await expect(page.getByText(/I am not an AI robot/i)).toBeVisible();
-    await expect(page.getByText(/lightweight portfolio sites for photographers/i)).toBeVisible();
+    await expect(page.getByText(/I take 35mm and medium format film photography/i)).toBeVisible();
+    await expect(page.getByText(/AWS Certified AI Practitioner/i)).toBeVisible();
     await expect(page.getByText(/Need prints, a license, or a site/i)).toBeVisible();
     await expect(page.getByText(/rights reserved/i)).toBeVisible();
     const instagram = page.getByRole('link', { name: /^instagram$/i });

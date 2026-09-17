@@ -17,7 +17,7 @@ test.describe('smoke', () => {
 
     await page.getByRole('button', { name: 'adubsqz' }).click();
     await expect(page.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByText(/I am not an AI robot/i)).toBeVisible();
+    await expect(page.getByText(/I take 35mm and medium format film photography/i)).toBeVisible();
     const talk = page.getByRole('button', { name: /let's talk/i });
     await expect(talk).toBeVisible();
     await expect(talk.locator('.graffiti-label--on')).toHaveAttribute('data-tone', 'pink');
