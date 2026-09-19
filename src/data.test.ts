@@ -80,6 +80,20 @@ describe('data', () => {
       expect(greyscale?.photos.some((p) => p.src.includes('000220500003-pier'))).toBe(true);
     });
 
+    it('tracks original-scan pixels for skatepark, not the 2400px web JPEG', () => {
+      const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
+      const skatepark = color?.photos.find((p) => p.src.includes('00033195-ames-skatepark-reflection'));
+      expect(skatepark?.masterWidth).toBe(6611);
+      expect(skatepark?.masterHeight).toBe(4384);
+    });
+
+    it('tracks kiln scan pixels after duplicate originals collapsed', () => {
+      const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
+      const kiln = greyscale?.photos.find((p) => p.src.includes('30570008-kiln'));
+      expect(kiln?.masterWidth).toBe(6305);
+      expect(kiln?.masterHeight).toBe(4181);
+    });
+
     it('does not surface import-########.jpg filenames in public collections', () => {
       const allSrc = COLLECTIONS.flatMap((c) => c.photos.map((p) => p.src));
       for (const src of allSrc) {
@@ -151,9 +165,8 @@ describe('data', () => {
       expect(typeof ABOUT.name).toBe('string');
       expect(typeof ABOUT.bio).toBe('string');
       expect(typeof ABOUT.voice).toBe('string');
-      expect(ABOUT.voice).toContain('I am not an AI robot');
-      expect(ABOUT.voice).toContain("Let's talk, like humans do");
-      expect(ABOUT.portfolioPitch).toContain('lightweight portfolio sites');
+      expect(ABOUT.voice).toContain('35mm and medium format film photography');
+      expect(ABOUT.portfolioPitch).toContain('AWS Certified AI Practitioner');
       expect(typeof ABOUT.photoCredit).toBe('string');
       expect(Array.isArray(ABOUT.socials)).toBe(true);
     });

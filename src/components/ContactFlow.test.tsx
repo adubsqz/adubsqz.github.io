@@ -59,6 +59,8 @@ describe('Contact me flow (functional)', () => {
     expect(window.location.href).toContain(encodeURIComponent('Hi there'));
 
     expect(await screen.findByText(/message sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/check jane@example.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
   });
 
   it('posts CONTACT ME to the activated FormSubmit hash when fetch succeeds', async () => {
@@ -84,6 +86,8 @@ describe('Contact me flow (functional)', () => {
     );
     expect(window.location.href).not.toMatch(/^mailto:/);
     expect(await screen.findByText(/message sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/check jane@example.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /^close$/i }));
     expect(screen.queryByText(/message sent/i)).not.toBeInTheDocument();
   });

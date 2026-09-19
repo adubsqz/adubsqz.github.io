@@ -9,14 +9,16 @@ import {
   mintGalleryJwt,
   writeStoredGalleryJwt,
 } from '../galleryJwt';
+import { INSTAGRAM_URL } from '../site';
 
 interface PasswordGateProps {
   children: React.ReactNode;
 }
 
 /**
- * GitHub Pages cannot mint HttpOnly cookies. Visitors type `sqz`, receive a
- * 15-minute HS256 JWT in localStorage, and re-enter when it expires. No refresh.
+ * GitHub Pages cannot mint HttpOnly cookies. Visitors type the lookbook
+ * password, receive a 30-day HS256 JWT in localStorage, and re-enter when it
+ * expires. No refresh. Do not print the password in the UI.
  * `VITE_E2E=1` skips the gate for Playwright.
  */
 export default function PasswordGate({ children }: PasswordGateProps) {
@@ -116,6 +118,14 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         <Button type="submit" className="h-12 text-base" disabled={submitting}>
           Enter
         </Button>
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-center text-sm text-photo-muted underline-offset-4 hover:text-photo-fg hover:underline"
+        >
+          Need the lookbook password? DM @adubsqz.
+        </a>
       </form>
     </div>
   );

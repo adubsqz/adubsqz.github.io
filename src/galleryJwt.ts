@@ -1,11 +1,11 @@
 /**
  * Client JWT for the GitHub Pages shop. There is no server to hold a secret,
- * so this is a 15-minute privacy gate, not authentication.
+ * so this is a 30-day privacy curtain, not authentication.
  */
 const textEncoder = new TextEncoder();
 
 export const GALLERY_PASSWORD = 'sqz';
-export const GALLERY_JWT_TTL_MS = 15 * 60 * 1000;
+export const GALLERY_JWT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const GALLERY_JWT_STORAGE_KEY = 'adubsqz.gallery.jwt';
 
 const JWT_HEADER = utf8ToBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));

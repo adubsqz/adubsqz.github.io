@@ -125,7 +125,7 @@ describe('GalleryView', () => {
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
   });
 
-  it('keyboard-navigates the lightbox and opens Contact Me only', async () => {
+  it('keyboard-navigates the lightbox and opens Request Invoice', async () => {
     const user = userEvent.setup();
     const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
     const clickTarget = container.querySelector('.absolute.inset-0.z-10');
@@ -133,28 +133,43 @@ describe('GalleryView', () => {
     await user.click(clickTarget);
     const lightbox = screen.getByRole('dialog', { name: /image lightbox/i });
     expect(lightbox).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /contact me/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /contact me/i }).className).toMatch(/mcm-brick/);
-    expect(screen.queryByRole('button', { name: /request invoice/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /request invoice/i }).className).toMatch(/mcm-brick/);
+    expect(screen.getByRole('button', { name: /licensing or hire/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /contact me/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /checkout/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /inquire about tearsheet/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/licensing & fulfillment/i)).not.toBeInTheDocument();
     await user.keyboard('{ArrowRight}');
     await user.keyboard('{ArrowLeft}');
-    await user.click(screen.getByRole('button', { name: /contact me/i }));
-    expect(await screen.findByRole('dialog', { name: /contact/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /request invoice/i }));
+    expect(await screen.findByRole('dialog', { name: /request invoice/i })).toBeInTheDocument();
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/shipping address/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /submit inquiry/i })).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /submit inquiry/i })).toBeInTheDocument();
   });
 
-  it('keeps purchase chrome off the enlarged photo', async () => {
+  it('opens ContactModal from the quieter Licensing or hire path', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
+    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
+    if (!clickTarget) return;
+    await user.click(clickTarget);
+    await user.click(screen.getByRole('button', { name: /licensing or hire/i }));
+    expect(await screen.findByRole('dialog', { name: /contact/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/shipping address/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps tearsheet chrome off the enlarged photo', async () => {
     const user = userEvent.setup();
     const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
     const clickTarget = container.querySelector('.absolute.inset-0.z-10');
     if (!clickTarget) return;
     await user.click(clickTarget);
     expect(screen.getByRole('dialog', { name: /image lightbox/i })).toBeInTheDocument();
-    expect(screen.queryByText(/request invoice/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
     expect(screen.queryByText(/tearsheet/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/print inquiry/i)).not.toBeInTheDocument();
   });

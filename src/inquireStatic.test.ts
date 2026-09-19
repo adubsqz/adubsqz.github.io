@@ -5,6 +5,7 @@ import {
   contactPrefillForPhoto,
   FORMSUBMIT_FORM_ID,
   newInquiryCode,
+  sentConfirmationHint,
   type InquirePayload,
 } from './inquireStatic';
 import { ABOUT } from './data';
@@ -51,6 +52,19 @@ describe('contactPrefillForPhoto', () => {
     const prefill = contactPrefillForPhoto({ id: 'color-2', alt: '' });
     expect(prefill.subject).toBe('About color-2');
     expect(prefill.message).toContain('color-2');
+  });
+});
+
+describe('sentConfirmationHint', () => {
+  it('tells the visitor to check the address they typed, not the studio inbox', () => {
+    expect(sentConfirmationHint('xxxamesx@gmail.com')).toBe(
+      'Check xxxamesx@gmail.com (and spam). If nothing arrives, Send again and your mail app will open.',
+    );
+    expect(sentConfirmationHint('  jane@example.com  ')).toContain('jane@example.com');
+    expect(sentConfirmationHint('xxxamesx@gmail.com')).not.toContain(ABOUT.contactEmail);
+    expect(sentConfirmationHint('')).toBe(
+      'Check your inbox (and spam). If nothing arrives, Send again and your mail app will open.',
+    );
   });
 });
 

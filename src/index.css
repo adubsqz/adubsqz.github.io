@@ -41,17 +41,45 @@ body {
   text-transform: lowercase;
 }
 
+/*
+ * Sized so all four collections fit on screen without horizontal scrolling.
+ * At 1.85rem the reel needed 834px against a 358px phone viewport, hiding three
+ * of four labels behind a deliberately invisible scrollbar.
+ */
 .graffiti-heading--h2 {
   flex: 0 0 auto;
   padding: 0.18em 0.12em 0.22em;
-  font-size: 1.85rem;
+  font-size: 1.3rem;
   line-height: 1;
   white-space: nowrap;
 }
 
-@media (min-width: 640px) {
+/*
+ * Steps never decrease as the viewport grows, and from 768px up each is the
+ * largest size whose four labels still hold one line. Desktop keeps its
+ * original 2.16rem; phones wrap to two rows instead of hiding labels.
+ */
+@media (min-width: 480px) {
+  .graffiti-heading--h2 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (min-width: 768px) {
   .graffiti-heading--h2 {
     padding: 0.26em 0.18em 0.3em;
+    font-size: 1.55rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .graffiti-heading--h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .graffiti-heading--h2 {
     font-size: 2.16rem;
   }
 }
@@ -96,24 +124,25 @@ body {
   line-height: inherit;
 }
 
+/*
+ * Wraps rather than scrolls: every collection stays reachable without a swipe on
+ * a hidden scrollbar. Phones get two rows of two, and from 1024px up the four
+ * labels fit one line on their own, so no breakpoint has to restore the single row.
+ */
 .collection-reel {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.65rem 1.1rem;
+  gap: 0.35rem 0.9rem;
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: clip;
 }
 
-.collection-reel::-webkit-scrollbar {
-  display: none;
+@media (min-width: 640px) {
+  .collection-reel {
+    gap: 0.5rem 1.1rem;
+  }
 }
 
 .graffiti-label {
@@ -125,7 +154,13 @@ body {
   padding: 0.16em 0.24em 0.2em;
   font-family: 'Rubik Spray Paint', Impact, 'Arial Black', sans-serif;
   font-weight: 400;
-  letter-spacing: 0.04em;
+  /*
+   * Tightened from 0.04em to buy width back for a larger label on phones, which
+   * also packs the letters the way a hand-drawn tag does. Word spacing is pushed
+   * back out so "full spectrum" does not read as one word.
+   */
+  letter-spacing: 0.015em;
+  word-spacing: 0.14em;
   line-height: 1;
   text-transform: lowercase;
   white-space: nowrap;
@@ -174,6 +209,17 @@ body {
   color: var(--graffiti-fill);
   -webkit-text-stroke: 0;
   text-shadow: 0.04em 0.05em 0 #1a1714;
+}
+
+/*
+ * Tag shine: a light glint offset up-left, opposite the down-right drop shadow,
+ * the way a highlight sits on a hand-painted throw-up. Selected labels only —
+ * unselected cores stay dark with cream tracing.
+ */
+.graffiti-label--on .graffiti-label__core {
+  text-shadow:
+    -0.045em -0.055em 0 #fffdf6,
+    0.04em 0.05em 0 #1a1714;
 }
 
 .graffiti-label:not(.graffiti-label--on) .graffiti-label__core {

@@ -11,12 +11,36 @@ describe('chrome CSS', () => {
     expect(css).not.toMatch(/\.gallery-still \{[\s\S]*scroll-margin-top/);
   });
 
-  it('keeps collection categories on one hidden-scrollbar reel', () => {
-    expect(css).toMatch(
-      /\.collection-reel \{[\s\S]*flex-wrap: nowrap;[\s\S]*overflow-x: auto;[\s\S]*touch-action: pan-x;[\s\S]*scrollbar-width: none;/,
-    );
-    expect(css).toContain('.collection-reel::-webkit-scrollbar');
+  // Replaces an earlier single-row reel that hid three of four collections behind
+  // an invisible scrollbar on a phone. Wrapping keeps every collection on screen.
+  it('wraps collection categories instead of scrolling them off screen', () => {
+    expect(css).toMatch(/\.collection-reel \{[\s\S]*flex-wrap: wrap;/);
+    expect(css).not.toMatch(/\.collection-reel \{[\s\S]*?\}\s*[\s\S]*?touch-action: pan-x;/);
+    expect(css).not.toContain('.collection-reel::-webkit-scrollbar');
+    // Individual labels still never break mid-word; only the row does.
     expect(css).toMatch(/\.graffiti-heading--h2 \{[\s\S]*white-space: nowrap;/);
+  });
+
+  it('scales collection labels up monotonically so they never shrink as the viewport grows', () => {
+    const sizes = [...css.matchAll(/\.graffiti-heading--h2 \{[^}]*?font-size: ([\d.]+)rem/g)].map((m) =>
+      Number(m[1]),
+    );
+    expect(sizes.length).toBeGreaterThanOrEqual(4);
+    expect(sizes).toStrictEqual([...sizes].sort((a, b) => a - b));
+    // Desktop keeps the original display size.
+    expect(sizes.at(-1)).toBe(2.16);
+  });
+
+  it('gives the selected collection a tag highlight without lightening unselected cores', () => {
+    expect(css).toMatch(
+      /\.graffiti-label--on \.graffiti-label__core \{[\s\S]*?text-shadow:[\s\S]*?-0\.045em -0\.055em 0 #fffdf6/,
+    );
+    // The shine sits opposite the down-right drop shadow, which must survive.
+    expect(css).toMatch(
+      /\.graffiti-label--on \.graffiti-label__core \{[\s\S]*?0\.04em 0\.05em 0 #1a1714/,
+    );
+    expect(css).toMatch(/\.graffiti-label \{[\s\S]*letter-spacing: 0\.015em;/);
+    expect(css).toMatch(/\.graffiti-label \{[\s\S]*word-spacing:/);
   });
 
   it('keeps the handwritten tagline to two lines without a fake pen font', () => {

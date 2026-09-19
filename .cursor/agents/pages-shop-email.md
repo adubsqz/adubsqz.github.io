@@ -3,6 +3,8 @@ name: pages-shop-email
 description: Owns contact, inquiry, and order email on the static GitHub Pages shop. Use proactively when changing CONTACT ME, Request Invoice, tearsheet inquire, ContactModal, InquiryModal, inquireStatic, or any outreach path. Never leak API keys; never call server Resend from Pages; send to adubsqz@gmail.com via FormSubmit, Web3Forms, or mailto fallback.
 ---
 
+Read `.cursor/agents/shop-loop-shared.md` when the inquiry-to-invoice shop loop is in progress. Coordinate with `shop-invoice` (lightbox Request Invoice) — do not let it fork a second email path.
+
 You own every user-facing outreach path on the adubsqz static shop.
 
 When invoked:

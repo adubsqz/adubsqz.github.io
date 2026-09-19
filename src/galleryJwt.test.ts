@@ -21,6 +21,10 @@ describe('galleryJwt', () => {
     window.localStorage.clear();
   });
 
+  it('uses a 30-day TTL so a biz-card visit still has a session', () => {
+    expect(GALLERY_JWT_TTL_MS).toBe(30 * 24 * 60 * 60 * 1000);
+  });
+
   it('mints a three-part JWT for sqz and rejects other passwords', async () => {
     expect(await mintGalleryJwt('nope')).toBeNull();
     const token = await mintGalleryJwt('sqz');
@@ -36,6 +40,26 @@ describe('galleryJwt', () => {
     expect(await verifyGalleryJwt(`${header}.${flipped}.${sig}`)).toBe(false);
   });
 
+  it('stays valid 1ms before TTL and expires at TTL+1ms, clearing storage', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-09T12:00:00.000Z'));
+    const token = await mintGalleryJwt('sqz');
+    expect(token).toBeTruthy();
+    writeStoredGalleryJwt(token!);
+    expect(await hasValidGallerySession()).toBe(true);
+
+    vi.setSystemTime(new Date(Date.now() + GALLERY_JWT_TTL_MS - 1));
+    expect(await verifyGalleryJwt(token!)).toBe(true);
+    expect(await hasValidGallerySession()).toBe(true);
+    expect(readStoredGalleryJwt()).toBe(token);
+
+    vi.setSystemTime(new Date(Date.now() + 2));
+    expect(await verifyGalleryJwt(token!)).toBe(false);
+    expect(await hasValidGallerySession()).toBe(false);
+    expect(readStoredGalleryJwt()).toBeNull();
+    expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
+  });
+
   it('rejects an expired JWT and clears storage', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-09-09T12:00:00.000Z'));
@@ -48,6 +72,13 @@ describe('galleryJwt', () => {
     expect(await verifyGalleryJwt(token!)).toBe(false);
     expect(await hasValidGallerySession()).toBe(false);
     expect(readStoredGalleryJwt()).toBeNull();
+    expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('does not mint for empty, padded, or wrong-case passwords', async () => {
+    expect(await mintGalleryJwt('')).toBeNull();
+    expect(await mintGalleryJwt(' sqz ')).toBeNull();
+    expect(await mintGalleryJwt('SQZ')).toBeNull();
     expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
   });
 

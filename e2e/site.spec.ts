@@ -49,11 +49,20 @@ test.describe('site', () => {
 
     await clickOpenPhoto(page);
     await expect(lightbox).toBeVisible();
-    await expect(lightbox.getByRole('button', { name: /contact me/i })).toBeVisible();
-    await expect(lightbox.getByRole('button', { name: /request invoice/i })).toHaveCount(0);
+    await expect(lightbox.getByRole('button', { name: /request invoice/i })).toBeVisible();
+    await expect(lightbox.getByRole('button', { name: /licensing or hire/i })).toBeVisible();
+    await expect(lightbox.getByRole('button', { name: /contact me/i })).toHaveCount(0);
     await expect(lightbox.getByText(/tearsheet/i)).toHaveCount(0);
-    await expect(lightbox.getByText(/request invoice/i)).toHaveCount(0);
-    await lightbox.getByRole('button', { name: /contact me/i }).click();
+    await lightbox.getByRole('button', { name: /request invoice/i }).click();
+    const invoiceFromPhoto = page.getByRole('dialog', { name: /request invoice/i });
+    await expect(invoiceFromPhoto).toBeVisible();
+    await expect(page.getByLabel(/shipping address/i)).toBeVisible();
+    await page.getByRole('button', { name: /cancel/i }).click();
+    await expect(invoiceFromPhoto).toHaveCount(0);
+
+    await clickOpenPhoto(page);
+    await expect(lightbox).toBeVisible();
+    await lightbox.getByRole('button', { name: /licensing or hire/i }).click();
     const contactFromPhoto = page.getByRole('dialog', { name: /contact/i });
     await expect(contactFromPhoto).toBeVisible();
     await expect(page.getByRole('dialog', { name: /request invoice/i })).toHaveCount(0);
@@ -66,15 +75,15 @@ test.describe('site', () => {
     await page.getByRole('button', { name: 'adubsqz' }).click();
     await expect(page.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
-    await expect(page.getByText(/I am not an AI robot/i)).toBeVisible();
-    await expect(page.getByText(/lightweight portfolio sites for photographers/i)).toBeVisible();
+    await expect(page.getByText(/I take 35mm and medium format film photography/i)).toBeVisible();
+    await expect(page.getByText(/AWS Certified AI Practitioner/i)).toBeVisible();
     await expect(page.getByText(/Need prints, a license, or a site/i)).toBeVisible();
     await expect(page.getByText(/rights reserved/i)).toBeVisible();
-    await expect(page.getByRole('link', { name: /^instagram$/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /^instagram$/i })).toHaveAttribute(
-      'href',
-      'https://www.instagram.com/adubsqz/',
-    );
+    const instagram = page.getByRole('link', { name: /^instagram$/i });
+    await expect(instagram).toBeVisible();
+    await expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
+    await expect(instagram).toHaveAttribute('target', '_blank');
+    await expect(instagram).toHaveAttribute('rel', 'noopener noreferrer');
     await expect(page.getByRole('link', { name: SITE_HOST }).first()).toBeVisible();
     await expect(page.getByAltText(/portrait/i)).toHaveCount(0);
 
@@ -112,6 +121,8 @@ test.describe('site', () => {
     await page.getByLabel(/message/i).fill('Hello');
     await page.getByRole('button', { name: /send/i }).click();
     await expect(page.getByText(/message sent/i)).toBeVisible();
+    await expect(page.getByText(/check ada@example.com/i)).toBeVisible();
+    await expect(page.getByText(/check adubsqz@gmail.com/i)).toHaveCount(0);
 
     const coverage = await page.coverage.stopJSCoverage();
     const src = coverage.filter(

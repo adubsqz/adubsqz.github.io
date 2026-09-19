@@ -12,10 +12,14 @@ const instagram = ABOUT.socials.find((social) => social.name === 'Instagram');
 export default function AboutView({ onContactClick }: AboutViewProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-8 sm:space-y-12">
-      <p className="font-display text-[1.55rem] leading-[1.4] text-photo-fg sm:text-4xl sm:leading-[1.3]">
-        {ABOUT.voice}
-      </p>
-      <p className="text-base leading-relaxed text-photo-muted sm:text-lg">{ABOUT.portfolioPitch}</p>
+      <div className="space-y-3">
+        <p className="font-display text-[1.55rem] leading-[1.4] text-photo-fg sm:text-4xl sm:leading-[1.3]">
+          {ABOUT.voice}
+        </p>
+      </div>
+      <div className="space-y-3">
+        <p className="text-base leading-relaxed text-photo-muted sm:text-lg">{ABOUT.portfolioPitch}</p>
+      </div>
 
       <div className="flex flex-col gap-4 border-t border-mcm-line/80 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
         <p className="max-w-md text-base leading-snug text-photo-fg/85">

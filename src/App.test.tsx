@@ -5,27 +5,6 @@ import App from './App';
 import { SITE_TAGLINE, SITE_TAGLINE_IMAGE } from './site';
 
 describe('App', () => {
-  it('pans the collection reel with the wheel while hovered', () => {
-    render(<App />);
-    const reel = screen.getByRole('navigation', { name: /collections/i });
-    Object.defineProperty(reel, 'scrollWidth', { configurable: true, value: 900 });
-    Object.defineProperty(reel, 'clientWidth', { configurable: true, value: 300 });
-    let left = 0;
-    Object.defineProperty(reel, 'scrollLeft', {
-      configurable: true,
-      get: () => left,
-      set: (value: number) => {
-        left = value;
-      },
-    });
-    reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
-    expect(left).toBe(0);
-    reel.dispatchEvent(new WheelEvent('wheel', { deltaX: 80, deltaY: 10, bubbles: true, cancelable: true }));
-    expect(left).toBe(90);
-    reel.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, shiftKey: true, bubbles: true, cancelable: true }));
-    expect(left).toBe(130);
-  });
-
   it('lets the site header scroll away so it does not cover stills', () => {
     const { container } = render(<App />);
     const header = container.querySelector('header.site-header');
@@ -51,13 +30,13 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
-    expect(await screen.findByText(/I am not an AI robot/i)).toBeInTheDocument();
+    expect(await screen.findByText(/I take 35mm and medium format film photography/i)).toBeInTheDocument();
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 400, writable: true });
     window.dispatchEvent(new Event('scroll'));
     expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
-  it('renders a graffiti wordmark, tagline, and a single-line collection reel', () => {
+  it('renders a graffiti wordmark, tagline, and a wrapping collection reel', () => {
     render(<App />);
     expect(screen.getByRole('heading', { level: 1, name: 'adubsqz' })).toHaveClass('brand-mark');
     expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'false');
@@ -90,8 +69,8 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /^gallery$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: /collections/i })).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: SITE_TAGLINE })).toBeInTheDocument();
-    expect(await screen.findByText(/I am not an AI robot/i)).toBeInTheDocument();
-    expect(screen.getByText(/lightweight portfolio sites for photographers/i)).toBeInTheDocument();
+    expect(await screen.findByText(/I take 35mm and medium format film photography/i)).toBeInTheDocument();
+    expect(screen.getByText(/AWS Certified AI Practitioner/i)).toBeInTheDocument();
     const talk = screen.getByRole('button', { name: /let's talk/i });
     expect(talk.querySelector('.graffiti-label--on')).toHaveAttribute('data-tone', 'pink');
   });
@@ -113,7 +92,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('navigation', { name: /collections/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.queryByText(/I am not an AI robot/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/I take 35mm and medium format film photography/i)).not.toBeInTheDocument();
   });
 
   it('opens contact modal from About', async () => {
@@ -145,7 +124,7 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
-    expect(await screen.findByText(/lightweight portfolio sites/i)).toBeInTheDocument();
+    expect(await screen.findByText(/AWS Certified AI Practitioner/i)).toBeInTheDocument();
     expect(screen.getAllByText(/rights reserved/i)).toHaveLength(1);
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();

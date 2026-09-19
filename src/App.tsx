@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
 import type { GalleryFilter, PageView } from './types';
 import BrandMark from './components/BrandMark';
 import GraffitiLabel from './components/GraffitiLabel';
@@ -14,28 +14,9 @@ const ContactModal = lazy(() => import('./components/ContactModal'));
 
 const totalGalleryPhotos = COLLECTIONS.reduce((n, c) => n + c.photos.length, 0);
 
-function useWheelPan(ref: RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onWheel = (event: WheelEvent) => {
-      if (el.scrollWidth <= el.clientWidth + 1) return;
-      const horizontalIntent = event.shiftKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY);
-      if (!horizontalIntent) return;
-      event.preventDefault();
-      el.scrollLeft += event.deltaY + event.deltaX;
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, []);
-}
-
 function CollectionReel({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLElement>(null);
-  useWheelPan(ref);
-
   return (
-    <nav ref={ref} className="collection-reel" aria-label="Collections">
+    <nav className="collection-reel" aria-label="Collections">
       {children}
     </nav>
   );

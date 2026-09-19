@@ -232,8 +232,10 @@ The photos are public static files, and no crawler policy changes that:
 - All 47 photo paths are recoverable from `dist/assets/index-*.js` in a single request,
   because `src/data.ts` imports `src/gallery-manifest.json` and it gets bundled. Nothing
   needs to be guessed or enumerated.
-- Roughly 37 MiB of full-resolution JPEGs under `/photos/still-life/` return HTTP 200 with
-  no cookie, token, or auth header of any kind.
+- Roughly 37 MiB of JPEGs under `/photos/still-life/` return HTTP 200 with no cookie,
+  token, or auth header of any kind. These are the web pass, not masters: the import
+  pipeline caps them at 2400px on the longest edge with the copyright burned in, so a
+  scrape yields about an 8-inch print at 300dpi rather than anything licensable.
 - `PasswordGate` is a privacy gate over the UI, as `src/galleryJwt.ts` says outright.
   Both `GALLERY_PASSWORD` and the HS256 signing secret are compiled into the shipped
   bundle, because a static host has no server to hold a secret.
@@ -252,9 +254,10 @@ already return 404 — verified against `30570007`, `30570014` and `30570015`, a
 Enumeration is not the exposure; the bundle is.
 
 The only real fix is a gatekeeper in front of the bytes: images in R2 behind a Worker
-checking signed, expiring URLs, or Cloudflare Access. Both need the proxy on. A cheaper
-partial measure is to stop deploying full-resolution files to a public origin and publish
-smaller, watermarked derivatives, keeping print-resolution masters off the web entirely.
+checking signed, expiring URLs, or Cloudflare Access. Both need the proxy on. Short of
+that, the remaining lever is `GALLERY_MAX_WIDTH` / `GALLERY_MAX_HEIGHT`: dropping the
+published cap below 2400px shrinks what a successful scrape is worth, at the cost of how
+the lookbook looks on a large display.
 
 ## Verifying
 

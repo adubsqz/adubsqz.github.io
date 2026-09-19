@@ -52,6 +52,35 @@ for (const vp of VIEWPORTS) {
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
     });
 
+    test('keeps every collection on screen without a horizontal swipe', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      const reel = page.getByRole('navigation', { name: /collections/i });
+      await expect(reel).toBeVisible();
+
+      const reelBox = await reel.boundingBox();
+      expect(reelBox, `${vp.name} reel missing box`).not.toBeNull();
+
+      // The reel used to hide labels behind a scrollbar styled invisible, so assert
+      // there is nothing left to scroll to rather than trusting the visual.
+      const scrollable = await reel.evaluate((el) => el.scrollWidth - el.clientWidth);
+      expect(scrollable, `${vp.name} reel still scrolls horizontally`).toBeLessThanOrEqual(1);
+
+      const buttons = reel.getByRole('button');
+      await expect(buttons).toHaveCount(4);
+
+      for (const name of ['greyscale', 'full spectrum', 'redscale', 'portraits']) {
+        const button = page.getByRole('button', { name: new RegExp(`^${name}$`, 'i') });
+        const box = await button.boundingBox();
+        expect(box, `${vp.name} "${name}" missing box`).not.toBeNull();
+        expect(box!.x, `${vp.name} "${name}" clipped at the left`).toBeGreaterThanOrEqual(-1);
+        expect(
+          box!.x + box!.width,
+          `${vp.name} "${name}" runs past the right edge`,
+        ).toBeLessThanOrEqual(vp.width + 1);
+        expect(box!.height, `${vp.name} "${name}" tap target under 44px`).toBeGreaterThanOrEqual(44);
+      }
+    });
+
     test('lets collection chrome scroll away and offers back to top', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();

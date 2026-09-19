@@ -35,11 +35,32 @@ describe('InquiryModal (unit)', () => {
     expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/print size/i)).toBeInTheDocument();
     const printSize = screen.getByLabelText(/print size/i);
-    expect(printSize).toHaveDisplayValue(/16″ × 20″/);
+    expect(printSize).toHaveDisplayValue(/8″ × 10″/);
     expect(printSize).toContainHTML('locket');
-    expect(printSize).toContainHTML('house');
+    expect(printSize).not.toContainHTML('house');
+    expect(printSize).not.toContainHTML('40″');
+    expect(printSize).not.toContainHTML('16″ × 20″');
+    expect(printSize).toContainHTML('custom');
     expect(screen.getByRole('button', { name: /submit inquiry/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/checkout/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/shopify/i)).not.toBeInTheDocument();
+  });
+
+  it('hides 16×20 when only one master dimension is set', () => {
+    const { rerender } = render(
+      <InquiryModal photo={{ ...photo, masterWidth: 8000 }} onClose={onClose} />,
+    );
+    let printSize = screen.getByLabelText(/print size/i);
+    expect(printSize).not.toContainHTML('16″ × 20″');
+    expect(printSize).toContainHTML('custom');
+    expect(printSize).toHaveDisplayValue(/8″ × 10″/);
+
+    rerender(<InquiryModal photo={{ ...photo, masterHeight: 8000 }} onClose={onClose} />);
+    printSize = screen.getByLabelText(/print size/i);
+    expect(printSize).not.toContainHTML('16″ × 20″');
+    expect(printSize).toContainHTML('custom');
   });
 
   it('shows the custom size input when selecting "custom"', async () => {
@@ -106,9 +127,27 @@ describe('InquiryModal (unit)', () => {
     expect(window.location.href).toContain(encodeURIComponent('30x40 inches'));
   });
 
+  it('offers house and 40×60 only when master pixels are huge', () => {
+    render(
+      <InquiryModal
+        photo={{ ...photo, masterWidth: 18000, masterHeight: 14400 }}
+        onClose={onClose}
+      />,
+    );
+    const printSize = screen.getByLabelText(/print size/i);
+    expect(printSize).toContainHTML('house');
+    expect(printSize).toContainHTML('40″');
+    expect(printSize).toHaveDisplayValue(/40″ × 60″/);
+  });
+
   it('maps house print size into the mailto body', async () => {
     const user = userEvent.setup();
-    render(<InquiryModal photo={photo} onClose={onClose} />);
+    render(
+      <InquiryModal
+        photo={{ ...photo, masterWidth: 18000, masterHeight: 14400 }}
+        onClose={onClose}
+      />,
+    );
 
     await user.selectOptions(screen.getByLabelText(/print size/i), 'house 8x10 ft');
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
@@ -118,6 +157,23 @@ describe('InquiryModal (unit)', () => {
     await user.click(screen.getByRole('button', { name: /submit inquiry/i }));
 
     expect(window.location.href).toContain(encodeURIComponent('house 8x10 ft'));
+  });
+
+  it('submits through submitPrintInquiry (FormSubmit path), never Stripe', async () => {
+    const submitSpy = vi.spyOn(inquireStatic, 'submitPrintInquiry').mockResolvedValueOnce();
+    const user = userEvent.setup();
+    render(<InquiryModal photo={photo} onClose={onClose} />);
+    await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
+    await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
+    await user.type(screen.getByLabelText(/shipping address/i), '123 Main St');
+    await user.click(screen.getByRole('button', { name: /submit inquiry/i }));
+    expect(submitSpy).toHaveBeenCalledTimes(1);
+    expect(submitSpy.mock.calls[0]?.[0]).toMatchObject({
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      photo: expect.objectContaining({ id: photo.id }),
+    });
+    expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
   });
 
   it('shows an error when submitPrintInquiry throws', async () => {

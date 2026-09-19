@@ -19,6 +19,7 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 
 const ContactModal = lazy(() => import('./ContactModal'));
+const InquiryModal = lazy(() => import('./InquiryModal'));
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
@@ -139,13 +140,15 @@ function PhotoCard({
 function Lightbox({
   photo,
   onClose,
-  onContact,
+  onRequestInvoice,
+  onLicensing,
   onPrevious,
   onNext,
 }: {
   photo: Photo;
   onClose: () => void;
-  onContact: () => void;
+  onRequestInvoice: () => void;
+  onLicensing: () => void;
   onPrevious: () => void;
   onNext: () => void;
 }) {
@@ -235,32 +238,42 @@ function Lightbox({
         </div>
 
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-mcm-cream via-mcm-cream/95 to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-10">
-          <div className="pointer-events-auto mx-auto flex max-w-lg items-center gap-2">
+          <div className="pointer-events-auto mx-auto flex max-w-lg flex-col items-stretch gap-2">
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={onPrevious}
+                variant="ghost"
+                className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
+                aria-label="View previous photo"
+              >
+                ‹
+              </Button>
+              <Button
+                type="button"
+                onClick={onRequestInvoice}
+                variant="lightboxPrimary"
+                className="h-12 flex-1 rounded-xl text-lg font-medium"
+              >
+                Request Invoice
+              </Button>
+              <Button
+                type="button"
+                onClick={onNext}
+                variant="ghost"
+                className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
+                aria-label="View next photo"
+              >
+                ›
+              </Button>
+            </div>
             <Button
               type="button"
-              onClick={onPrevious}
+              onClick={onLicensing}
               variant="ghost"
-              className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
-              aria-label="View previous photo"
+              className="mx-auto h-9 px-3 text-sm font-normal text-photo-muted"
             >
-              ‹
-            </Button>
-            <Button
-              type="button"
-              onClick={onContact}
-              variant="lightboxPrimary"
-              className="h-12 flex-1 rounded-xl text-lg font-medium"
-            >
-              Contact me
-            </Button>
-            <Button
-              type="button"
-              onClick={onNext}
-              variant="ghost"
-              className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
-              aria-label="View next photo"
-            >
-              ›
+              Licensing or hire
             </Button>
           </div>
         </div>
@@ -368,6 +381,7 @@ interface GalleryViewProps {
 export default function GalleryView({ filter }: GalleryViewProps) {
   const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null);
   const [contactPhoto, setContactPhoto] = useState<Photo | null>(null);
+  const [inquiryPhoto, setInquiryPhoto] = useState<Photo | null>(null);
   const collection: PhotoCollection = COLLECTIONS.find((c) => c.id === filter)
     ?? COLLECTIONS[0]
     ?? { id: 'empty', title: 'Empty', photos: [] };
@@ -378,7 +392,13 @@ export default function GalleryView({ filter }: GalleryViewProps) {
     if (!exists) setLightboxPhoto(null);
   }, [collection.photos, lightboxPhoto]);
 
-  const handleContact = () => {
+  const handleRequestInvoice = () => {
+    if (!lightboxPhoto) return;
+    setInquiryPhoto(lightboxPhoto);
+    setLightboxPhoto(null);
+  };
+
+  const handleLicensing = () => {
     if (!lightboxPhoto) return;
     setContactPhoto(lightboxPhoto);
     setLightboxPhoto(null);
@@ -409,10 +429,17 @@ export default function GalleryView({ filter }: GalleryViewProps) {
         <Lightbox
           photo={lightboxPhoto}
           onClose={() => setLightboxPhoto(null)}
-          onContact={handleContact}
+          onRequestInvoice={handleRequestInvoice}
+          onLicensing={handleLicensing}
           onPrevious={() => handleLightboxMove('previous')}
           onNext={() => handleLightboxMove('next')}
         />
+      )}
+
+      {inquiryPhoto && (
+        <Suspense fallback={null}>
+          <InquiryModal photo={inquiryPhoto} onClose={() => setInquiryPhoto(null)} />
+        </Suspense>
       )}
 
       {contactPhoto && contactPrefill && (

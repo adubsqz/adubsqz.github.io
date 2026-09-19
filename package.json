@@ -26,12 +26,11 @@
     "gallery:draft-probe-map": "bash tools/run_gallery_module.sh gallery.draft_probe_map",
     "gallery:draft-bw-prefix-map": "bash tools/run_gallery_module.sh gallery.draft_bw_prefix_map",
     "gallery:draft-compound-manifest-map": "bash tools/run_gallery_module.sh gallery.draft_compound_manifest_map",
-    "gallery:promote": "bash tools/run_gallery_module.sh gallery.run_promote"
+    "gallery:promote": "bash tools/run_gallery_module.sh gallery.run_promote",
+    "gallery:backfill-master-size": "bash -c 'if [ -x .venv-gallery/bin/python ]; then exec .venv-gallery/bin/python gallery_tests/backfill_master_size.py \"$@\"; else exec python3 gallery_tests/backfill_master_size.py \"$@\"; fi' --"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "playwright-cli": "^0.262.0",

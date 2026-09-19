@@ -36,6 +36,8 @@ type ManifestRow =
       palette?: string;
       vibe?: string[];
       versatility?: string[];
+      master_width?: number;
+      master_height?: number;
     };
 
 type GalleryManifest = {
@@ -130,8 +132,26 @@ export function resolveGalleryImagePath(collectionId: string, entry: string): st
   return `${galleryPhotosBase}/${collectionId}/${normalized}`;
 }
 
-function photosFromRows(rows: { path: string; orientation?: Photo['orientation'] }[], collectionId: string) {
-  return rows.map(({ path: entry, orientation }, i) => {
+function parseMasterPixels(row: ManifestRow): Pick<Photo, 'masterWidth' | 'masterHeight'> {
+  if (typeof row === 'string') return {};
+  const masterWidth = toPositivePixel(row.master_width);
+  const masterHeight = toPositivePixel(row.master_height);
+  return {
+    ...(masterWidth !== undefined ? { masterWidth } : {}),
+    ...(masterHeight !== undefined ? { masterHeight } : {}),
+  };
+}
+
+function toPositivePixel(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return undefined;
+  return Math.round(value);
+}
+
+function photosFromRows(
+  rows: { path: string; orientation?: Photo['orientation']; masterWidth?: number; masterHeight?: number }[],
+  collectionId: string,
+) {
+  return rows.map(({ path: entry, orientation, masterWidth, masterHeight }, i) => {
     const slug = entry.replace(/\.[^.]+$/, '').replace(/[^a-z0-9/_-]/gi, '_');
     return {
       id: `${collectionId}-${i + 1}`,
@@ -139,16 +159,38 @@ function photosFromRows(rows: { path: string; orientation?: Photo['orientation']
       alt: `Photograph ${slug.replace(/\//g, ' ')}`,
       caption: '',
       orientation,
+      ...(masterWidth !== undefined ? { masterWidth } : {}),
+      ...(masterHeight !== undefined ? { masterHeight } : {}),
     };
   });
 }
 
 function buildPublicCollections(): PhotoCollection[] {
   const raw = galleryManifest as GalleryManifest;
-  const greyscaleRows: { path: string; orientation?: Photo['orientation'] }[] = [];
-  const fullSpectrumRows: { path: string; orientation?: Photo['orientation'] }[] = [];
-  const redscaleRows: { path: string; orientation?: Photo['orientation'] }[] = [];
-  const peopleRows: { path: string; orientation?: Photo['orientation'] }[] = [];
+  const greyscaleRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
+  const fullSpectrumRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
+  const redscaleRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
+  const peopleRows: {
+    path: string;
+    orientation?: Photo['orientation'];
+    masterWidth?: number;
+    masterHeight?: number;
+  }[] = [];
   const seenGrey = new Set<string>();
   const seenColor = new Set<string>();
   const seenRedscale = new Set<string>();
@@ -165,25 +207,26 @@ function buildPublicCollections(): PhotoCollection[] {
       const result = classifyManifestEntry(entry);
       if (result.kind !== 'public') continue;
       const orientation = parseReelOrientation(rawEntry);
+      const master = parseMasterPixels(rawEntry);
       if (result.bucket === GREYSCALE_ID) {
         if (!seenGrey.has(entry)) {
           seenGrey.add(entry);
-          greyscaleRows.push({ path: entry, orientation });
+          greyscaleRows.push({ path: entry, orientation, ...master });
         }
       } else if (result.bucket === FULL_SPECTRUM_ID) {
         if (!seenColor.has(entry)) {
           seenColor.add(entry);
-          fullSpectrumRows.push({ path: entry, orientation });
+          fullSpectrumRows.push({ path: entry, orientation, ...master });
         }
       } else if (result.bucket === REDSCALE_ID) {
         if (!seenRedscale.has(entry)) {
           seenRedscale.add(entry);
-          redscaleRows.push({ path: entry, orientation });
+          redscaleRows.push({ path: entry, orientation, ...master });
         }
       } else if (result.bucket === PEOPLE_ID) {
         if (!seenPeople.has(entry)) {
           seenPeople.add(entry);
-          peopleRows.push({ path: entry, orientation });
+          peopleRows.push({ path: entry, orientation, ...master });
         }
       }
     }
@@ -238,9 +281,9 @@ export const ABOUT = {
   contactEmail: 'adubsqz@gmail.com',
   photoCredit: 'Photo captured by Cayla Holling.',
   voice:
-    "I am not an AI robot. You don't need to prompt me a million times or sign up for a subscription. One flat rate and your business, your dream app, comes to life - Let's talk, like humans do and make something distinctly creative and complex.",
+    'I take 35mm and medium format film photography, print, license, and sell my work.',
   portfolioPitch:
-    'I design and build lightweight portfolio sites for photographers, visual artists, musicians, and filmmakers—gallery layouts, audio and video embeds, contact flows, and hosting handled end to end. If you need a site for your own work, say what you have in mind and we can talk scope and budget.',
+    'I am an experienced software engineer. I build portfolio sites like this for pictures, video, and music. I am an AWS Certified AI Practitioner for apps-to-AI work.',
   bio: 'Originally from the Southwest, now residing in New York. By trade, a data scientist and software engineer at a biomolecular research company focused on fighting cancer. At night, the world of cinema, art, and storytelling awaits. Bobs your uncle, adubs is your nephew rolling tobacco by the dumpster to make it through a dull family reunion.',
   socials: [
     { name: 'Instagram', url: INSTAGRAM_URL },

@@ -8,14 +8,14 @@ describe('inquireEmail helpers', () => {
 
   it('isValidInquiryEmail accepts normal addresses', () => {
     expect(isValidInquiryEmail('adubsqz@gmail.com')).toBe(true);
-    expect(isValidInquiryEmail('info@adubsqz.shop')).toBe(true);
+    expect(isValidInquiryEmail('info@adubs.site')).toBe(true);
     expect(isValidInquiryEmail('not-an-email')).toBe(false);
   });
 
   it('isSafePhotoSrc allows relative gallery paths only when safe', () => {
     expect(isSafePhotoSrc('/photos/still-life/bw/1.jpg')).toBe(true);
     expect(isSafePhotoSrc('javascript:alert(1)')).toBe(false);
-    expect(isSafePhotoSrc('https://adubs.shop/photos/1.jpg')).toBe(true);
+    expect(isSafePhotoSrc('https://adubs.site/photos/1.jpg')).toBe(true);
   });
 
   it('sanitizeEmailHeader strips newlines for subject safety', () => {
