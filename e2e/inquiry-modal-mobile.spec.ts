@@ -9,7 +9,10 @@ test.describe('Request Invoice sheet (mobile)', () => {
 
   test('fills the phone screen without overflow and keeps actions tappable', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const thumb = page.getByRole('button', { name: /open photo/i }).first();
+    // Prefer a still without scan pixels so the conservative size hint is shown.
+    const thumb = page.getByRole('button', {
+      name: /open photo: photograph bw 000220500005xy/i,
+    });
     await thumb.evaluate((el) => {
       (el as HTMLButtonElement).click();
     });
