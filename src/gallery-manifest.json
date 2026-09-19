@@ -3,7 +3,11 @@
   "bw": [
     {
       "path": "bw/000220500009-otter.jpg",
-      "orientation": "vertical"
+      "orientation": "vertical",
+      "master_width": 4483,
+      "master_height": 6761,
+      "original_path": "000220500009.jpg",
+      "master_bytes": 7688746
     },
     {
       "path": "bw/30570009-loam.JPG",
@@ -47,7 +51,11 @@
     },
     {
       "path": "bw/30570022-brim.JPG",
-      "orientation": "horizontal"
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570022.JPG",
+      "master_bytes": 21455440
     },
     {
       "path": "bw/bw-06-57530032.jpg",
@@ -67,7 +75,11 @@
     },
     {
       "path": "bw/30570010-dusk.JPG",
-      "orientation": "vertical"
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "photolife992_3057e-high-res-uncut_2026-06-19_1600/30570010.JPG",
+      "master_bytes": 12490344
     },
     {
       "path": "bw/000220500023-moth.jpg",
