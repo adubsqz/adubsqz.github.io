@@ -16,6 +16,11 @@ written agreement. See [LICENSE](./LICENSE) for the full terms.
 
 Photo-specific terms on the deployed site live in the lookbook UI (rights / licensing copy), not a separate `/PHOTO_TERMS.md` file.
 
+These terms are asserted to crawlers by `public/robots.txt` (Content Signals) and
+`public/.well-known/tdmrep.json` (EU Article 4 opt-out). Those are stated preferences, not
+enforcement — see [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for what
+actually blocks non-compliant AI crawlers and why it is not active yet.
+
 ## Runtime (read this first)
 
 **Production is GitHub Pages + Cloudflare DNS at [adubs.site](https://adubs.site).** There is no Vercel production app, no `adubs.shop` origin, and no live `/api/auth` or `/api/inquire`. `api/` may remain in the repo for unused experiments; the published shop does not call it.
@@ -35,6 +40,11 @@ GitHub Pages custom domain must list **both** `adubs.site` and `www.adubs.site`.
 ### Analytics
 
 Cloudflare Web Analytics (not GoatCounter, not Vercel Speed Insights). Create a beacon token for `adubs.site`, put it in GitHub Actions secret `VITE_CF_BEACON_TOKEN`, and it is baked in at `npm run build` via `.github/workflows/pages.yml`. Locally, set `VITE_CF_BEACON_TOKEN` in `.env.local`. Empty token means no beacon.
+
+These terms are asserted to crawlers by `public/robots.txt` (Content Signals) and
+`public/.well-known/tdmrep.json` (EU Article 4 opt-out). Those are stated preferences, not
+enforcement — see [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for what
+actually blocks non-compliant AI crawlers and why it is not active yet.
 
 ## Development
 
@@ -126,3 +136,6 @@ Maps use **`{ "entries": [ { "source", "bucket", "link_mode", "dest_basename"?, 
 ## More
 
 See [SETUP.md](./SETUP.md) for the Pages inquiry path (FormSubmit / mailto) and DNS / www TLS.
+
+See [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for the AI crawler posture
+and the Cloudflare runbook.
