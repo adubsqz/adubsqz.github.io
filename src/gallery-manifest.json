@@ -116,14 +116,6 @@
       "master_bytes": 8870297
     },
     {
-      "path": "color/000331950014-quartz.jpg",
-      "orientation": "horizontal",
-      "master_width": 6774,
-      "master_height": 4492,
-      "original_path": "000331950014.jpg",
-      "master_bytes": 9419252
-    },
-    {
       "path": "color/color-04-260604000055080021.jpg",
       "orientation": "horizontal"
     },
@@ -144,10 +136,6 @@
       "master_bytes": 9689854
     },
     {
-      "path": "color/color-01-000255310036.jpg",
-      "orientation": "horizontal"
-    },
-    {
       "path": "color/colorfulstairs.jpg",
       "orientation": "horizontal",
       "master_width": 1024,
@@ -158,14 +146,6 @@
     {
       "path": "color/camcorder-night.jpg",
       "orientation": "horizontal"
-    },
-    {
-      "path": "color/00033195-ames-reflection.jpg",
-      "orientation": "vertical",
-      "master_width": 4492,
-      "master_height": 6774,
-      "original_path": "00033195-ames-reflection.jpg",
-      "master_bytes": 10584663
     },
     {
       "path": "color/hospitalwindows.jpg",

@@ -67,7 +67,7 @@ describe('GalleryView', () => {
     if (!color) return;
     render(<GalleryView filter="full-spectrum" />);
     expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(color.photos.length);
-    expect(color.photos).toHaveLength(15);
+    expect(color.photos).toHaveLength(12);
     const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
     expect(srcs.join(' ')).toMatch(/hospitalwindows/);
     expect(srcs.join(' ')).toMatch(/colorfulhousegreenery/);
