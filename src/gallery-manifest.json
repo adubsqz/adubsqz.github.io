@@ -186,12 +186,140 @@
   ],
   "redscale": [
     {
-      "path": "redscale/redscale-03-harmon-red-0017.jpg",
-      "orientation": "vertical"
+      "path": "redscale/redscale-01-harmon-red-0018.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0018.JPG",
+      "master_bytes": 20921701
     },
     {
-      "path": "redscale/redscale-00-harmon-red-drop-the-blacks-and-this-one-is-great-0028.jpg",
-      "orientation": "horizontal"
+      "path": "redscale/redscale-02-harmon-red-0021.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0021.JPG",
+      "master_bytes": 18978093
+    },
+    {
+      "path": "redscale/redscale-03-harmon-red-0031.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0031.JPG",
+      "master_bytes": 17069906
+    },
+    {
+      "path": "redscale/redscale-04-harmon-red-0033.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0033.JPG",
+      "master_bytes": 6772863
+    },
+    {
+      "path": "redscale/redscale-05-harmon-red-0035.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0035.JPG",
+      "master_bytes": 7524613
+    },
+    {
+      "path": "redscale/redscale-06-harmon-red-0034.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0034.JPG",
+      "master_bytes": 5386725
+    },
+    {
+      "path": "redscale/redscale-07-harmon-red-0017.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0017.JPG",
+      "master_bytes": 5949282
+    },
+    {
+      "path": "redscale/redscale-08-harmon-red-0030.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0030.JPG",
+      "master_bytes": 19452161
+    },
+    {
+      "path": "redscale/redscale-09-harmon-red-0019.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0019.JPG",
+      "master_bytes": 20053476
+    },
+    {
+      "path": "redscale/redscale-10-harmon-red-0029.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0029.JPG",
+      "master_bytes": 21460967
+    },
+    {
+      "path": "redscale/redscale-11-harmon-red-0020.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0020.JPG",
+      "master_bytes": 6276549
+    },
+    {
+      "path": "redscale/redscale-12-harmon-red-0022.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0022.JPG",
+      "master_bytes": 6240859
+    },
+    {
+      "path": "redscale/redscale-13-harmon-red-0026.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0026.JPG",
+      "master_bytes": 15415313
+    },
+    {
+      "path": "redscale/redscale-14-harmon-red-0036.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0036.JPG",
+      "master_bytes": 5403879
+    },
+    {
+      "path": "redscale/redscale-15-harmon-red-0032.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0032.JPG",
+      "master_bytes": 18419985
+    },
+    {
+      "path": "redscale/redscale-16-harmon-red-0027.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0027.JPG",
+      "master_bytes": 13516393
+    },
+    {
+      "path": "redscale/redscale-17-harmon-red-0023.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0023.JPG",
+      "master_bytes": 21736867
     },
     {
       "path": "redscale/redscale-04-harmon-red-0037.jpg",
