@@ -210,28 +210,12 @@
       "master_bytes": 5386725
     },
     {
-      "path": "redscale/redscale-07-harmon-red-0017.jpg",
-      "orientation": "vertical",
-      "master_width": 4181,
-      "master_height": 6305,
-      "original_path": "harmon-red-0017.JPG",
-      "master_bytes": 5949282
-    },
-    {
       "path": "redscale/redscale-08-harmon-red-0030.jpg",
       "orientation": "horizontal",
       "master_width": 6305,
       "master_height": 4181,
       "original_path": "harmon-red-0030.JPG",
       "master_bytes": 19452161
-    },
-    {
-      "path": "redscale/redscale-09-harmon-red-0019.jpg",
-      "orientation": "horizontal",
-      "master_width": 6305,
-      "master_height": 4181,
-      "original_path": "harmon-red-0019.JPG",
-      "master_bytes": 20053476
     },
     {
       "path": "redscale/redscale-10-harmon-red-0029.jpg",
@@ -248,14 +232,6 @@
       "master_height": 6305,
       "original_path": "harmon-red-0020.JPG",
       "master_bytes": 6276549
-    },
-    {
-      "path": "redscale/redscale-12-harmon-red-0022.jpg",
-      "orientation": "vertical",
-      "master_width": 4181,
-      "master_height": 6305,
-      "original_path": "harmon-red-0022.JPG",
-      "master_bytes": 6240859
     },
     {
       "path": "redscale/redscale-13-harmon-red-0026.jpg",
