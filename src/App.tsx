@@ -68,6 +68,18 @@ export default function App() {
                   >
                     Color
                   </button>
+                  <span className="text-photo-border">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryFilter('redscale')}
+                    className={`transition-colors ${
+                      galleryFilter === 'redscale'
+                        ? 'text-photo-accent border-b-2 border-photo-accent -mb-px pb-1'
+                        : 'text-photo-muted hover:text-photo-fg border-b-2 border-transparent pb-1'
+                    }`}
+                  >
+                    Redscale
+                  </button>
                 </div>
               )}
             </div>

@@ -6,6 +6,7 @@ public/photos/still-life/**
 !public/photos/still-life/.gitkeep
 !public/photos/still-life/bw/
 !public/photos/still-life/color/
+!public/photos/still-life/redscale/
 !public/photos/still-life/about_me.jpg
 !public/photos/still-life/bw/000230040012.jpg
 !public/photos/still-life/bw/000230040014.jpg
@@ -17,6 +18,24 @@ public/photos/still-life/**
 !public/photos/still-life/color/B96AA7C2-DC69-42C6-B5B3-87205F0BF3BF.jpg
 !public/photos/still-life/color/cheers.jpg
 !public/photos/still-life/color/ivy.jpg
+!public/photos/still-life/redscale/redscale-01-harmon-red-0018.jpg
+!public/photos/still-life/redscale/redscale-02-harmon-red-0021.jpg
+!public/photos/still-life/redscale/redscale-03-harmon-red-0031.jpg
+!public/photos/still-life/redscale/redscale-04-harmon-red-0033.jpg
+!public/photos/still-life/redscale/redscale-04-harmon-red-0037.jpg
+!public/photos/still-life/redscale/redscale-05-harmon-red-0035.jpg
+!public/photos/still-life/redscale/redscale-06-harmon-red-0034.jpg
+!public/photos/still-life/redscale/redscale-07-harmon-red-0017.jpg
+!public/photos/still-life/redscale/redscale-08-harmon-red-0030.jpg
+!public/photos/still-life/redscale/redscale-09-harmon-red-0019.jpg
+!public/photos/still-life/redscale/redscale-10-harmon-red-0029.jpg
+!public/photos/still-life/redscale/redscale-11-harmon-red-0020.jpg
+!public/photos/still-life/redscale/redscale-12-harmon-red-0022.jpg
+!public/photos/still-life/redscale/redscale-13-harmon-red-0026.jpg
+!public/photos/still-life/redscale/redscale-14-harmon-red-0036.jpg
+!public/photos/still-life/redscale/redscale-15-harmon-red-0032.jpg
+!public/photos/still-life/redscale/redscale-16-harmon-red-0027.jpg
+!public/photos/still-life/redscale/redscale-17-harmon-red-0023.jpg
 # END AUTO-GENERATED CURATED STILL-LIFE
 
 node_modules/

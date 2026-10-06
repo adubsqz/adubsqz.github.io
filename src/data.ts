@@ -10,7 +10,7 @@ const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '
 const stillLifeBase = (base.endsWith('/') ? base.slice(0, -1) : base) + '/photos/still-life';
 const SUPPORTED_IMAGE_FILE = /\.(jpe?g|png|webp)$/i;
 
-function photosFromFilenames(filenames: string[], subdir: 'bw' | 'color', prefix: string) {
+function photosFromFilenames(filenames: string[], subdir: 'bw' | 'color' | 'redscale', prefix: string) {
   return filenames.map((filename, i) => {
     const slug = filename.replace(/\.[^.]+$/, '').replace(/[^a-z0-9_-]/gi, '_');
     return {
@@ -29,12 +29,14 @@ function selectGalleryFilenames(filenames: string[]): string[] {
 type GalleryManifest = {
   bw?: string[];
   color?: string[];
+  redscale?: string[];
   'still-life'?: string[];
 };
 
 const manifest = galleryManifest as GalleryManifest;
 const bwPhotos = photosFromFilenames(selectGalleryFilenames(manifest.bw ?? []), 'bw', 'bw');
 const colorPhotos = photosFromFilenames(selectGalleryFilenames(manifest.color ?? []), 'color', 'color');
+const redscalePhotos = photosFromFilenames(selectGalleryFilenames(manifest.redscale ?? []), 'redscale', 'redscale');
 
 function resolveAboutImagePath(entry: string): string {
   const normalized = entry.trim().replace(/^\/+/, '');
@@ -53,6 +55,7 @@ export const ABOUT_IMAGE_SRC = aboutFilename
 export const COLLECTIONS: PhotoCollection[] = [
   { id: 'still-life-bw', title: 'Black & White', photos: bwPhotos },
   { id: 'still-life-color', title: 'Color', photos: colorPhotos },
+  { id: 'still-life-redscale', title: 'Redscale', photos: redscalePhotos },
 ];
 
 export const ABOUT = {

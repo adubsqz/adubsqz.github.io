@@ -38,6 +38,29 @@ describe('GalleryView', () => {
     });
   });
 
+  it('renders Redscale photos when filter is redscale', () => {
+    render(<GalleryView filter="redscale" />);
+    const redscaleCollection = COLLECTIONS.find((c) => c.id === 'still-life-redscale')!;
+    expect(redscaleCollection.photos).toHaveLength(18);
+    expect(redscaleCollection.photos.at(-1)?.src.endsWith('redscale-04-harmon-red-0037.jpg')).toBe(true);
+    const firstPagePhotos = redscaleCollection.photos.slice(0, PER_PAGE);
+    firstPagePhotos.forEach((photo) => {
+      expect(screen.getByAltText(photo.alt)).toBeInTheDocument();
+    });
+  });
+
+  it('returns to the first page when the filter changes', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<GalleryView filter="redscale" />);
+    await user.click(screen.getByRole('button', { name: /next/i }));
+    await user.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText(/page 3 of 3/i)).toBeInTheDocument();
+    rerender(<GalleryView filter="color" />);
+    const colorCollection = COLLECTIONS.find((c) => c.id === 'still-life-color')!;
+    expect(screen.getByAltText(colorCollection.photos[0].alt)).toBeInTheDocument();
+    expect(screen.queryByText(/page 3 of 3/i)).not.toBeInTheDocument();
+  });
+
   it('renders Color photos when filter is color', () => {
     render(<GalleryView filter="color" />);
     const colorCollection = COLLECTIONS.find((c) => c.id === 'still-life-color')!;

@@ -441,6 +441,7 @@ export default function GalleryView({ filter }: GalleryViewProps) {
       </div>
 
       <CollectionSection
+        key={collection.id}
         collection={collection}
         onPhotoClick={setLightboxPhoto}
         preferSideBySide={preferSideBySide}

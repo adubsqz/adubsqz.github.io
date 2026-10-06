@@ -42,7 +42,7 @@ function collectManifestReferences(manifest) {
         refs.add(normalized);
         continue;
       }
-      if (gallery === 'bw' || gallery === 'color') {
+      if (gallery === 'bw' || gallery === 'color' || gallery === 'redscale') {
         refs.add(`${gallery}/${normalized}`);
         continue;
       }
