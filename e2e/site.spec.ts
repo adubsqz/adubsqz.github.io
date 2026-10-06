@@ -27,7 +27,7 @@ test.describe('site', () => {
     await page.getByRole('button', { name: /full spectrum/i }).click();
     await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label--on')).toHaveCount(1);
-    await expect(page.locator('.gallery-still')).toHaveCount(12);
+    await expect(page.locator('.gallery-still')).toHaveCount(17);
     await revealAllStills(page);
     await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
     await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);

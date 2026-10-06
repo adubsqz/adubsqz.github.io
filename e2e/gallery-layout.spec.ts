@@ -109,7 +109,7 @@ for (const vp of VIEWPORTS) {
     test('full spectrum lookbook includes the imported color stills', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.getByRole('button', { name: /^full spectrum$/i }).click();
-      await expect(page.locator('.gallery-still')).toHaveCount(12);
+      await expect(page.locator('.gallery-still')).toHaveCount(17);
       await revealAllStills(page);
       await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
       await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
