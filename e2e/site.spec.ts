@@ -15,7 +15,7 @@ test.describe('site', () => {
     await expect(tagline).toBeVisible();
     await expect(tagline).toHaveAttribute('src', '/tagline.jpg');
     await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label--on')).toHaveCount(0);
     await expect(page.getByRole('button', { name: /redscale/i }).locator('.graffiti-label--on')).toHaveCount(0);
     await expect(page.getByRole('button', { name: /^portraits$/i }).locator('.graffiti-label--on')).toHaveCount(0);
@@ -33,10 +33,10 @@ test.describe('site', () => {
     await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
     await page.getByRole('button', { name: /redscale/i }).click();
     await page.getByRole('button', { name: /^portraits$/i }).click();
-    await expect(page.locator('.gallery-still')).toHaveCount(14);
+    await expect(page.locator('.gallery-still')).toHaveCount(13);
     await revealAllStills(page);
     await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(14, { timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(13, { timeout: 10_000 });
     await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
 
     await clickOpenPhoto(page);

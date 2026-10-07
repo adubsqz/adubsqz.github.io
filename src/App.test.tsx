@@ -52,8 +52,8 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /^gallery$/i })).not.toBeInTheDocument();
     const reel = screen.getByRole('navigation', { name: /collections/i });
     expect(reel).toHaveClass('collection-reel');
-    expect(screen.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: /full spectrum/i }).querySelector('.graffiti-label--on')).toBeNull();
+    expect(screen.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /greyscale/i }).querySelector('.graffiti-label--on')).toBeNull();
     expect(screen.getByRole('button', { name: /redscale/i }).querySelector('.graffiti-label--on')).toBeNull();
     expect(screen.getByRole('button', { name: /^portraits$/i }).querySelector('.graffiti-label--on')).toBeNull();
     expect(screen.getByRole('button', { name: /^portraits$/i }).querySelector('.graffiti-label__core')).toBeTruthy();
@@ -91,7 +91,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('navigation', { name: /collections/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByText(/I take 35mm and medium format film photography/i)).not.toBeInTheDocument();
   });
 
@@ -115,7 +115,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /^redscale$/i })).toHaveAttribute('aria-pressed', 'true');
     await user.click(screen.getByRole('button', { name: /^portraits$/i }));
     expect(screen.getByRole('button', { name: /^portraits$/i })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(14);
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(13);
     expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
   });
 

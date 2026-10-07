@@ -132,7 +132,7 @@ describe('data', () => {
       expect(people).toBeDefined();
       const srcs = (people?.photos ?? []).map((p) => p.src);
       expect(srcs.some((src) => /sangerhall\.jpg$/.test(src))).toBe(true);
-      expect(people?.photos).toHaveLength(14);
+      expect(people?.photos).toHaveLength(13);
 
       const byStem = Object.fromEntries(
         (people?.photos ?? []).map((p) => {

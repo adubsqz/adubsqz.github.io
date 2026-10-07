@@ -273,7 +273,7 @@ export const ABOUT_IMAGE_SRC = aboutFilename
 export const COLLECTIONS: PhotoCollection[] = buildPublicCollections();
 
 export const GALLERY_FILTERS = COLLECTIONS.map((collection) => collection.id);
-export const DEFAULT_GALLERY_FILTER = GALLERY_FILTERS[0] ?? '';
+export const DEFAULT_GALLERY_FILTER = FULL_SPECTRUM_ID;
 
 export const ABOUT = {
   name: 'adubsqz',

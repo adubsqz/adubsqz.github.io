@@ -35,16 +35,16 @@ for (const vp of VIEWPORTS) {
         page.getByRole('img', { name: /printable film photography as small as a locket for ur momma/i }),
       ).toBeVisible();
       await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: /greyscale/i })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
       await expect(page.getByRole('button', { name: /full spectrum/i })).toBeVisible();
       await expect(page.getByRole('button', { name: /redscale/i })).toBeVisible();
       await expect(page.getByRole('button', { name: /^portraits$/i })).toBeVisible();
       await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
       await expect(page.getByRole('button', { name: /about me/i })).toHaveCount(0);
       await expect(page.locator('.brand-mark .graffiti-label__core')).toHaveCSS('color', 'rgb(243, 182, 200)');
-      await expect(page.getByRole('button', { name: /greyscale/i }).locator('.graffiti-label__core')).toHaveCSS(
+      await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label__core')).toHaveCSS(
         'color',
-        'rgb(243, 225, 138)',
+        'rgb(158, 201, 232)',
       );
       const unselectedCore = page.getByRole('button', { name: /^portraits$/i }).locator('.graffiti-label__core');
       await expect(unselectedCore).toHaveCSS('color', 'rgb(26, 23, 20)');

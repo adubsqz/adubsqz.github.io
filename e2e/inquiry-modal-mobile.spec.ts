@@ -9,12 +9,12 @@ test.describe('Request Invoice sheet (mobile)', () => {
 
   test('fills the phone screen without overflow and keeps actions tappable', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    // skillman-punk has no scan pixels, so the conservative size list + email hint
+    // exit-singer has no scan pixels, so the conservative size list + email hint
     // stay visible for this layout assertion (sangerhall, the first portraits
     // still, already has master dimensions).
     await page.getByRole('button', { name: /^portraits$/i }).click();
     const thumb = page.getByRole('button', {
-      name: /open photo: photograph people skillman-punk/i,
+      name: /open photo: photograph people exit-singer/i,
     });
     await thumb.evaluate((el) => {
       (el as HTMLButtonElement).click();
