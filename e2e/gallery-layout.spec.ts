@@ -7,112 +7,49 @@ const VIEWPORTS = [
 ] as const;
 
 for (const vp of VIEWPORTS) {
-  test.describe(`gallery lookbook (${vp.name})`, () => {
+  test.describe(`contact sheet (${vp.name})`, () => {
     test.use({ viewport: { width: vp.width, height: vp.height } });
 
-    test('pads every still evenly and does not page', async ({ page }) => {
+    test('shows one frame, a thumb strip, and no category chrome', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
+      await expect(page.getByRole('button', { name: /open photo/i })).toBeVisible();
       await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
-      await expect(page.getByText(/^\d+ of \d+$/)).toHaveCount(0);
+      await expect(page.getByRole('navigation', { name: /collections/i })).toHaveCount(0);
 
-      const lookbook = page.locator('.gallery-lookbook');
-      await expect(lookbook).toBeVisible();
-      const inset = await lookbook.evaluate((el) => {
-        const s = getComputedStyle(el);
-        return {
-          top: parseFloat(s.paddingTop),
-          right: parseFloat(s.paddingRight),
-          bottom: parseFloat(s.paddingBottom),
-          left: parseFloat(s.paddingLeft),
-          bg: s.backgroundColor,
-        };
-      });
-      expect(inset.bg).toBe('rgb(255, 255, 255)');
-      const minInset = vp.name === 'mobile' ? 39 : 63;
-      expect(inset.top).toBeGreaterThanOrEqual(minInset);
-      expect(inset.right).toBe(inset.top);
-      expect(inset.bottom).toBe(inset.top);
-      expect(inset.left).toBe(inset.top);
-
-      const stackGap = await page.locator('.gallery-still-stack').evaluate((el) => parseFloat(getComputedStyle(el).rowGap));
-      expect(stackGap).toBeGreaterThanOrEqual(vp.name === 'mobile' ? 63 : 95);
-
-      const still = page.locator('.gallery-still').first();
-      const box = await still.boundingBox();
-      expect(box, `${vp.name} first still missing box`).not.toBeNull();
-      expect(box!.x, `${vp.name} still flush to the left`).toBeGreaterThanOrEqual(inset.left - 1);
-      expect(box!.x + box!.width, `${vp.name} still flush to the right`).toBeLessThanOrEqual(
-        vp.width - inset.right + 1,
-      );
+      const sheet = page.locator('.contact-sheet');
+      await expect(sheet).toBeVisible();
+      const bg = await sheet.evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(bg).toBe('rgb(255, 255, 255)');
 
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
+
+      const strip = page.locator('.contact-thumbs');
+      const stripOverflow = await strip.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
+      expect(stripOverflow, `${vp.name} thumb strip should scroll inside itself`).toBe(true);
     });
 
-    test('keeps every collection on screen without a horizontal swipe', async ({ page }) => {
+    test('lets the header scroll away', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      const reel = page.getByRole('navigation', { name: /collections/i });
-      await expect(reel).toBeVisible();
-
-      const reelBox = await reel.boundingBox();
-      expect(reelBox, `${vp.name} reel missing box`).not.toBeNull();
-
-      // The reel used to hide labels behind a scrollbar styled invisible, so assert
-      // there is nothing left to scroll to rather than trusting the visual.
-      const scrollable = await reel.evaluate((el) => el.scrollWidth - el.clientWidth);
-      expect(scrollable, `${vp.name} reel still scrolls horizontally`).toBeLessThanOrEqual(1);
-
-      const buttons = reel.getByRole('button');
-      await expect(buttons).toHaveCount(4);
-
-      for (const name of ['greyscale', 'full spectrum', 'redscale', 'portraits']) {
-        const button = page.getByRole('button', { name: new RegExp(`^${name}$`, 'i') });
-        const box = await button.boundingBox();
-        expect(box, `${vp.name} "${name}" missing box`).not.toBeNull();
-        expect(box!.x, `${vp.name} "${name}" clipped at the left`).toBeGreaterThanOrEqual(-1);
-        expect(
-          box!.x + box!.width,
-          `${vp.name} "${name}" runs past the right edge`,
-        ).toBeLessThanOrEqual(vp.width + 1);
-        expect(box!.height, `${vp.name} "${name}" tap target under 44px`).toBeGreaterThanOrEqual(44);
+      const header = page.locator('header.site-header');
+      await expect(header).not.toHaveCSS('position', 'sticky');
+      await page.evaluate(() => window.scrollTo(0, 900));
+      const top = await header.evaluate((el) => el.getBoundingClientRect().top);
+      const canScroll = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight + 40);
+      if (canScroll) {
+        expect(top, `${vp.name} header stayed on screen`).toBeLessThan(0);
       }
     });
 
-    test('lets collection chrome scroll away and offers back to top', async ({ page }) => {
+    test('one sheet includes color and people stills', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
-      const header = page.locator('header.site-header');
-      await expect(header).not.toHaveCSS('position', 'sticky');
-      await expect(page.getByRole('button', { name: /back to top/i })).toHaveCount(0);
-      await page.evaluate(() => window.scrollTo(0, 900));
-      const top = await header.evaluate((el) => el.getBoundingClientRect().top);
-      expect(top, `${vp.name} header stayed on screen`).toBeLessThan(0);
-      await expect(page.getByRole('button', { name: /back to top/i })).toBeVisible();
-      await page.getByRole('button', { name: /back to top/i }).click();
-      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(8);
-    });
-
-    test('portraits lookbook keeps stills two and three in one scroll', async ({ page }) => {
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.getByRole('button', { name: /^portraits$/i }).click();
-      await expect(page.locator('.gallery-still')).toHaveCount(13);
-      await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
-      await revealAllStills(page);
-      await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
-      await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
-      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(13, { timeout: 10_000 });
-    });
-
-    test('full spectrum lookbook includes the imported color stills', async ({ page }) => {
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.getByRole('button', { name: /^full spectrum$/i }).click();
-      await expect(page.locator('.gallery-still')).toHaveCount(17);
       await revealAllStills(page);
       await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
-      await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
+      await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
+      await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
+      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(1);
     });
   });
 }

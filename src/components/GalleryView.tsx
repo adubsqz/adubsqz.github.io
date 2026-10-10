@@ -1,141 +1,21 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { COLLECTIONS } from '../data';
 import { contactPrefillForPhoto } from '../inquireStatic';
-import type { Photo, PhotoCollection } from '../types';
-import type { GalleryFilter } from '../types';
+import type { Photo } from '../types';
 import {
-  GALLERY_FIRST_PAINT_STILLS,
+  CONTACT_SHEET_INITIAL_THUMBS,
   GALLERY_LIGHTBOX_PAD_CLASS,
-  GALLERY_LOOKBOOK_CLASS,
-  GALLERY_STILL_ITEM_CLASS,
-  GALLERY_STILL_OFFSCREEN_CLASS,
-  GALLERY_STILL_STACK_CLASS,
   imageClassForStill,
   intrinsicSizeForStill,
 } from '../gallery-layout';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
 
 const ContactModal = lazy(() => import('./ContactModal'));
 const InquiryModal = lazy(() => import('./InquiryModal'));
 
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduced(mq.matches);
-    const onChange = () => setReduced(mq.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-  return reduced;
-}
-
-function PhotoCard({
-  photo,
-  onClick,
-  fetchPriority,
-  loading,
-  className = '',
-}: {
-  photo: Photo;
-  onClick: () => void;
-  fetchPriority?: 'high' | 'low' | 'auto';
-  /** First screenful uses eager loads so lazy+layout containment cannot starve fetches (incl. Strict Mode remounts). */
-  loading?: 'lazy' | 'eager';
-  className?: string;
-}) {
-  const [failed, setFailed] = useState(false);
-  const reducedMotion = usePrefersReducedMotion();
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
-  const acceptErrorsRef = useRef(false);
-
-  useLayoutEffect(() => {
-    acceptErrorsRef.current = true;
-    return () => {
-      acceptErrorsRef.current = false;
-    };
-  }, []);
-
-  const handleError = () => {
-    if (!acceptErrorsRef.current) return;
-    console.error('Gallery photo failed to load:', photo.src ?? photo.id);
-    setFailed(true);
-  };
-
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (reducedMotion || e.pointerType === 'touch' || !btnRef.current) return;
-      const r = btnRef.current.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      setTilt({ rx: y * -5.5, ry: x * 5.5 });
-    },
-    [reducedMotion],
-  );
-
-  const onPointerLeave = useCallback(() => setTilt({ rx: 0, ry: 0 }), []);
-
-  if (failed) {
-    return (
-      <div
-        className={`flex aspect-[4/5] w-full items-center justify-center bg-mcm-paper/30 sm:rounded-md ${className}`}
-      >
-        <span className="text-photo-muted/40 text-sm select-none font-mono">—</span>
-      </div>
-    );
-  }
-
-  return (
-    <button
-      ref={btnRef}
-      type="button"
-      onClick={onClick}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
-      onPointerCancel={onPointerLeave}
-      aria-label={`Open photo: ${photo.alt}`}
-      className={`group flex w-full justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-mcm-brick focus-visible:ring-offset-2 focus-visible:ring-offset-photo-bg ${className}`}
-      style={{ perspective: '880px' }}
-    >
-      <div
-        className="relative mx-auto w-full max-w-full overflow-hidden bg-photo-bg sm:w-fit sm:rounded-md sm:shadow-[0_16px_40px_rgba(26,23,20,0.12)] sm:ring-1 sm:ring-photo-fg/10 motion-safe:duration-300 [transform-style:preserve-3d]"
-        style={
-          reducedMotion
-            ? undefined
-            : {
-                transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(1.002)`,
-              }
-        }
-      >
-        <WatermarkedImage
-          key={photo.src}
-          src={photo.src}
-          alt={photo.alt}
-          wrapperClassName="relative inline-block w-full max-w-full sm:w-fit"
-          className={imageClassForStill(photo.orientation)}
-          width={intrinsicSizeForStill(photo.orientation).width}
-          height={intrinsicSizeForStill(photo.orientation).height}
-          loading={loading ?? 'lazy'}
-          decoding="async"
-          fetchPriority={fetchPriority}
-          onError={handleError}
-          onClick={onClick}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-mcm-ink/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-md" />
-      </div>
-      {photo.caption && (
-        <p className="mt-3 text-photo-muted/85 text-[0.7rem] leading-relaxed font-mono tracking-wide">
-          {photo.caption}
-        </p>
-      )}
-    </button>
-  );
-}
+const photos = COLLECTIONS.flatMap((collection) => collection.photos);
 
 function Lightbox({
   photo,
@@ -152,8 +32,6 @@ function Lightbox({
   onPrevious: () => void;
   onNext: () => void;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -165,11 +43,6 @@ function Lightbox({
   }, [onClose, onPrevious, onNext]);
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = 0;
-  }, [photo.id, photo.src]);
-
-  useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -178,173 +51,199 @@ function Lightbox({
   }, []);
 
   return createPortal(
-    <>
-      <div className="fixed inset-0 z-[100] bg-mcm-cream" aria-hidden onClick={onClose} />
-      <div
-        ref={scrollRef}
-        className="lightbox-shell fixed inset-0 z-[101] overflow-y-auto overflow-x-hidden overscroll-contain bg-mcm-cream text-photo-fg"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Image lightbox"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
-      >
+    <div
+      className="lightbox-shell fixed inset-0 z-[101] flex flex-col bg-white text-neutral-950"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Image lightbox"
+    >
+      <div className="flex justify-end px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-20 flex h-12 w-12 items-center justify-center text-3xl leading-none text-photo-fg sm:right-6 sm:top-6 sm:h-11 sm:w-11 sm:rounded-xl sm:bg-photo-panel/90"
+          className="flex h-11 w-11 items-center justify-center text-3xl leading-none"
           aria-label="Close"
         >
           ×
         </button>
+      </div>
+
+      <div
+        className={`lightbox-stage relative flex min-h-0 flex-1 items-center justify-center ${GALLERY_LIGHTBOX_PAD_CLASS}`}
+      >
         <button
           type="button"
           onClick={onPrevious}
-          className="absolute left-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl bg-photo-panel/90 text-xl text-photo-fg sm:flex"
+          className="absolute left-1 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-3xl sm:left-4"
           aria-label="View previous photo"
         >
           ‹
         </button>
+        <WatermarkedImage
+          src={photo.src}
+          alt={photo.alt}
+          wrapperClassName="relative flex h-full max-h-full w-full items-center justify-center"
+          className="pointer-events-none block max-h-full w-auto max-w-full object-contain"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+        />
         <button
           type="button"
           onClick={onNext}
-          className="absolute right-2 top-[42%] z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl bg-photo-panel/90 text-xl text-photo-fg sm:flex"
+          className="absolute right-1 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-3xl sm:right-4"
           aria-label="View next photo"
         >
           ›
         </button>
-
-        <div className={`mx-auto flex min-h-[100dvh] w-full max-w-[min(1200px,100vw)] flex-col justify-center ${GALLERY_LIGHTBOX_PAD_CLASS} pb-28 pt-4 sm:pb-28 sm:pt-12`}>
-          <figure className="flex w-full shrink-0 justify-center">
-            <div className="lightbox-frame lightbox-frame--hero w-auto max-w-full sm:max-w-[min(1100px,calc(100vw-4rem))]">
-              <WatermarkedImage
-                src={photo.src}
-                alt={photo.alt}
-                wrapperClassName="relative flex w-full max-w-full items-center justify-center"
-                className="pointer-events-none block h-auto max-h-[min(78dvh,920px)] w-auto min-h-0 max-w-full object-contain sm:max-h-[min(80dvh,960px)]"
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-              />
-            </div>
-          </figure>
-
-          {photo.caption && (
-            <Card className="mt-6 rounded-2xl border-photo-border/70 bg-photo-panel/60">
-              <CardContent className="px-5 py-4 sm:px-8">
-                <p className="text-center text-sm italic leading-relaxed text-photo-muted">{photo.caption}</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-mcm-cream via-mcm-cream/95 to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-10">
-          <div className="pointer-events-auto mx-auto flex max-w-lg flex-col items-stretch gap-2">
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                onClick={onPrevious}
-                variant="ghost"
-                className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
-                aria-label="View previous photo"
-              >
-                ‹
-              </Button>
-              <Button
-                type="button"
-                onClick={onRequestInvoice}
-                variant="lightboxPrimary"
-                className="h-12 flex-1 rounded-xl text-lg font-medium"
-              >
-                Request Invoice
-              </Button>
-              <Button
-                type="button"
-                onClick={onNext}
-                variant="ghost"
-                className="h-12 w-12 shrink-0 rounded-xl px-0 text-2xl sm:hidden"
-                aria-label="View next photo"
-              >
-                ›
-              </Button>
-            </div>
-            <Button
-              type="button"
-              onClick={onLicensing}
-              variant="ghost"
-              className="mx-auto h-9 px-3 text-sm font-normal text-photo-muted"
-            >
-              Licensing or hire
-            </Button>
-          </div>
-        </div>
       </div>
-    </>,
+
+      <div className="flex flex-col items-center gap-1 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+        <Button
+          type="button"
+          onClick={onRequestInvoice}
+          className="h-11 bg-neutral-950 px-8 text-white shadow-none hover:bg-neutral-800"
+        >
+          Request Invoice
+        </Button>
+        <Button
+          type="button"
+          onClick={onLicensing}
+          variant="ghost"
+          className="h-9 px-3 text-sm font-normal text-neutral-500"
+        >
+          Licensing or hire
+        </Button>
+      </div>
+    </div>,
     document.body,
   );
 }
 
-function LookbookStill({
+function ContactThumb({
   photo,
   index,
-  onPhotoClick,
+  selected,
+  onSelect,
 }: {
   photo: Photo;
   index: number;
-  onPhotoClick: (photo: Photo) => void;
+  selected: boolean;
+  onSelect: (index: number) => void;
 }) {
-  const itemRef = useRef<HTMLLIElement>(null);
-  const [active, setActive] = useState(index < GALLERY_FIRST_PAINT_STILLS);
+  const ref = useRef<HTMLButtonElement>(null);
+  const [visible, setVisible] = useState(index < CONTACT_SHEET_INITIAL_THUMBS || selected);
   const size = intrinsicSizeForStill(photo.orientation);
 
   useEffect(() => {
-    if (active) return;
-    const node = itemRef.current;
+    if (selected) setVisible(true);
+  }, [selected]);
+
+  useEffect(() => {
+    if (visible) return;
+    const node = ref.current;
     if (!node) return;
     if (typeof IntersectionObserver === 'undefined') {
-      setActive(true);
+      setVisible(true);
       return;
     }
+    const root = node.closest('.contact-thumbs');
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setActive(true);
+          setVisible(true);
           io.disconnect();
         }
       },
-      { root: null, rootMargin: '80px 0px', threshold: 0.01 },
+      { root: root instanceof Element ? root : null, rootMargin: '0px 48px', threshold: 0.01 },
     );
     io.observe(node);
     return () => io.disconnect();
-  }, [active]);
+  }, [visible]);
 
   return (
-    <li
-      ref={itemRef}
-      className={`${GALLERY_STILL_ITEM_CLASS}${index === 0 ? '' : ` ${GALLERY_STILL_OFFSCREEN_CLASS}`}`}
-      style={active ? undefined : { aspectRatio: `${size.width} / ${size.height}` }}
+    <button
+      ref={ref}
+      id={`contact-thumb-${photo.id}`}
+      type="button"
+      aria-pressed={selected}
+      aria-label={`Select photo: ${photo.alt}`}
+      onClick={() => onSelect(index)}
+      className={`contact-thumb h-16 w-16 shrink-0 overflow-hidden border bg-neutral-100 sm:h-[4.5rem] sm:w-[4.5rem] ${
+        selected ? 'border-neutral-950' : 'border-transparent'
+      }`}
     >
-      {active ? (
-        <PhotoCard
-          photo={photo}
-          onClick={() => onPhotoClick(photo)}
-          fetchPriority={index === 0 ? 'high' : 'auto'}
-          loading={index === 0 ? 'eager' : 'lazy'}
+      {visible ? (
+        <img
+          src={photo.src}
+          alt=""
+          width={size.width}
+          height={size.height}
+          loading="lazy"
+          decoding="async"
+          draggable="false"
+          className="gallery-image h-full w-full object-cover"
         />
-      ) : (
-        <div className="w-full bg-mcm-paper/20" aria-hidden />
-      )}
-    </li>
+      ) : null}
+    </button>
   );
 }
 
-function CollectionSection({
-  collection,
-  onPhotoClick,
-}: {
-  collection: PhotoCollection;
-  onPhotoClick: (photo: Photo) => void;
-}) {
-  const photos = collection.photos;
+function Hero({ photo, onOpen }: { photo: Photo; onOpen: (photo: Photo) => void }) {
+  const [failed, setFailed] = useState(false);
+  const acceptErrorsRef = useRef(false);
+  const size = intrinsicSizeForStill(photo.orientation);
+
+  useLayoutEffect(() => {
+    acceptErrorsRef.current = true;
+    return () => {
+      acceptErrorsRef.current = false;
+    };
+  }, []);
+
+  if (failed) {
+    return (
+      <div className="flex min-h-40 items-center justify-center">
+        <span className="select-none font-mono text-sm text-neutral-400">—</span>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(photo)}
+      aria-label={`Open photo: ${photo.alt}`}
+      className="flex w-full justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-4"
+    >
+      <WatermarkedImage
+        key={photo.src}
+        src={photo.src}
+        alt={photo.alt}
+        wrapperClassName="relative inline-block max-w-full"
+        className={imageClassForStill(photo.orientation)}
+        width={size.width}
+        height={size.height}
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
+        onError={() => {
+          if (!acceptErrorsRef.current) return;
+          console.error('Gallery photo failed to load:', photo.src ?? photo.id);
+          setFailed(true);
+        }}
+        onClick={() => onOpen(photo)}
+      />
+    </button>
+  );
+}
+
+export default function GalleryView() {
+  const [index, setIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [contactPhoto, setContactPhoto] = useState<Photo | null>(null);
+  const [inquiryPhoto, setInquiryPhoto] = useState<Photo | null>(null);
+  const photo = photos[index] ?? null;
 
   useEffect(() => {
     const head = document.head;
@@ -359,80 +258,59 @@ function CollectionSection({
     return () => {
       link.remove();
     };
-  }, [photos]);
-
-  if (photos.length === 0) return null;
-
-  return (
-    <section className={GALLERY_LOOKBOOK_CLASS} aria-label={`Gallery reel for ${collection.title}`}>
-      <ul className={GALLERY_STILL_STACK_CLASS}>
-        {photos.map((photo, i) => (
-          <LookbookStill key={photo.id} photo={photo} index={i} onPhotoClick={onPhotoClick} />
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-interface GalleryViewProps {
-  filter: GalleryFilter;
-}
-
-export default function GalleryView({ filter }: GalleryViewProps) {
-  const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null);
-  const [contactPhoto, setContactPhoto] = useState<Photo | null>(null);
-  const [inquiryPhoto, setInquiryPhoto] = useState<Photo | null>(null);
-  const collection: PhotoCollection = COLLECTIONS.find((c) => c.id === filter)
-    ?? COLLECTIONS[0]
-    ?? { id: 'empty', title: 'Empty', photos: [] };
+  }, []);
 
   useEffect(() => {
-    if (!lightboxPhoto) return;
-    const exists = collection.photos.some((photo) => photo.id === lightboxPhoto.id);
-    if (!exists) setLightboxPhoto(null);
-  }, [collection.photos, lightboxPhoto]);
+    if (!photo) return;
+    document.getElementById(`contact-thumb-${photo.id}`)?.scrollIntoView?.({
+      inline: 'nearest',
+      block: 'nearest',
+    });
+  }, [photo]);
 
-  const handleRequestInvoice = () => {
-    if (!lightboxPhoto) return;
-    setInquiryPhoto(lightboxPhoto);
-    setLightboxPhoto(null);
-  };
-
-  const handleLicensing = () => {
-    if (!lightboxPhoto) return;
-    setContactPhoto(lightboxPhoto);
-    setLightboxPhoto(null);
-  };
-
-  const handleLightboxMove = (direction: 'next' | 'previous') => {
-    if (!lightboxPhoto) return;
-    if (collection.photos.length === 0) return;
-    const currentIndex = collection.photos.findIndex((photo) => photo.id === lightboxPhoto.id);
-    if (currentIndex < 0) return;
+  const move = (direction: 'next' | 'previous') => {
+    if (photos.length === 0) return;
     const step = direction === 'next' ? 1 : -1;
-    const nextIndex =
-      (currentIndex + step + collection.photos.length) % collection.photos.length;
-    setLightboxPhoto(collection.photos[nextIndex]);
+    setIndex((current) => (current + step + photos.length) % photos.length);
   };
 
   const contactPrefill = contactPhoto ? contactPrefillForPhoto(contactPhoto) : null;
 
   return (
-    <div className="space-y-6">
-      {collection.photos.length === 0 && (
-        <p className="text-sm text-photo-muted">No photos found in this category.</p>
+    <div className="contact-sheet mx-auto w-full max-w-6xl bg-white px-4 sm:px-8">
+      {photos.length === 0 && <p className="text-sm text-neutral-500">No photos yet.</p>}
+
+      {photo && (
+        <>
+          <Hero photo={photo} onOpen={() => setLightboxOpen(true)} />
+          <div className="contact-thumbs mt-4 flex gap-2 overflow-x-auto pb-2">
+            {photos.map((thumb, thumbIndex) => (
+              <ContactThumb
+                key={thumb.id}
+                photo={thumb}
+                index={thumbIndex}
+                selected={thumbIndex === index}
+                onSelect={setIndex}
+              />
+            ))}
+          </div>
+        </>
       )}
 
-      <CollectionSection collection={collection} onPhotoClick={setLightboxPhoto} />
-
-      {lightboxPhoto && (
+      {lightboxOpen && photo && (
         <Lightbox
-          photo={lightboxPhoto}
-          onClose={() => setLightboxPhoto(null)}
-          onRequestInvoice={handleRequestInvoice}
-          onLicensing={handleLicensing}
-          onPrevious={() => handleLightboxMove('previous')}
-          onNext={() => handleLightboxMove('next')}
+          photo={photo}
+          onClose={() => setLightboxOpen(false)}
+          onRequestInvoice={() => {
+            setInquiryPhoto(photo);
+            setLightboxOpen(false);
+          }}
+          onLicensing={() => {
+            setContactPhoto(photo);
+            setLightboxOpen(false);
+          }}
+          onPrevious={() => move('previous')}
+          onNext={() => move('next')}
         />
       )}
 

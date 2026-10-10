@@ -5,7 +5,6 @@ export const SITE_HOST = 'adubs.site';
 export const SITE_SHARE_TITLE = 'adubsqz — photography';
 export const SITE_TAGLINE =
   'printable film photography as small as a locket for ur momma or prints the size of ur house for when you need to make an impression (or an apology)';
-export const SITE_TAGLINE_IMAGE = '/tagline.jpg';
 export const SITE_SHARE_DESCRIPTION = SITE_TAGLINE;
 export const SITE_OG_IMAGE_PATH = '/og.jpg';
 

@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const VIEWPORTS = [
-  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 6 },
-  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 4 },
+  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 20 },
+  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 8 },
 ] as const;
 
 function collectStillUrls(page: Page): Set<string> {
@@ -31,65 +31,12 @@ for (const vp of VIEWPORTS) {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
       await expect(page.getByRole('heading', { name: 'adubsqz' })).toBeVisible();
-      await expect(
-        page.getByRole('img', { name: /printable film photography as small as a locket for ur momma/i }),
-      ).toBeVisible();
-      await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
-      await expect(page.getByRole('button', { name: /full spectrum/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: /redscale/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: /^portraits$/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: /^about$/i })).toBeVisible();
+      await expect(page.getByRole('img', { name: /printable film photography/i })).toHaveCount(0);
+      await expect(page.getByRole('navigation', { name: /collections/i })).toHaveCount(0);
       await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
       await expect(page.getByRole('button', { name: /about me/i })).toHaveCount(0);
-      await expect(page.locator('.brand-mark .graffiti-label__core')).toHaveCSS('color', 'rgb(243, 182, 200)');
-      await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label__core')).toHaveCSS(
-        'color',
-        'rgb(158, 201, 232)',
-      );
-      const unselectedCore = page.getByRole('button', { name: /^portraits$/i }).locator('.graffiti-label__core');
-      await expect(unselectedCore).toHaveCSS('color', 'rgb(26, 23, 20)');
-      const unselectedPaint = await unselectedCore.evaluate((el) => {
-        const style = getComputedStyle(el);
-        return { color: style.color, shadow: style.textShadow };
-      });
-      expect(unselectedPaint.color).not.toBe('rgb(255, 255, 255)');
-      expect(unselectedPaint.shadow).toMatch(/244,\s*238,\s*228/);
-      const unselectedThrow = await page
-        .getByRole('button', { name: /^portraits$/i })
-        .locator('.graffiti-label__throw')
-        .evaluate((el) => {
-          const style = getComputedStyle(el);
-          return { color: style.color, fill: style.webkitTextFillColor };
-        });
-      expect(unselectedThrow.color).toBe('rgba(0, 0, 0, 0)');
-      expect(unselectedThrow.fill === 'rgba(0, 0, 0, 0)' || unselectedThrow.fill === '').toBeTruthy();
-      const tagline = page.locator('.site-tagline img');
-      await expect(tagline).toBeVisible();
-      await expect(tagline).toHaveAttribute('src', '/tagline.jpg');
-      const taglineBox = await tagline.boundingBox();
-      expect(taglineBox, `${vp.name} tagline missing`).not.toBeNull();
-      expect(taglineBox!.height, `${vp.name} tagline taller than two padded lines`).toBeLessThan(
-        vp.name === 'mobile' ? 80 : 180,
-      );
-
-      const reel = page.locator('.collection-reel');
-      const reelLayout = await reel.evaluate((el) => {
-        const kids = [...el.querySelectorAll('h2')];
-        const style = getComputedStyle(el);
-        return {
-          wrap: style.flexWrap,
-          scrollable: el.scrollWidth - el.clientWidth,
-          rows: new Set(kids.map((kid) => (kid as HTMLElement).offsetTop)).size,
-        };
-      });
-      expect(reelLayout.wrap, `${vp.name} collection reel must wrap`).toBe('wrap');
-      expect(reelLayout.scrollable, `${vp.name} reel still scrolls horizontally`).toBeLessThanOrEqual(
-        1,
-      );
-      // Desktop still fits one line; the phone takes two rows rather than hiding labels.
-      expect(reelLayout.rows, `${vp.name} unexpected collection row count`).toBe(
-        vp.name === 'mobile' ? 2 : 1,
-      );
 
       const header = page.locator('header.site-header');
       await expect(header).not.toHaveCSS('position', 'sticky');
@@ -126,36 +73,22 @@ for (const vp of VIEWPORTS) {
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
-      const lookbookPad = await page
-        .locator('.gallery-lookbook')
-        .evaluate((el) => parseFloat(getComputedStyle(el).paddingTop));
       const loadLine = `${vp.name} firstStill=${elapsed}ms unique=${stillUrls.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`;
       console.log(loadLine);
       test.info().annotations.push({
         type: 'load',
         description: loadLine,
       });
-      // Chrome must leave the first frame on screen; lookbook inset is spacing, not extra chrome.
-      expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(
-        vp.height * 0.72 + lookbookPad,
-      );
+      expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.45);
       expect(box!.y + 48, `${vp.name} first frame off screen`).toBeLessThan(vp.height);
 
       if (vp.name === 'mobile') {
-        await reel.hover();
-        const before = await reel.evaluate((el) => el.scrollLeft);
+        const strip = page.locator('.contact-thumbs');
+        await strip.hover();
+        const before = await strip.evaluate((el) => el.scrollLeft);
         await page.mouse.wheel(0, 240);
-        const afterVertical = await reel.evaluate((el) => el.scrollLeft);
-        expect(afterVertical, `${vp.name} vertical wheel hijacked page scroll`).toBe(before);
-        const canScroll = await reel.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
-        if (canScroll) {
-          await reel.evaluate((el) => {
-            el.dispatchEvent(new WheelEvent('wheel', { deltaX: 240, deltaY: 0, bubbles: true, cancelable: true }));
-          });
-          const afterHorizontal = await reel.evaluate((el) => el.scrollLeft);
-          expect(afterHorizontal, `${vp.name} horizontal wheel did not pan categories`).toBeGreaterThan(before);
-        }
-        await page.evaluate(() => window.scrollTo(0, 0));
+        const afterVertical = await strip.evaluate((el) => el.scrollLeft);
+        expect(afterVertical, `${vp.name} vertical wheel hijacked the thumb strip`).toBe(before);
       }
     });
   });

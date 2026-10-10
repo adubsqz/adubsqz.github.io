@@ -8,8 +8,8 @@ vi.mock('../data', () => ({
 import GalleryView from './GalleryView';
 
 describe('GalleryView empty collection', () => {
-  it('shows the empty-category message', () => {
-    render(<GalleryView filter="greyscale" />);
-    expect(screen.getByText(/no photos found in this category/i)).toBeInTheDocument();
+  it('shows an empty sheet', () => {
+    render(<GalleryView />);
+    expect(screen.getByText(/no photos yet/i)).toBeInTheDocument();
   });
 });

@@ -43,7 +43,7 @@ describe('data', () => {
       });
     });
 
-    it('Greyscale / Full Spectrum / Redscale / People tabs (About is manifest `about`, not a tab)', () => {
+    it('keeps import buckets grouped for the contact sheet (About is not a frame)', () => {
       const ids = COLLECTIONS.map((c) => c.id).sort();
       expect(ids).toEqual(['full-spectrum', 'greyscale', 'people', 'redscale']);
       const people = COLLECTIONS.find((c) => c.id === 'people');

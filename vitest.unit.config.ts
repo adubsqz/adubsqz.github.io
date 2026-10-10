@@ -23,10 +23,8 @@ export default mergeConfig(
         include: [
           'src/data.ts',
           'src/site.ts',
-          'src/gallery-reel.ts',
           'src/gallery-layout.ts',
           'src/gallery-shuffle.ts',
-          'src/gallery-constants.ts',
           'src/galleryJwt.ts',
           'src/inquireStatic.ts',
           'src/lib/utils.ts',
@@ -34,7 +32,6 @@ export default mergeConfig(
           'src/components/AboutView.tsx',
           'src/components/BackToTop.tsx',
           'src/components/BrandMark.tsx',
-          'src/components/GraffitiLabel.tsx',
           'src/components/ContactModal.tsx',
           'src/components/GalleryView.tsx',
           'src/components/InquiryModal.tsx',

@@ -3,231 +3,118 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GalleryView from './GalleryView';
 import { COLLECTIONS } from '../data';
-import { HORIZONTAL_REEL_SIZE, VERTICAL_REEL_SIZE } from '../gallery-constants';
-import { paginateByOrientation } from '../gallery-reel';
-import {
-  GALLERY_LOOKBOOK_CLASS,
-  GALLERY_STILL_GAP_CLASS,
-  GALLERY_STILL_INSET_CLASS,
-  GALLERY_STILL_ITEM_CLASS,
-} from '../gallery-layout';
+import { CONTACT_SHEET_INITIAL_THUMBS, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
 
-const DEFAULT_FILTER = COLLECTIONS[0]?.id ?? 'greyscale';
+const allPhotos = COLLECTIONS.flatMap((collection) => collection.photos);
 
 describe('GalleryView', () => {
-  it('mounts without throwing', () => {
-    render(<GalleryView filter={DEFAULT_FILTER} />);
-  });
-
-  it('shows an empty-category message when the selected collection has no photos', () => {
-    render(<GalleryView filter={DEFAULT_FILTER} />);
-    const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER);
-    if ((collection?.photos.length ?? 0) !== 0) return;
-    expect(screen.getByText(/no photos found in this category/i)).toBeInTheDocument();
-  });
-
-  it('scrolls the full collection instead of paging', () => {
-    render(<GalleryView filter={DEFAULT_FILTER} />);
-    const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER)!;
-    const imgs = screen.queryAllByRole('img').filter((el) => el.getAttribute('alt')?.startsWith('Photograph'));
-    if (collection.photos.length === 0) {
-      expect(imgs.length).toBe(0);
+  it('mounts a single contact sheet of every published still', () => {
+    render(<GalleryView />);
+    if (allPhotos.length === 0) {
+      expect(screen.getByText(/no photos yet/i)).toBeInTheDocument();
       return;
     }
-    expect(imgs.length).toBe(collection.photos.length);
+    expect(screen.getAllByRole('button', { name: /select photo/i })).toHaveLength(allPhotos.length);
+    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(1);
     expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /previous page/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/\d+ of \d+/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: /collections/i })).not.toBeInTheDocument();
   });
 
-  it('wraps the lookbook in even inset and stacks stills with matching gap', () => {
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const lookbook = container.querySelector('.gallery-lookbook');
-    expect(lookbook).toBeTruthy();
-    expect(lookbook?.className).toContain(GALLERY_STILL_INSET_CLASS.split(' ')[0]);
-    expect(lookbook?.className.split(' ')).toEqual(expect.arrayContaining(['p-10', 'sm:p-16', 'bg-white']));
-    GALLERY_LOOKBOOK_CLASS.split(' ').forEach((cls) => {
-      expect(lookbook?.className.split(' ')).toContain(cls);
-    });
-    const stack = container.querySelector('.gallery-still-stack');
-    GALLERY_STILL_GAP_CLASS.split(' ').forEach((cls) => {
-      expect(stack?.className.split(' ')).toContain(cls);
-    });
-    const stills = container.querySelectorAll('.gallery-still');
-    expect(stills.length).toBeGreaterThan(0);
-    stills.forEach((still) => {
-      GALLERY_STILL_ITEM_CLASS.split(' ').forEach((cls) => {
-        expect(still.className.split(' ')).toContain(cls);
-      });
-    });
+  it('keeps color and people frames on the same sheet', () => {
+    render(<GalleryView />);
+    const labels = screen.getAllByRole('button', { name: /select photo/i }).map((el) => el.getAttribute('aria-label') ?? '');
+    const joined = labels.join(' ');
+    expect(joined).toMatch(/hospitalwindows|Photograph/i);
+    const srcs = allPhotos.map((photo) => photo.src).join(' ');
+    expect(srcs).toMatch(/hospitalwindows/);
+    expect(srcs).toMatch(/sangerhall/);
+    expect(srcs).toMatch(/sweetener-tour/);
+    expect(srcs).toMatch(/camcorder-night/);
   });
 
-  it('shows the imported Full Spectrum stills in that reel', () => {
-    const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
-    if (!color) return;
-    render(<GalleryView filter="full-spectrum" />);
-    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(color.photos.length);
-    expect(color.photos).toHaveLength(17);
-    const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
-    expect(srcs.join(' ')).toMatch(/hospitalwindows/);
-    expect(srcs.join(' ')).toMatch(/colorfulhousegreenery/);
-    expect(srcs.join(' ')).not.toMatch(/sangerhall/);
-  });
-
-  it('scrolls every People still and keeps camcorder-night out of that reel', () => {
-    const people = COLLECTIONS.find((c) => c.id === 'people');
-    if (!people) return;
-    render(<GalleryView filter="people" />);
-    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(people.photos.length);
-    const srcs = screen.getAllByRole('img').map((el) => el.getAttribute('src') ?? '');
-    expect(srcs.join(' ')).toMatch(/sangerhall/);
-    expect(srcs.join(' ')).toMatch(/sweetener-tour/);
-    expect(srcs.join(' ')).not.toMatch(/camcorder-night/);
-  });
-
-  it('renders every still in the collection', () => {
-    render(<GalleryView filter={DEFAULT_FILTER} />);
-    const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER)!;
-    if (collection.photos.length === 0) return;
-    collection.photos.forEach((photo) => {
-      expect(screen.getByAltText(photo.alt)).toBeInTheDocument();
-    });
-  });
-
-  it('keeps even inset on the lightbox figure', async () => {
+  it('selects a thumb without opening the frame', async () => {
+    if (allPhotos.length < 2) return;
     const user = userEvent.setup();
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) return;
-    await user.click(clickTarget);
-    const dialog = screen.getByRole('dialog', { name: /image lightbox/i });
-    const padded = dialog.querySelector('.mx-auto');
-    expect(padded?.className.split(' ')).toEqual(expect.arrayContaining(['p-6', 'sm:p-10']));
+    render(<GalleryView />);
+    const next = screen.getAllByRole('button', { name: /select photo/i })[1];
+    await user.click(next);
+    expect(next).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: `Open photo: ${allPhotos[1].alt}` })).toBeInTheDocument();
   });
 
-  it('opens lightbox when a photo is clicked', async () => {
+  it('opens the lightbox from the large frame, with white margin around the invoice', async () => {
     const user = userEvent.setup();
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) return;
-    await user.click(clickTarget);
+    render(<GalleryView />);
+    if (allPhotos.length === 0) return;
+    await user.click(screen.getByRole('button', { name: /open photo/i }));
     const dialog = screen.getByRole('dialog', { name: /image lightbox/i });
-    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveClass('bg-white');
+    const stage = dialog.querySelector('.lightbox-stage');
+    GALLERY_LIGHTBOX_PAD_CLASS.split(' ').forEach((cls) => {
+      expect(stage?.className.split(' ')).toContain(cls);
+    });
+    expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /request invoice/i }).className).toMatch(/bg-neutral-950/);
   });
 
   it('closes lightbox when Close is clicked', async () => {
     const user = userEvent.setup();
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) return;
-    await user.click(clickTarget);
+    render(<GalleryView />);
+    if (allPhotos.length === 0) return;
+    await user.click(screen.getByRole('button', { name: /open photo/i }));
     await user.click(screen.getByRole('button', { name: /close/i }));
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
   });
 
   it('keyboard-navigates the lightbox and opens Request Invoice', async () => {
     const user = userEvent.setup();
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) return;
-    await user.click(clickTarget);
-    const lightbox = screen.getByRole('dialog', { name: /image lightbox/i });
-    expect(lightbox).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /request invoice/i }).className).toMatch(/mcm-brick/);
+    render(<GalleryView />);
+    if (allPhotos.length === 0) return;
+    await user.click(screen.getByRole('button', { name: /open photo/i }));
     expect(screen.getByRole('button', { name: /licensing or hire/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /contact me/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /checkout/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /inquire about tearsheet/i })).not.toBeInTheDocument();
-    expect(screen.queryByText(/licensing & fulfillment/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/tearsheet/i)).not.toBeInTheDocument();
     await user.keyboard('{ArrowRight}');
     await user.keyboard('{ArrowLeft}');
     await user.click(screen.getByRole('button', { name: /request invoice/i }));
     expect(await screen.findByRole('dialog', { name: /request invoice/i })).toBeInTheDocument();
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
     expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /submit inquiry/i })).toBeInTheDocument();
   });
 
-  it('opens ContactModal from the quieter Licensing or hire path', async () => {
+  it('opens ContactModal from Licensing or hire', async () => {
     const user = userEvent.setup();
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) return;
-    await user.click(clickTarget);
+    render(<GalleryView />);
+    if (allPhotos.length === 0) return;
+    await user.click(screen.getByRole('button', { name: /open photo/i }));
     await user.click(screen.getByRole('button', { name: /licensing or hire/i }));
     expect(await screen.findByRole('dialog', { name: /contact/i })).toBeInTheDocument();
     expect(screen.queryByLabelText(/shipping address/i)).not.toBeInTheDocument();
   });
 
-  it('keeps tearsheet chrome off the enlarged photo', async () => {
-    const user = userEvent.setup();
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) return;
-    await user.click(clickTarget);
-    expect(screen.getByRole('dialog', { name: /image lightbox/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
-    expect(screen.queryByText(/tearsheet/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/print inquiry/i)).not.toBeInTheDocument();
-  });
-
-  it('records a failed thumbnail without throwing', () => {
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
+  it('records a failed frame without throwing', () => {
+    const { container } = render(<GalleryView />);
     const img = container.querySelector('img');
     if (!img) return;
     fireEvent.error(img);
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('renders vertical stills and unknown filters', () => {
-    const vertical = COLLECTIONS.find((c) => c.photos.some((p) => p.orientation === 'vertical'));
-    if (vertical) {
-      render(<GalleryView filter={vertical.id} />);
-      expect(screen.getAllByRole('img').length).toBeGreaterThan(0);
-    }
-    render(<GalleryView filter="missing-category" />);
-    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBeGreaterThan(0);
-  });
-
-  it('eager-loads the first still so LCP is not lazy', () => {
-    const collection = COLLECTIONS.find((c) => c.id === DEFAULT_FILTER);
-    if (!collection || collection.photos.length === 0) return;
-    const { container } = render(<GalleryView filter={DEFAULT_FILTER} />);
-    const first = screen.getAllByRole('img').find((el) => el.getAttribute('src')?.includes('still-life'));
-    expect(first).toBeDefined();
-    expect(first).toHaveAttribute('loading', 'eager');
-    expect(first).toHaveAttribute('fetchpriority', 'high');
-    expect(first).toHaveAttribute('width');
-    expect(first).toHaveAttribute('height');
-    const lazy = screen.getAllByRole('img').filter((el) => el.getAttribute('loading') === 'lazy');
-    expect(lazy.length).toBe(Math.max(0, collection.photos.length - 1));
-    const stills = container.querySelectorAll('.gallery-still');
-    expect(stills[0]?.className).not.toContain('content-visibility:auto');
-    if (stills.length > 1) {
-      expect(stills[1]?.className).toContain('content-visibility:auto');
-    }
-  });
-});
-
-describe('GalleryView regression: orientation helpers', () => {
-  it('never mixes orientations on a single helper page', () => {
-    COLLECTIONS.forEach((collection) => {
-      paginateByOrientation(collection.photos).forEach((page) => {
-        const orientations = new Set(page.photos.map((p) => p.orientation ?? 'horizontal'));
-        expect(orientations.size).toBe(1);
-      });
-    });
-  });
-
-  it('respects horizontal and vertical page caps in the helper', () => {
-    COLLECTIONS.forEach((collection) => {
-      paginateByOrientation(collection.photos).forEach((page) => {
-        const cap = page.orientation === 'vertical' ? VERTICAL_REEL_SIZE : HORIZONTAL_REEL_SIZE;
-        expect(page.photos.length).toBeLessThanOrEqual(cap);
-      });
-    });
+  it('eager-loads the hero and defers the rest of the strip', () => {
+    if (allPhotos.length === 0) return;
+    const { container } = render(<GalleryView />);
+    const hero = screen.getByRole('img', { name: allPhotos[0].alt });
+    expect(hero).toHaveAttribute('loading', 'eager');
+    expect(hero).toHaveAttribute('fetchpriority', 'high');
+    const lazy = container.querySelectorAll('img[loading="lazy"]');
+    const painted = Math.min(CONTACT_SHEET_INITIAL_THUMBS, allPhotos.length);
+    expect(lazy.length).toBeGreaterThanOrEqual(painted);
+    expect(lazy.length).toBeLessThanOrEqual(allPhotos.length);
+    expect(screen.getAllByRole('button', { name: /select photo/i })).toHaveLength(allPhotos.length);
   });
 });

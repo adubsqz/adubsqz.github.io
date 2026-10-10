@@ -63,7 +63,7 @@ CI does not currently run Playwright e2e. For UI or navigation changes, run `npm
 - GitHub Actions deploys `dist/` to Pages. Custom domain: `adubs.site` **and** `www.adubs.site`.
 - Cloudflare DNS: grey-cloud A/AAAA for apex, `www` CNAME to `adubsqz.github.io`.
 - After manifest or `public/photos/` changes, run `npm run gallery:verify -- --parity-only` before push.
-- Gallery buckets: `bw`, `color`, `redscale`, `people`, `about` (manifest keys). UI titles: Greyscale / Full Spectrum / Redscale / People.
+- Gallery buckets: `bw`, `color`, `redscale`, `people`, `about` (manifest keys). The site shows one contact sheet. `about` stays off the sheet.
 
 ## Suggested verification matrix
 

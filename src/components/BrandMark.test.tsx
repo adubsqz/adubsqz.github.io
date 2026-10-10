@@ -4,23 +4,18 @@ import userEvent from '@testing-library/user-event';
 import BrandMark from './BrandMark';
 
 describe('BrandMark', () => {
-  it('exposes a colored graffiti wordmark named adubsqz', () => {
+  it('exposes a plain wordmark named adubsqz', () => {
     render(<BrandMark />);
     const mark = screen.getByRole('heading', { name: 'adubsqz' });
     expect(mark).toHaveClass('brand-mark');
-    expect(mark.querySelector('.graffiti-label--on')).toHaveAttribute('data-tone', 'pink');
+    expect(mark.querySelector('.graffiti-label')).toBeNull();
   });
 
-  it('opens About when the wordmark is clicked', async () => {
+  it('returns home when the wordmark is clicked', async () => {
     const onClick = vi.fn();
     const user = userEvent.setup();
-    render(<BrandMark onClick={onClick} pressed={false} />);
+    render(<BrandMark onClick={onClick} />);
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(onClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('marks the wordmark pressed while About is open', () => {
-    render(<BrandMark onClick={() => undefined} pressed />);
-    expect(screen.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'true');
   });
 });

@@ -2,270 +2,58 @@
 @config "../tailwind.config.ts";
 
 body {
-  font-family: 'Nunito', ui-rounded, system-ui, sans-serif;
+  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  color: #1a1714;
-  background-color: #f4eee4;
-  background-image: none;
+  color: #161616;
+  background-color: #fff;
 }
 
 .brand-mark {
   margin: 0;
-  padding: 0.22em 0.14em 0.28em;
-  overflow: visible;
-  font-size: clamp(2.4rem, 15vw, 6.7rem);
+  font-family: "Newsreader", ui-serif, Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
   line-height: 1;
+  letter-spacing: -0.02em;
   text-transform: lowercase;
-}
-
-.site-tagline {
-  margin: 0;
-  width: 100%;
-  max-width: 100%;
-  padding: 0.35rem 0 0.55rem;
-  overflow: visible;
-}
-
-.site-tagline img {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-.graffiti-heading {
-  margin: 0;
-  font-weight: inherit;
-  text-transform: lowercase;
-}
-
-/*
- * Sized so all four collections fit on screen without horizontal scrolling.
- * At 1.85rem the reel needed 834px against a 358px phone viewport, hiding three
- * of four labels behind a deliberately invisible scrollbar.
- */
-.graffiti-heading--h2 {
-  flex: 0 0 auto;
-  padding: 0.18em 0.12em 0.22em;
-  font-size: 1.3rem;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-/*
- * Steps never decrease as the viewport grows, and from 768px up each is the
- * largest size whose four labels still hold one line. Desktop keeps its
- * original 2.16rem; phones wrap to two rows instead of hiding labels.
- */
-@media (min-width: 480px) {
-  .graffiti-heading--h2 {
-    font-size: 1.4rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .graffiti-heading--h2 {
-    padding: 0.26em 0.18em 0.3em;
-    font-size: 1.55rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .graffiti-heading--h2 {
-    font-size: 2rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .graffiti-heading--h2 {
-    font-size: 2.16rem;
-  }
-}
-
-.graffiti-heading--h3 {
-  padding: 0.24em 0.28em 0.3em;
-  font-size: 2rem;
-  line-height: 1;
-}
-
-@media (min-width: 640px) {
-  .graffiti-heading--h3 {
-    padding: 0.22em 0.28em 0.28em;
-    font-size: 2.4rem;
-  }
-}
-
-.graffiti-nav {
-  margin: 0;
-  border: 0;
-  padding: 0.1rem 0.05rem;
-  background: transparent;
-  font-size: inherit;
-  line-height: 1;
-  cursor: pointer;
-  color: inherit;
-  text-transform: lowercase;
-}
-
-.graffiti-nav--tab {
-  font-size: inherit;
-}
-
-.graffiti-nav:focus-visible {
-  outline: 2px solid #a63c32;
-  outline-offset: 3px;
 }
 
 .brand-mark__hit {
   display: inline-block;
-  font-size: inherit;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
   line-height: inherit;
+  cursor: pointer;
 }
 
-/*
- * Wraps rather than scrolls: every collection stays reachable without a swipe on
- * a hidden scrollbar. Phones get two rows of two, and from 1024px up the four
- * labels fit one line on their own, so no breakpoint has to restore the single row.
- */
-.collection-reel {
+.site-nav {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.9rem;
-  width: 100%;
-  max-width: 100%;
-  overflow-x: clip;
-}
-
-@media (min-width: 640px) {
-  .collection-reel {
-    gap: 0.5rem 1.1rem;
-  }
-}
-
-.graffiti-label {
-  --graffiti-throw: #1a1714;
-  --graffiti-fill: #1a1714;
-  display: inline-grid;
   align-items: center;
-  justify-items: center;
-  padding: 0.16em 0.24em 0.2em;
-  font-family: 'Rubik Spray Paint', Impact, 'Arial Black', sans-serif;
-  font-weight: 400;
-  /*
-   * Tightened from 0.04em to buy width back for a larger label on phones, which
-   * also packs the letters the way a hand-drawn tag does. Word spacing is pushed
-   * back out so "full spectrum" does not read as one word.
-   */
-  letter-spacing: 0.015em;
-  word-spacing: 0.14em;
-  line-height: 1;
-  text-transform: lowercase;
-  white-space: nowrap;
-  user-select: none;
+  gap: 1.25rem;
 }
 
-.graffiti-label--on[data-tone='orange'] {
-  --graffiti-throw: #f4b183;
-}
-
-.graffiti-label--on[data-tone='yellow'] {
-  --graffiti-throw: #f3e18a;
-}
-
-.graffiti-label--on[data-tone='pink'] {
-  --graffiti-throw: #f3b6c8;
-}
-
-.graffiti-label--on[data-tone='blue'] {
-  --graffiti-throw: #9ec9e8;
-}
-
-.graffiti-label--on[data-tone='purple'] {
-  --graffiti-throw: #cbb0e0;
-}
-
-.graffiti-label--on {
-  --graffiti-fill: var(--graffiti-throw);
-}
-
-.graffiti-label__throw,
-.graffiti-label__core {
-  grid-area: 1 / 1;
-  position: relative;
-}
-
-.graffiti-label__throw {
-  z-index: 0;
-  color: transparent;
-  -webkit-text-stroke: 0.08em #1a1714;
-  transform: none;
-}
-
-.graffiti-label__core {
-  z-index: 1;
-  color: var(--graffiti-fill);
-  -webkit-text-stroke: 0;
-  text-shadow: 0.04em 0.05em 0 #1a1714;
-}
-
-/*
- * Tag shine: a light glint offset up-left, opposite the down-right drop shadow,
- * the way a highlight sits on a hand-painted throw-up. Selected labels only —
- * unselected cores stay dark with cream tracing.
- */
-.graffiti-label--on .graffiti-label__core {
-  text-shadow:
-    -0.045em -0.055em 0 #fffdf6,
-    0.04em 0.05em 0 #1a1714;
-}
-
-.graffiti-label:not(.graffiti-label--on) .graffiti-label__core {
-  text-shadow:
-    0.03em 0.035em 0 #f4eee4,
-    0.05em 0.06em 0 #1a1714;
-}
-
-.graffiti-nav:hover .graffiti-label:not(.graffiti-label--on) {
-  --graffiti-fill: #3d3934;
-}
-
-.no-scrollbar {
-  scrollbar-width: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.cinematic-grid {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.22;
-  background-image:
-    linear-gradient(180deg, rgba(26, 23, 20, 0.035) 0 1px, transparent 1px 28px),
-    linear-gradient(90deg, rgba(166, 60, 50, 0.04), transparent 42%, transparent 58%, rgba(142, 185, 206, 0.05));
-  background-size: 100% 28px, 100% 100%;
-  mix-blend-mode: multiply;
-  mask-image: linear-gradient(180deg, black 0%, black 38%, transparent 88%);
+.contact-thumbs {
+  scrollbar-width: thin;
 }
 
 html {
   scroll-behavior: smooth;
   min-height: 100dvh;
-  background-color: #f4eee4;
+  background-color: #fff;
 }
 
 ::selection {
-  background-color: rgba(166, 60, 50, 0.22);
-  color: #1a1714;
+  background-color: rgba(22, 22, 22, 0.14);
+  color: #161616;
 }
 
-/* Enhanced image protection */
 .gallery-image {
   user-select: none;
   -webkit-user-select: none;
@@ -279,37 +67,12 @@ html {
   pointer-events: none;
 }
 
-/* Prevent image dragging globally */
 img {
   -webkit-user-drag: none;
   -khtml-user-drag: none;
   -moz-user-drag: none;
   -o-user-drag: none;
   user-drag: none;
-}
-
-/* Keep visual effects lighter on small touch devices. */
-@media (max-width: 640px) {
-  .cinematic-grid {
-    opacity: 0.06;
-  }
-
-  .backdrop-blur-sm,
-  .backdrop-blur-md {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .lightbox-frame,
-  .lightbox-frame--hero,
-  .lightbox-shell .lightbox-frame,
-  .lightbox-shell .lightbox-frame--hero {
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -321,59 +84,4 @@ img {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* Lightbox mat: centers img; flex parent supplies height so object-contain can scale up */
-.lightbox-frame {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  max-width: 100%;
-  max-height: 100%;
-  padding: 6px;
-  background: #f4eee4;
-  border: 6px solid #1a1714;
-  border-radius: 2px;
-  box-shadow:
-    0 0 0 1px rgba(197, 106, 58, 0.45) inset,
-    0 14px 48px rgba(26, 23, 20, 0.18);
-}
-
-@media (min-width: 640px) {
-  .lightbox-frame {
-    padding: 10px;
-    border-width: 8px;
-  }
-}
-
-/* Lightbox hero: extra presence on large screens */
-.lightbox-frame--hero {
-  box-shadow:
-    0 0 0 1px rgba(196, 92, 38, 0.25) inset,
-    0 20px 60px rgba(0, 0, 0, 0.85),
-    0 0 100px rgba(196, 92, 38, 0.06);
-}
-
-@media (min-width: 1024px) {
-  .lightbox-frame--hero {
-    padding: 12px;
-    border-width: 10px;
-    border-radius: 4px;
-  }
-}
-
-/* White lightbox shell: softer mat shadow on bright ground */
-.lightbox-shell .lightbox-frame {
-  box-shadow:
-    0 0 0 1px rgba(196, 92, 38, 0.2) inset,
-    0 12px 40px rgba(0, 0, 0, 0.14);
-}
-
-.lightbox-shell .lightbox-frame--hero {
-  box-shadow:
-    0 0 0 1px rgba(196, 92, 38, 0.18) inset,
-    0 16px 48px rgba(0, 0, 0, 0.16),
-    0 0 80px rgba(196, 92, 38, 0.04);
 }

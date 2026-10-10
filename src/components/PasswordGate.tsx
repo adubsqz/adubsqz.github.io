@@ -87,8 +87,7 @@ export default function PasswordGate({ children }: PasswordGateProps) {
   };
 
   return (
-    <div className="relative min-h-[100dvh] font-sans text-photo-fg antialiased">
-      <div className="cinematic-grid" aria-hidden />
+    <div className="relative min-h-[100dvh] bg-white font-sans text-neutral-950 antialiased">
       <form
         onSubmit={(event) => {
           void onSubmit(event);

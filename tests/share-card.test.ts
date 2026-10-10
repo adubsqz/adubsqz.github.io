@@ -10,7 +10,6 @@ import {
   SITE_SHARE_DESCRIPTION,
   SITE_SHARE_TITLE,
   SITE_TAGLINE,
-  SITE_TAGLINE_IMAGE,
 } from '../src/site';
 
 describe('share card', () => {
@@ -24,7 +23,6 @@ describe('share card', () => {
     expect(SITE_TAGLINE).toMatch(/impression/i);
     expect(SITE_TAGLINE).toMatch(/apology/i);
     expect(SITE_SHARE_DESCRIPTION).toBe(SITE_TAGLINE);
-    expect(SITE_TAGLINE_IMAGE).toBe('/tagline.jpg');
     expect(SITE_HOST).toBe('adubs.site');
     expect(INSTAGRAM_URL).toBe('https://www.instagram.com/adubsqz/');
     expect(html).toContain(`name="description" content="${SITE_SHARE_DESCRIPTION}"`);

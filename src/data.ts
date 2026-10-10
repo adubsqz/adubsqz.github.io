@@ -5,10 +5,10 @@ import { INSTAGRAM_URL } from './site';
 
 /**
  * Gallery layout is derived from gallery-manifest.json:
- * - `bw` / `color` / `redscale` / `people` → Greyscale / Full Spectrum / Redscale / People
- *   (array order = reel order; permuted with GALLERY_SHUFFLE_SEED)
+ * - `bw` / `color` / `redscale` / `people` publish into one contact sheet
+ *   (bucket order is the sheet order; permuted with GALLERY_SHUFFLE_SEED)
  * - Row objects may include internal curation/orientation (not shown in the public UI)
- * - `about` → bare filenames at publish root (About page portrait only; not a gallery tab)
+ * - `about` → bare filenames at publish root (About page only; not on the sheet)
  */
 
 const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
@@ -271,9 +271,6 @@ export const ABOUT_IMAGE_SRC = aboutFilename
   : `${galleryPhotosBase}/about_me.jpg`;
 
 export const COLLECTIONS: PhotoCollection[] = buildPublicCollections();
-
-export const GALLERY_FILTERS = COLLECTIONS.map((collection) => collection.id);
-export const DEFAULT_GALLERY_FILTER = FULL_SPECTRUM_ID;
 
 export const ABOUT = {
   name: 'adubsqz',

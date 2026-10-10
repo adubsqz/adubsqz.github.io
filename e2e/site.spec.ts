@@ -9,34 +9,15 @@ test.describe('site', () => {
 
     await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'adubsqz' })).toBeVisible();
-    const tagline = page.getByRole('img', {
-      name: /printable film photography as small as a locket for ur momma/i,
-    });
-    await expect(tagline).toBeVisible();
-    await expect(tagline).toHaveAttribute('src', '/tagline.jpg');
-    await expect(page.getByRole('navigation', { name: /collections/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label--on')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /redscale/i }).locator('.graffiti-label--on')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /^portraits$/i }).locator('.graffiti-label--on')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'adubsqz' }).locator('.graffiti-label__core')).toHaveCSS(
-      'color',
-      'rgb(243, 182, 200)',
-    );
+    await expect(page.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('img', { name: /printable film photography/i })).toHaveCount(0);
+    await expect(page.getByRole('navigation', { name: /collections/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /about me/i })).toHaveCount(0);
-    await page.getByRole('button', { name: /full spectrum/i }).click();
-    await expect(page.getByRole('button', { name: /full spectrum/i })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('button', { name: /full spectrum/i }).locator('.graffiti-label--on')).toHaveCount(1);
-    await expect(page.locator('.gallery-still')).toHaveCount(17);
     await revealAllStills(page);
     await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
     await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
-    await page.getByRole('button', { name: /redscale/i }).click();
-    await page.getByRole('button', { name: /^portraits$/i }).click();
-    await expect(page.locator('.gallery-still')).toHaveCount(13);
-    await revealAllStills(page);
     await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(13, { timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(1);
     await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
 
     await clickOpenPhoto(page);
@@ -72,8 +53,8 @@ test.describe('site', () => {
     await page.getByRole('button', { name: /cancel/i }).click();
     await expect(contactFromPhoto).toHaveCount(0);
 
-    await page.getByRole('button', { name: 'adubsqz' }).click();
-    await expect(page.getByRole('button', { name: 'adubsqz' })).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: /^about$/i }).click();
+    await expect(page.getByRole('button', { name: /^about$/i })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
     await expect(page.getByText(/I take 35mm and medium format film photography/i)).toBeVisible();
     await expect(page.getByText(/AWS Certified AI Practitioner/i)).toBeVisible();
@@ -88,8 +69,7 @@ test.describe('site', () => {
     await expect(page.getByAltText(/portrait/i)).toHaveCount(0);
 
     const talk = page.getByRole('button', { name: /let's talk/i });
-    await expect(talk.locator('.graffiti-label--on')).toHaveAttribute('data-tone', 'pink');
-    await expect(talk.locator('.graffiti-label__core')).toHaveCSS('color', 'rgb(243, 182, 200)');
+    await expect(talk).toBeVisible();
     await talk.click();
     await expect(page.getByRole('dialog', { name: /contact/i })).toBeVisible();
     await page.getByLabel(/name/i).fill('Ada');

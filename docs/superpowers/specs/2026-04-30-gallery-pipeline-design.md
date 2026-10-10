@@ -38,7 +38,7 @@ Execution order per row:
 
 ## Frontend / runtime
 
-- `**src/data.ts`** continues to derive `**COLLECTIONS`** from `**gallery-manifest.json**`. Entries under `bw/` and `color/` map to Greyscale and Full Spectrum. Defensive guards (unsupported filenames / paths) may remain optional; malformed rows should preferably never reach manifest thanks to `**verify**` in Python.
+- `**src/data.ts`** continues to derive `**COLLECTIONS`** from `**gallery-manifest.json**`. Entries under `bw/`, `color/`, `redscale/`, and `people/` are one contact sheet. Defensive guards (unsupported filenames / paths) may remain optional; malformed rows should preferably never reach manifest thanks to `**verify**` in Python.
 
 ## Verification
 
