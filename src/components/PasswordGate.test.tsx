@@ -102,6 +102,18 @@ describe('PasswordGate', () => {
     expect(window.localStorage.getItem('adubsqz.gallery.jwt')).toBeNull();
   });
 
+  it('does not honor a session stored under the previous key', async () => {
+    const token = await mintGalleryJwt('sqz');
+    window.localStorage.setItem('adubsqz.gallery.jwt', token!);
+    render(
+      <PasswordGate>
+        <p>gallery</p>
+      </PasswordGate>,
+    );
+    expect(await screen.findByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.queryByText('gallery')).not.toBeInTheDocument();
+  });
+
   it('skips the gate when VITE_E2E=1', () => {
     vi.stubEnv('VITE_E2E', '1');
     render(

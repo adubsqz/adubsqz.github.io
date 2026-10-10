@@ -6,7 +6,8 @@ const textEncoder = new TextEncoder();
 
 export const GALLERY_PASSWORD = 'sqz';
 export const GALLERY_JWT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-export const GALLERY_JWT_STORAGE_KEY = 'adubsqz.gallery.jwt';
+/** v2 drops sessions saved before the contact-sheet redesign so the curtain shows again. */
+export const GALLERY_JWT_STORAGE_KEY = 'adubsqz.gallery.jwt.v2';
 
 const JWT_HEADER = utf8ToBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
 const JWT_SECRET = 'adubsqz-gallery-hs256';

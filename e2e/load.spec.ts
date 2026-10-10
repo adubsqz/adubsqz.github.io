@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const VIEWPORTS = [
-  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 20 },
-  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 8 },
+  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 28 },
+  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 12 },
 ] as const;
 
 function collectStillUrls(page: Page): Set<string> {
@@ -82,14 +82,8 @@ for (const vp of VIEWPORTS) {
       expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.45);
       expect(box!.y + 48, `${vp.name} first frame off screen`).toBeLessThan(vp.height);
 
-      if (vp.name === 'mobile') {
-        const strip = page.locator('.contact-thumbs');
-        await strip.hover();
-        const before = await strip.evaluate((el) => el.scrollLeft);
-        await page.mouse.wheel(0, 240);
-        const afterVertical = await strip.evaluate((el) => el.scrollLeft);
-        expect(afterVertical, `${vp.name} vertical wheel hijacked the thumb strip`).toBe(before);
-      }
+      expect(await page.locator('.contact-frame').count()).toBeGreaterThan(8);
+      expect(await page.locator('.contact-thumbs').count()).toBe(0);
     });
   });
 }

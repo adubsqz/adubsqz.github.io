@@ -12,7 +12,7 @@ for (const vp of VIEWPORTS) {
 
     test('shows one frame, a thumb strip, and no category chrome', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await expect(page.getByRole('button', { name: /open photo/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
       await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
       await expect(page.getByRole('navigation', { name: /collections/i })).toHaveCount(0);
 
@@ -26,9 +26,10 @@ for (const vp of VIEWPORTS) {
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
 
-      const strip = page.locator('.contact-thumbs');
-      const stripOverflow = await strip.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
-      expect(stripOverflow, `${vp.name} thumb strip should scroll inside itself`).toBe(true);
+      const frames = page.locator('.contact-frame');
+      expect(await frames.count()).toBeGreaterThan(8);
+      const columns = await page.locator('.contact-sheet ul').evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+      expect(columns, `${vp.name} sheet is a single column`).toBeGreaterThan(1);
     });
 
     test('lets the header scroll away', async ({ page }) => {
@@ -49,7 +50,7 @@ for (const vp of VIEWPORTS) {
       await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
       await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
       await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
-      await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(1);
+      await expect(page.locator('.contact-frame').first()).toBeVisible();
     });
   });
 }

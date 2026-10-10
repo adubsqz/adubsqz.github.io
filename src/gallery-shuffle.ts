@@ -23,6 +23,20 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
+/** New order every page load. Manifest order stays seeded; only the sheet uses this. */
+export function shuffleRandom<T>(items: readonly T[], random: () => number = Math.random): T[] {
+  const out = items.slice();
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    const current = out[i];
+    const swap = out[j];
+    if (current === undefined || swap === undefined) continue;
+    out[i] = swap;
+    out[j] = current;
+  }
+  return out;
+}
+
 export function shuffleSeeded<T>(items: readonly T[], seed: number = GALLERY_SHUFFLE_SEED): T[] {
   const next = mulberry32(seed);
   const out = items.slice();

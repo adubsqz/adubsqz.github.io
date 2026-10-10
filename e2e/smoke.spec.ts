@@ -19,6 +19,6 @@ test.describe('smoke', () => {
 
     await page.getByRole('button', { name: /^work$/i }).click();
     await expect(page.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('button', { name: /open photo/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
   });
 });

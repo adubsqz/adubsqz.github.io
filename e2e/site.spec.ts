@@ -17,7 +17,7 @@ test.describe('site', () => {
     await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
     await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
     await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /open photo/i })).toHaveCount(1);
+    await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
 
     await clickOpenPhoto(page);

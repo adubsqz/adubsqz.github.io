@@ -12,10 +12,10 @@ test.describe('Request Invoice sheet (mobile)', () => {
     // exit-singer has no scan pixels, so the conservative size list + email hint
     // stay visible for this layout assertion (sangerhall, the first portraits
     // still, already has master dimensions).
-    await page.getByRole('button', { name: /^portraits$/i }).click();
     const thumb = page.getByRole('button', {
-      name: /open photo: photograph people exit-singer/i,
+      name: /open photo: photograph exit-singer/i,
     });
+    await thumb.scrollIntoViewIfNeeded();
     await thumb.evaluate((el) => {
       (el as HTMLButtonElement).click();
     });

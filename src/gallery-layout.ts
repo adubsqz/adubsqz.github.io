@@ -1,7 +1,7 @@
 import type { Photo } from './types';
 
-/** Thumbs painted before the strip scrolls. The rest wait for the scroller. */
-export const CONTACT_SHEET_INITIAL_THUMBS = 4;
+/** First row of the sheet. The rest stay lazy until they scroll into view. */
+export const CONTACT_SHEET_EAGER_FRAMES = 6;
 
 export const GALLERY_LIGHTBOX_PAD_CLASS = 'px-4 sm:px-16';
 

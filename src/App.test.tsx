@@ -64,7 +64,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /^work$/i }));
     expect(screen.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByText(/I take 35mm and medium format film photography/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /open photo/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBeGreaterThan(1);
   });
 
   it('returns to the sheet from the wordmark', async () => {

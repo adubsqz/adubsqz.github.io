@@ -147,16 +147,21 @@ function toPositivePixel(value: unknown): number | undefined {
   return Math.round(value);
 }
 
+function frameAlt(entry: string): string {
+  const file = entry.split('/').pop() ?? entry;
+  const stem = file.replace(/\.[^.]+$/, '').replace(/[^a-z0-9_-]/gi, '_');
+  return `Photograph ${stem}`;
+}
+
 function photosFromRows(
   rows: { path: string; orientation?: Photo['orientation']; masterWidth?: number; masterHeight?: number }[],
   collectionId: string,
 ) {
   return rows.map(({ path: entry, orientation, masterWidth, masterHeight }, i) => {
-    const slug = entry.replace(/\.[^.]+$/, '').replace(/[^a-z0-9/_-]/gi, '_');
     return {
       id: `${collectionId}-${i + 1}`,
       src: resolveGalleryImagePath(collectionId, entry),
-      alt: `Photograph ${slug.replace(/\//g, ' ')}`,
+      alt: frameAlt(entry),
       caption: '',
       orientation,
       ...(masterWidth !== undefined ? { masterWidth } : {}),
@@ -235,22 +240,22 @@ function buildPublicCollections(): PhotoCollection[] {
   return [
     {
       id: GREYSCALE_ID,
-      title: 'Greyscale',
+      title: '',
       photos: photosFromRows(greyscaleRows, GREYSCALE_ID),
     },
     {
       id: FULL_SPECTRUM_ID,
-      title: 'Full Spectrum',
+      title: '',
       photos: photosFromRows(fullSpectrumRows, FULL_SPECTRUM_ID),
     },
     {
       id: REDSCALE_ID,
-      title: 'Redscale',
+      title: '',
       photos: photosFromRows(redscaleRows, REDSCALE_ID),
     },
     {
       id: PEOPLE_ID,
-      title: 'portraits',
+      title: '',
       photos: photosFromRows(peopleRows, PEOPLE_ID),
     },
   ];

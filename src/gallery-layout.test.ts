@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  CONTACT_SHEET_INITIAL_THUMBS,
+  CONTACT_SHEET_EAGER_FRAMES,
   GALLERY_LIGHTBOX_PAD_CLASS,
   imageClassForStill,
   intrinsicSizeForStill,
@@ -9,8 +9,8 @@ import {
 describe('gallery layout', () => {
   it('pads the lightbox so the invoice sits in the white margin', () => {
     expect(GALLERY_LIGHTBOX_PAD_CLASS).toBe('px-4 sm:px-16');
-    expect(CONTACT_SHEET_INITIAL_THUMBS).toBeGreaterThan(0);
-    expect(CONTACT_SHEET_INITIAL_THUMBS).toBeLessThan(8);
+    expect(CONTACT_SHEET_EAGER_FRAMES).toBeGreaterThan(0);
+    expect(CONTACT_SHEET_EAGER_FRAMES).toBeLessThan(12);
   });
 
   it('reserves landscape and portrait boxes', () => {

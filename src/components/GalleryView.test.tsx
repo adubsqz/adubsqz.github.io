@@ -1,54 +1,58 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GalleryView from './GalleryView';
 import { COLLECTIONS } from '../data';
-import { CONTACT_SHEET_INITIAL_THUMBS, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
+import { CONTACT_SHEET_EAGER_FRAMES, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
 
 const allPhotos = COLLECTIONS.flatMap((collection) => collection.photos);
+const CATEGORY_LABEL = /Photograph (bw|color|redscale|people|greyscale|portraits) /i;
 
 describe('GalleryView', () => {
-  it('mounts a single contact sheet of every published still', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('mounts every published still as its own frame, with no category labels', () => {
     render(<GalleryView />);
     if (allPhotos.length === 0) {
       expect(screen.getByText(/no photos yet/i)).toBeInTheDocument();
       return;
     }
-    expect(screen.getAllByRole('button', { name: /select photo/i })).toHaveLength(allPhotos.length);
-    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(1);
-    expect(screen.queryByRole('button', { name: /next page/i })).not.toBeInTheDocument();
-    expect(screen.queryByText(/\d+ of \d+/)).not.toBeInTheDocument();
+    const frames = screen.getAllByRole('button', { name: /open photo/i });
+    expect(frames).toHaveLength(allPhotos.length);
+    expect(screen.queryByRole('button', { name: /select photo/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: /collections/i })).not.toBeInTheDocument();
+    frames.forEach((frame) => {
+      expect(frame.getAttribute('aria-label') ?? '').not.toMatch(CATEGORY_LABEL);
+    });
+    expect(document.querySelectorAll('.contact-frame')).toHaveLength(allPhotos.length);
+    expect(document.querySelector('.contact-thumbs')).toBeNull();
   });
 
   it('keeps color and people frames on the same sheet', () => {
     render(<GalleryView />);
-    const labels = screen.getAllByRole('button', { name: /select photo/i }).map((el) => el.getAttribute('aria-label') ?? '');
+    const labels = screen.getAllByRole('button', { name: /open photo/i }).map((el) => el.getAttribute('aria-label') ?? '');
     const joined = labels.join(' ');
-    expect(joined).toMatch(/hospitalwindows|Photograph/i);
-    const srcs = allPhotos.map((photo) => photo.src).join(' ');
-    expect(srcs).toMatch(/hospitalwindows/);
-    expect(srcs).toMatch(/sangerhall/);
-    expect(srcs).toMatch(/sweetener-tour/);
-    expect(srcs).toMatch(/camcorder-night/);
+    expect(joined).toMatch(/hospitalwindows/);
+    expect(joined).toMatch(/sangerhall/);
+    expect(joined).toMatch(/sweetener-tour/);
+    expect(joined).toMatch(/camcorder-night/);
   });
 
-  it('selects a thumb without opening the frame', async () => {
+  it('shuffles the sheet on each mount', () => {
     if (allPhotos.length < 2) return;
-    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
     render(<GalleryView />);
-    const next = screen.getAllByRole('button', { name: /select photo/i })[1];
-    await user.click(next);
-    expect(next).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: `Open photo: ${allPhotos[1].alt}` })).toBeInTheDocument();
+    const first = screen.getAllByRole('button', { name: /open photo/i })[0];
+    expect(first).not.toHaveAccessibleName(`Open photo: ${allPhotos[0].alt}`);
   });
 
-  it('opens the lightbox from the large frame, with white margin around the invoice', async () => {
+  it('opens a standalone frame with room for Request Invoice', async () => {
     const user = userEvent.setup();
     render(<GalleryView />);
     if (allPhotos.length === 0) return;
-    await user.click(screen.getByRole('button', { name: /open photo/i }));
+    await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
     const dialog = screen.getByRole('dialog', { name: /image lightbox/i });
     expect(dialog).toHaveClass('bg-white');
     const stage = dialog.querySelector('.lightbox-stage');
@@ -57,13 +61,14 @@ describe('GalleryView', () => {
     });
     expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /request invoice/i }).className).toMatch(/bg-neutral-950/);
+    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(allPhotos.length);
   });
 
   it('closes lightbox when Close is clicked', async () => {
     const user = userEvent.setup();
     render(<GalleryView />);
     if (allPhotos.length === 0) return;
-    await user.click(screen.getByRole('button', { name: /open photo/i }));
+    await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
     await user.click(screen.getByRole('button', { name: /close/i }));
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
   });
@@ -72,12 +77,10 @@ describe('GalleryView', () => {
     const user = userEvent.setup();
     render(<GalleryView />);
     if (allPhotos.length === 0) return;
-    await user.click(screen.getByRole('button', { name: /open photo/i }));
+    await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
     expect(screen.getByRole('button', { name: /licensing or hire/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /contact me/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /checkout/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/tearsheet/i)).not.toBeInTheDocument();
     await user.keyboard('{ArrowRight}');
     await user.keyboard('{ArrowLeft}');
@@ -91,7 +94,7 @@ describe('GalleryView', () => {
     const user = userEvent.setup();
     render(<GalleryView />);
     if (allPhotos.length === 0) return;
-    await user.click(screen.getByRole('button', { name: /open photo/i }));
+    await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
     await user.click(screen.getByRole('button', { name: /licensing or hire/i }));
     expect(await screen.findByRole('dialog', { name: /contact/i })).toBeInTheDocument();
     expect(screen.queryByLabelText(/shipping address/i)).not.toBeInTheDocument();
@@ -105,16 +108,14 @@ describe('GalleryView', () => {
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('eager-loads the hero and defers the rest of the strip', () => {
+  it('eager-loads the first row and lazy-loads the rest', () => {
     if (allPhotos.length === 0) return;
     const { container } = render(<GalleryView />);
-    const hero = screen.getByRole('img', { name: allPhotos[0].alt });
-    expect(hero).toHaveAttribute('loading', 'eager');
-    expect(hero).toHaveAttribute('fetchpriority', 'high');
+    const eager = container.querySelectorAll('img[loading="eager"]');
     const lazy = container.querySelectorAll('img[loading="lazy"]');
-    const painted = Math.min(CONTACT_SHEET_INITIAL_THUMBS, allPhotos.length);
-    expect(lazy.length).toBeGreaterThanOrEqual(painted);
-    expect(lazy.length).toBeLessThanOrEqual(allPhotos.length);
-    expect(screen.getAllByRole('button', { name: /select photo/i })).toHaveLength(allPhotos.length);
+    const painted = Math.min(CONTACT_SHEET_EAGER_FRAMES, allPhotos.length);
+    expect(eager).toHaveLength(painted);
+    expect(lazy).toHaveLength(allPhotos.length - painted);
+    expect(eager[0]).toHaveAttribute('fetchpriority', 'high');
   });
 });

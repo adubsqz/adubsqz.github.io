@@ -46,9 +46,12 @@ describe('data', () => {
     it('keeps import buckets grouped for the contact sheet (About is not a frame)', () => {
       const ids = COLLECTIONS.map((c) => c.id).sort();
       expect(ids).toEqual(['full-spectrum', 'greyscale', 'people', 'redscale']);
-      const people = COLLECTIONS.find((c) => c.id === 'people');
-      expect(people?.title).toBe('portraits');
-      expect((people?.photos.length ?? 0)).toBeGreaterThan(0);
+      expect(COLLECTIONS.every((collection) => collection.title === '')).toBe(true);
+      expect(
+        COLLECTIONS.flatMap((collection) => collection.photos).every(
+          (photo) => !/^Photograph (bw|color|redscale|people|greyscale|portraits) /i.test(photo.alt),
+        ),
+      ).toBe(true);
     });
 
     it('about manifest may be empty until a portrait is republished', () => {

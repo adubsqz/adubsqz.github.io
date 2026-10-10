@@ -3,12 +3,8 @@ import { createPortal } from 'react-dom';
 import { COLLECTIONS } from '../data';
 import { contactPrefillForPhoto } from '../inquireStatic';
 import type { Photo } from '../types';
-import {
-  CONTACT_SHEET_INITIAL_THUMBS,
-  GALLERY_LIGHTBOX_PAD_CLASS,
-  imageClassForStill,
-  intrinsicSizeForStill,
-} from '../gallery-layout';
+import { CONTACT_SHEET_EAGER_FRAMES, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
+import { shuffleRandom } from '../gallery-shuffle';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
 
@@ -120,79 +116,17 @@ function Lightbox({
   );
 }
 
-function ContactThumb({
+function Frame({
   photo,
-  index,
-  selected,
-  onSelect,
+  eager,
+  onOpen,
 }: {
   photo: Photo;
-  index: number;
-  selected: boolean;
-  onSelect: (index: number) => void;
+  eager: boolean;
+  onOpen: (photo: Photo) => void;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const [visible, setVisible] = useState(index < CONTACT_SHEET_INITIAL_THUMBS || selected);
-  const size = intrinsicSizeForStill(photo.orientation);
-
-  useEffect(() => {
-    if (selected) setVisible(true);
-  }, [selected]);
-
-  useEffect(() => {
-    if (visible) return;
-    const node = ref.current;
-    if (!node) return;
-    if (typeof IntersectionObserver === 'undefined') {
-      setVisible(true);
-      return;
-    }
-    const root = node.closest('.contact-thumbs');
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisible(true);
-          io.disconnect();
-        }
-      },
-      { root: root instanceof Element ? root : null, rootMargin: '0px 48px', threshold: 0.01 },
-    );
-    io.observe(node);
-    return () => io.disconnect();
-  }, [visible]);
-
-  return (
-    <button
-      ref={ref}
-      id={`contact-thumb-${photo.id}`}
-      type="button"
-      aria-pressed={selected}
-      aria-label={`Select photo: ${photo.alt}`}
-      onClick={() => onSelect(index)}
-      className={`contact-thumb h-16 w-16 shrink-0 overflow-hidden border bg-neutral-100 sm:h-[4.5rem] sm:w-[4.5rem] ${
-        selected ? 'border-neutral-950' : 'border-transparent'
-      }`}
-    >
-      {visible ? (
-        <img
-          src={photo.src}
-          alt=""
-          width={size.width}
-          height={size.height}
-          loading="lazy"
-          decoding="async"
-          draggable="false"
-          className="gallery-image h-full w-full object-cover"
-        />
-      ) : null}
-    </button>
-  );
-}
-
-function Hero({ photo, onOpen }: { photo: Photo; onOpen: (photo: Photo) => void }) {
   const [failed, setFailed] = useState(false);
   const acceptErrorsRef = useRef(false);
-  const size = intrinsicSizeForStill(photo.orientation);
 
   useLayoutEffect(() => {
     acceptErrorsRef.current = true;
@@ -203,7 +137,7 @@ function Hero({ photo, onOpen }: { photo: Photo; onOpen: (photo: Photo) => void 
 
   if (failed) {
     return (
-      <div className="flex min-h-40 items-center justify-center">
+      <div className="contact-frame flex aspect-[3/2] items-center justify-center bg-neutral-100">
         <span className="select-none font-mono text-sm text-neutral-400">—</span>
       </div>
     );
@@ -214,40 +148,36 @@ function Hero({ photo, onOpen }: { photo: Photo; onOpen: (photo: Photo) => void 
       type="button"
       onClick={() => onOpen(photo)}
       aria-label={`Open photo: ${photo.alt}`}
-      className="flex w-full justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-4"
+      className="contact-frame relative aspect-[3/2] w-full overflow-hidden bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950"
     >
-      <WatermarkedImage
-        key={photo.src}
+      <img
         src={photo.src}
         alt={photo.alt}
-        wrapperClassName="relative inline-block max-w-full"
-        className={imageClassForStill(photo.orientation)}
-        width={size.width}
-        height={size.height}
-        loading="eager"
+        loading={eager ? 'eager' : 'lazy'}
         decoding="async"
-        fetchPriority="high"
+        fetchPriority={eager ? 'high' : 'auto'}
+        draggable="false"
+        className="gallery-image h-full w-full object-cover"
         onError={() => {
           if (!acceptErrorsRef.current) return;
           console.error('Gallery photo failed to load:', photo.src ?? photo.id);
           setFailed(true);
         }}
-        onClick={() => onOpen(photo)}
       />
     </button>
   );
 }
 
 export default function GalleryView() {
-  const [index, setIndex] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [frames] = useState(() => shuffleRandom(photos));
+  const [index, setIndex] = useState<number | null>(null);
   const [contactPhoto, setContactPhoto] = useState<Photo | null>(null);
   const [inquiryPhoto, setInquiryPhoto] = useState<Photo | null>(null);
-  const photo = photos[index] ?? null;
+  const photo = index === null ? null : frames[index] ?? null;
 
   useEffect(() => {
     const head = document.head;
-    const lcpPhoto = photos[0];
+    const lcpPhoto = frames[0];
     if (!lcpPhoto) return;
     const link = document.createElement('link');
     link.rel = 'preload';
@@ -258,56 +188,46 @@ export default function GalleryView() {
     return () => {
       link.remove();
     };
-  }, []);
-
-  useEffect(() => {
-    if (!photo) return;
-    document.getElementById(`contact-thumb-${photo.id}`)?.scrollIntoView?.({
-      inline: 'nearest',
-      block: 'nearest',
-    });
-  }, [photo]);
+  }, [frames]);
 
   const move = (direction: 'next' | 'previous') => {
-    if (photos.length === 0) return;
+    if (frames.length === 0 || index === null) return;
     const step = direction === 'next' ? 1 : -1;
-    setIndex((current) => (current + step + photos.length) % photos.length);
+    setIndex((current) => {
+      if (current === null) return current;
+      return (current + step + frames.length) % frames.length;
+    });
   };
 
   const contactPrefill = contactPhoto ? contactPrefillForPhoto(contactPhoto) : null;
 
   return (
-    <div className="contact-sheet mx-auto w-full max-w-6xl bg-white px-4 sm:px-8">
-      {photos.length === 0 && <p className="text-sm text-neutral-500">No photos yet.</p>}
+    <div className="contact-sheet mx-auto w-full max-w-6xl bg-white px-2 py-2 sm:px-4">
+      {frames.length === 0 && <p className="px-2 text-sm text-neutral-500">No photos yet.</p>}
+
+      <ul className="grid grid-cols-4 gap-0.5 sm:grid-cols-6 lg:grid-cols-8">
+        {frames.map((frame, frameIndex) => (
+          <li key={frame.id}>
+            <Frame
+              photo={frame}
+              eager={frameIndex < CONTACT_SHEET_EAGER_FRAMES}
+              onOpen={() => setIndex(frameIndex)}
+            />
+          </li>
+        ))}
+      </ul>
 
       {photo && (
-        <>
-          <Hero photo={photo} onOpen={() => setLightboxOpen(true)} />
-          <div className="contact-thumbs mt-4 flex gap-2 overflow-x-auto pb-2">
-            {photos.map((thumb, thumbIndex) => (
-              <ContactThumb
-                key={thumb.id}
-                photo={thumb}
-                index={thumbIndex}
-                selected={thumbIndex === index}
-                onSelect={setIndex}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
-      {lightboxOpen && photo && (
         <Lightbox
           photo={photo}
-          onClose={() => setLightboxOpen(false)}
+          onClose={() => setIndex(null)}
           onRequestInvoice={() => {
             setInquiryPhoto(photo);
-            setLightboxOpen(false);
+            setIndex(null);
           }}
           onLicensing={() => {
             setContactPhoto(photo);
-            setLightboxOpen(false);
+            setIndex(null);
           }}
           onPrevious={() => move('previous')}
           onNext={() => move('next')}
