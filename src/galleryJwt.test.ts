@@ -3,6 +3,7 @@ import {
   GALLERY_JWT_STORAGE_KEY,
   GALLERY_JWT_TTL_MS,
   clearStoredGalleryJwt,
+  galleryGateBypassed,
   hasValidGallerySession,
   mintGalleryJwt,
   readStoredGalleryJwt,
@@ -23,6 +24,17 @@ describe('galleryJwt', () => {
 
   it('uses a 30-day TTL so a biz-card visit still has a session', () => {
     expect(GALLERY_JWT_TTL_MS).toBe(30 * 24 * 60 * 60 * 1000);
+  });
+
+  it('keeps the public site gated even when the test bypass is on', () => {
+    vi.stubEnv('VITE_E2E', '1');
+    const original = window.location;
+    vi.stubGlobal('location', { ...original, hostname: 'adubs.site' });
+    expect(galleryGateBypassed()).toBe(false);
+    vi.stubGlobal('location', { ...original, hostname: 'www.adubs.site' });
+    expect(galleryGateBypassed()).toBe(false);
+    vi.stubGlobal('location', original);
+    vi.unstubAllEnvs();
   });
 
   it('mints a three-part JWT for sqz and rejects other passwords', async () => {

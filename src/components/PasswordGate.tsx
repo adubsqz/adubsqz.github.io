@@ -81,6 +81,8 @@ export default function PasswordGate({ children }: PasswordGateProps) {
       writeStoredGalleryJwt(token);
       setPassword('');
       setUnlocked(true);
+    } catch {
+      setError('Could not check the password. Try again.');
     } finally {
       setSubmitting(false);
     }

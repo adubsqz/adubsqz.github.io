@@ -52,7 +52,9 @@ describe('security utilities', () => {
 
   it('disables text selection and wires screenshot visibility handling', () => {
     initializeSecurity();
-    expect(document.body.style.userSelect).toBe('none');
+    const css = [...document.querySelectorAll('style')].map((node) => node.textContent ?? '').join('\n');
+    expect(css).toMatch(/body\s*\{\s*user-select:\s*none/);
+    expect(css).toMatch(/input,\s*textarea[\s\S]*user-select:\s*text/);
     Object.defineProperty(document, 'hidden', { configurable: true, value: true });
     document.dispatchEvent(new Event('visibilitychange'));
     expect(document.body.textContent).toContain('adubsqz');

@@ -12,7 +12,10 @@ export const GALLERY_JWT_STORAGE_KEY = 'adubsqz.gallery.jwt.v2';
 const JWT_HEADER = utf8ToBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
 const JWT_SECRET = 'adubsqz-gallery-hs256';
 
+const PUBLIC_HOSTS = new Set(['adubs.site', 'www.adubs.site']);
+
 export function galleryGateBypassed(): boolean {
+  if (typeof window !== 'undefined' && PUBLIC_HOSTS.has(window.location.hostname)) return false;
   return import.meta.env.VITE_E2E === '1';
 }
 
