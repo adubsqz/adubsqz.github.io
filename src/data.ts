@@ -6,7 +6,7 @@ import { INSTAGRAM_URL } from './site';
 /**
  * Gallery layout is derived from gallery-manifest.json:
  * - `bw` / `color` / `redscale` / `people` publish into one contact sheet
- *   (bucket order is the sheet order; permuted with GALLERY_SHUFFLE_SEED)
+ *   (stable aesthetic order via `arrangeContactSheet` + `gallery-sheet-tones.json`)
  * - Row objects may include internal curation/orientation (not shown in the public UI)
  * - `about` → bare filenames at publish root (About page only; not on the sheet)
  */

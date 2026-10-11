@@ -4,14 +4,15 @@ import { COLLECTIONS } from '../data';
 import { contactPrefillForPhoto } from '../inquireStatic';
 import type { Photo } from '../types';
 import { CONTACT_SHEET_EAGER_FRAMES, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
-import { shuffleRandom } from '../gallery-shuffle';
+import { arrangeContactSheet } from '../gallery-sheet-order';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
 
 const ContactModal = lazy(() => import('./ContactModal'));
 const InquiryModal = lazy(() => import('./InquiryModal'));
 
-const photos = COLLECTIONS.flatMap((collection) => collection.photos);
+/** Stable sheet order — same spots every load so we can preload the first strip. */
+const frames = arrangeContactSheet(COLLECTIONS);
 const FRAMES_PER_STRIP = 6;
 
 function displayName(alt: string): string {
@@ -138,7 +139,10 @@ function Frame({
   eager: boolean;
   onOpen: (photo: Photo) => void;
 }) {
+  const frameRef = useRef<HTMLButtonElement>(null);
   const [failed, setFailed] = useState(false);
+  /** Native lazy is unreliable in overflow-x film rolls — gate src to the scrollport. */
+  const [loadSrc, setLoadSrc] = useState(eager);
   const acceptErrorsRef = useRef(false);
 
   useLayoutEffect(() => {
@@ -148,8 +152,35 @@ function Frame({
     };
   }, []);
 
+  useEffect(() => {
+    if (eager || loadSrc) return;
+    const node = frameRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setLoadSrc(true);
+      return;
+    }
+    const root = node.closest('.film-roll');
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setLoadSrc(true);
+          io.disconnect();
+        }
+      },
+      {
+        root: root instanceof Element ? root : null,
+        // Small lead so a nudge of scroll feels instant — not the whole roll.
+        rootMargin: '24px',
+        threshold: 0,
+      },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [eager, loadSrc]);
+
   return (
     <button
+      ref={frameRef}
       type="button"
       onClick={() => onOpen(photo)}
       aria-label={`Open photo: ${photo.alt}`}
@@ -159,7 +190,7 @@ function Frame({
         <span className="contact-frame-fallback flex items-center justify-center font-mono text-sm text-neutral-400">
           —
         </span>
-      ) : (
+      ) : loadSrc ? (
         <img
           src={photo.src}
           alt=""
@@ -174,6 +205,8 @@ function Frame({
             setFailed(true);
           }}
         />
+      ) : (
+        <span className="contact-frame-fallback" aria-hidden="true" />
       )}
       <span className="film-frame-name">{displayName(photo.alt)}</span>
     </button>
@@ -181,26 +214,35 @@ function Frame({
 }
 
 export default function GalleryView() {
-  const [frames] = useState(() => shuffleRandom(photos));
   const [index, setIndex] = useState<number | null>(null);
   const [contactPhoto, setContactPhoto] = useState<Photo | null>(null);
   const [inquiryPhoto, setInquiryPhoto] = useState<Photo | null>(null);
   const photo = index === null ? null : frames[index] ?? null;
 
-  useEffect(() => {
+  // Before first paint of the sheet: warm the fixed first strip like a saved snapshot.
+  // Stays behind PasswordGate (GalleryView only mounts after unlock).
+  useLayoutEffect(() => {
     const head = document.head;
-    const lcpPhoto = frames[0];
-    if (!lcpPhoto) return;
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = lcpPhoto.src;
-    link.setAttribute('fetchpriority', 'high');
-    head.appendChild(link);
+    const eager = frames.slice(0, CONTACT_SHEET_EAGER_FRAMES);
+    if (eager.length === 0) return;
+    const existing = new Set(
+      [...head.querySelectorAll('link[rel="preload"][as="image"]')].map((link) => link.getAttribute('href')),
+    );
+    const links: HTMLLinkElement[] = [];
+    eager.forEach((still, i) => {
+      if (existing.has(still.src)) return;
+      const link = document.createElement('link');
+      link.setAttribute('rel', 'preload');
+      link.setAttribute('as', 'image');
+      link.href = still.src;
+      if (i === 0) link.setAttribute('fetchpriority', 'high');
+      head.appendChild(link);
+      links.push(link);
+    });
     return () => {
-      link.remove();
+      for (const link of links) link.remove();
     };
-  }, [frames]);
+  }, []);
 
   const move = (direction: 'next' | 'previous') => {
     if (frames.length === 0 || index === null) return;

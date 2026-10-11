@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GalleryView from './GalleryView';
 import { COLLECTIONS } from '../data';
 import { CONTACT_SHEET_EAGER_FRAMES, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
+import { arrangeContactSheet } from '../gallery-sheet-order';
 
 const allPhotos = COLLECTIONS.flatMap((collection) => collection.photos);
+const sheetOrder = arrangeContactSheet(COLLECTIONS);
 const CATEGORY_LABEL = /Photograph (bw|color|redscale|people|greyscale|portraits) /i;
 
 describe('GalleryView', () => {
@@ -29,7 +31,7 @@ describe('GalleryView', () => {
     expect(document.querySelectorAll('.contact-frame')).toHaveLength(allPhotos.length);
     expect(document.querySelectorAll('.film-strip').length).toBeGreaterThan(1);
     expect(document.querySelectorAll('.film-sprockets').length).toBeGreaterThan(0);
-    expect(screen.queryByText('KODAK')).not.toBeInTheDocument();
+    expect(screen.queryByText('KODAK', { exact: true })).not.toBeInTheDocument();
     const names = [...document.querySelectorAll('.film-frame-name')].map((el) => el.textContent ?? '');
     expect(names.some((name) => name.length > 0)).toBe(true);
     names.forEach((name) => {
@@ -49,12 +51,25 @@ describe('GalleryView', () => {
     expect(joined).toMatch(/camcorder-night/);
   });
 
-  it('shuffles the sheet on each mount', () => {
-    if (allPhotos.length < 2) return;
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+  it('keeps the same aesthetic sheet order on every mount', () => {
+    if (sheetOrder.length < 2) return;
     render(<GalleryView />);
-    const first = screen.getAllByRole('button', { name: /open photo/i })[0];
-    expect(first).not.toHaveAccessibleName(`Open photo: ${allPhotos[0].alt}`);
+    const labels = screen.getAllByRole('button', { name: /open photo/i }).map(
+      (el) => el.getAttribute('aria-label') ?? '',
+    );
+    expect(labels).toEqual(sheetOrder.map((photo) => `Open photo: ${photo.alt}`));
+    expect(labels[0]).not.toBe(`Open photo: ${allPhotos[0]?.alt}`);
+  });
+
+  it('preloads the first eager strip for a stable LCP path', async () => {
+    if (sheetOrder.length === 0) return;
+    render(<GalleryView />);
+    const expected = sheetOrder.slice(0, CONTACT_SHEET_EAGER_FRAMES).map((photo) => photo.src);
+    await waitFor(() => {
+      const preloads = [...document.head.querySelectorAll('link[rel="preload"][as="image"]')];
+      expect(preloads.map((link) => link.getAttribute('href'))).toEqual(expected);
+      expect(preloads[0]?.getAttribute('fetchpriority')).toBe('high');
+    });
   });
 
   it('opens a standalone frame with room for Request Invoice', async () => {
@@ -126,5 +141,37 @@ describe('GalleryView', () => {
     expect(eager).toHaveLength(painted);
     expect(lazy).toHaveLength(allPhotos.length - painted);
     expect(eager[0]).toHaveAttribute('fetchpriority', 'high');
+  });
+
+  it('keeps off-strip frames without a src until they intersect the film roll', () => {
+    if (allPhotos.length <= CONTACT_SHEET_EAGER_FRAMES) return;
+
+    class DeferredIntersectionObserver {
+      static instances: DeferredIntersectionObserver[] = [];
+      callback: IntersectionObserverCallback;
+      constructor(callback: IntersectionObserverCallback) {
+        this.callback = callback;
+        DeferredIntersectionObserver.instances.push(this);
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords(): IntersectionObserverEntry[] {
+        return [];
+      }
+      readonly root = null;
+      readonly rootMargin = '';
+      readonly thresholds: number[] = [];
+    }
+
+    DeferredIntersectionObserver.instances = [];
+    vi.stubGlobal('IntersectionObserver', DeferredIntersectionObserver);
+
+    const { container } = render(<GalleryView />);
+    const imgs = container.querySelectorAll('img.gallery-image');
+    expect(imgs).toHaveLength(CONTACT_SHEET_EAGER_FRAMES);
+    expect(container.querySelectorAll('.contact-frame-fallback[aria-hidden="true"]').length).toBe(
+      allPhotos.length - CONTACT_SHEET_EAGER_FRAMES,
+    );
   });
 });

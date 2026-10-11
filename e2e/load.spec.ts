@@ -1,8 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 
+/** Must stay in sync with `src/gallery-layout.ts` (first strip preload + eager LCP). */
+const CONTACT_SHEET_EAGER_FRAMES = 12;
+
 const VIEWPORTS = [
-  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 28 },
-  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 12 },
+  // Budgets ≈ visible film strips (11.5rem) × 6 frames + one strip of scroll lead.
+  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 48 },
+  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 18 },
 ] as const;
 
 function collectStillUrls(page: Page): Set<string> {
@@ -52,6 +56,14 @@ for (const vp of VIEWPORTS) {
 
       await expect(img).toHaveAttribute('loading', 'eager');
       await expect(img).toHaveAttribute('fetchpriority', 'high');
+
+      const preloads = page.locator('link[rel="preload"][as="image"]');
+      const frameCount = await page.getByRole('button', { name: /open photo/i }).count();
+      const expectedPreloads = Math.min(CONTACT_SHEET_EAGER_FRAMES, frameCount);
+      await expect(preloads).toHaveCount(expectedPreloads);
+      if (expectedPreloads > 0) {
+        await expect(preloads.first()).toHaveAttribute('fetchpriority', 'high');
+      }
 
       const photoButton = page.getByRole('button', { name: /open photo/i }).first();
       await expect(photoButton).toBeVisible();

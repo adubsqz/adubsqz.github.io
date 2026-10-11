@@ -24,6 +24,7 @@ export default mergeConfig(
           'src/data.ts',
           'src/site.ts',
           'src/gallery-layout.ts',
+          'src/gallery-sheet-order.ts',
           'src/gallery-shuffle.ts',
           'src/galleryJwt.ts',
           'src/inquireStatic.ts',

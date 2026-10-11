@@ -30,7 +30,24 @@ for (const vp of VIEWPORTS) {
       expect(await frames.count()).toBeGreaterThan(8);
       expect(await page.locator('.film-strip').count()).toBeGreaterThan(1);
       expect(await page.locator('.film-sprockets').count()).toBeGreaterThan(0);
-      await expect(page.getByText('KODAK')).toHaveCount(0);
+      await expect(page.getByText('KODAK', { exact: true })).toHaveCount(0);
+    });
+
+    test('keeps the same aesthetic frame order after reload', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      const labels = page.getByRole('button', { name: /open photo/i });
+      await expect(labels.first()).toBeVisible();
+      const before = await labels.evaluateAll((buttons) =>
+        buttons.map((button) => button.getAttribute('aria-label') ?? ''),
+      );
+      expect(before.length).toBeGreaterThan(2);
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(labels.first()).toBeVisible();
+      const after = await labels.evaluateAll((buttons) =>
+        buttons.map((button) => button.getAttribute('aria-label') ?? ''),
+      );
+      expect(after).toEqual(before);
     });
 
     test('lets the header scroll away', async ({ page }) => {
