@@ -47,12 +47,9 @@ describe('Lightbox invoice flow (functional)', () => {
     'opens Request Invoice from a lightbox and submits via mailto:adubsqz@gmail.com',
     async () => {
     const user = userEvent.setup();
-    const { container } = render(<App />);
+    render(<App />);
 
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) throw new Error('Photo click target not found');
-
-    await user.click(clickTarget);
+    await user.click(await screen.findByRole('button', { name: /open photo/i }));
     const lightbox = await screen.findByRole('dialog', { name: /image lightbox/i });
     expect(lightbox).toBeInTheDocument();
     expect(within(lightbox).getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
@@ -90,12 +87,9 @@ describe('Lightbox invoice flow (functional)', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
-    const { container } = render(<App />);
+    render(<App />);
 
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) throw new Error('Photo click target not found');
-
-    await user.click(clickTarget);
+    await user.click(await screen.findByRole('button', { name: /open photo/i }));
     const lightbox = await screen.findByRole('dialog', { name: /image lightbox/i });
     await user.click(within(lightbox).getByRole('button', { name: /request invoice/i }));
 
@@ -119,13 +113,10 @@ describe('Lightbox invoice flow (functional)', () => {
 
   it('opens Contact from Licensing or hire with photo prefill', async () => {
     const user = userEvent.setup();
-    const { container } = render(<App />);
+    render(<App />);
     const prefill = contactPrefillForPhoto(fixturePhoto);
 
-    const clickTarget = container.querySelector('.absolute.inset-0.z-10');
-    if (!clickTarget) throw new Error('Photo click target not found');
-
-    await user.click(clickTarget);
+    await user.click(await screen.findByRole('button', { name: /open photo/i }));
     const lightbox = await screen.findByRole('dialog', { name: /image lightbox/i });
     await user.click(within(lightbox).getByRole('button', { name: /licensing or hire/i }));
 
