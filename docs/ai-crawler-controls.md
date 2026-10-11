@@ -214,11 +214,12 @@ by user-agent string only and analytics are capped at a 24-hour window.
 
 ### Response headers the origin cannot send
 
-GitHub Pages cannot set headers, so these are only possible once proxied, as a Transform
-Rule (Modify Response Header). The Free plan allows 10 Transform Rules total.
+GitHub Pages cannot set headers, so these are only possible once proxied (Cache /
+Transform / Cache Response rules). The Free plan allows 10 Transform Rules total.
 
 | Header | Value |
 | --- | --- |
+| `Cache-Control` (gallery JPEGs) | `public, max-age=604800, stale-while-revalidate=86400` — runbook in `hosting/photo-cache.md` |
 | `X-Robots-Tag` | `noai, noimageai, max-image-preview:none` |
 | `tdm-reservation` | `1` |
 

@@ -34,6 +34,21 @@ def test_burn_skips_resize_when_already_small(monkeypatch, tmp_path: Path):
         assert img.size == (120, 80)
 
 
+def test_write_sheet_thumb_downscales_and_forces_jpeg(monkeypatch, tmp_path: Path):
+    from gallery.optimize_publish import write_sheet_thumb
+
+    monkeypatch.setenv("GALLERY_SHEET_MAX_EDGE", "200")
+    src = tmp_path / "big.jpg"
+    Image.new("RGB", (1200, 800), color=(40, 80, 120)).save(src, quality=95)
+    dest = tmp_path / "out.png"
+    write_sheet_thumb(src, dest)
+    out = dest.with_suffix(".jpg")
+    assert out.is_file()
+    with Image.open(out) as img:
+        assert img.format == "JPEG"
+        assert max(img.size) <= 200
+
+
 def test_publish_options_rejects_non_integer_env(monkeypatch):
     monkeypatch.setenv("GALLERY_MAX_WIDTH", "not-a-number")
     with pytest.raises(ValueError, match="GALLERY_MAX_WIDTH"):

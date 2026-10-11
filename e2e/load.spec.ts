@@ -1,26 +1,26 @@
 import { expect, test, type Page } from '@playwright/test';
-
-/** Must stay in sync with `src/gallery-layout.ts` (first strip preload + eager LCP). */
-const CONTACT_SHEET_EAGER_FRAMES = 12;
+import { contactSheetEagerFrameCount } from '../src/gallery-layout';
 
 const VIEWPORTS = [
-  // Budgets ≈ visible film strips (11.5rem) × 6 frames + one strip of scroll lead.
+  // Budgets ≈ visible film strips × 6 frames (sheet thumbs only on first paint).
   { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 48 },
   { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 18 },
 ] as const;
 
-function collectStillUrls(page: Page): Set<string> {
-  const urls = new Set<string>();
+function collectPhotoUrls(page: Page): { sheet: Set<string>; full: Set<string> } {
+  const sheet = new Set<string>();
+  const full = new Set<string>();
   page.on('response', (res) => {
     if (!res.ok()) return;
     const url = res.url().split('?')[0] ?? '';
-    if (url.includes('/photos/still-life/')) urls.add(url);
+    if (url.includes('/photos/sheet/')) sheet.add(url);
+    if (url.includes('/photos/still-life/')) full.add(url);
   });
-  return urls;
+  return { sheet, full };
 }
 
 async function firstGalleryImage(page: Page) {
-  return page.locator('img[src*="still-life"]').first();
+  return page.locator('img[src*="/photos/sheet/"]').first();
 }
 
 for (const vp of VIEWPORTS) {
@@ -30,7 +30,7 @@ for (const vp of VIEWPORTS) {
     test(`first still is fast, lazy below the fold, and the chrome stays simple`, async ({
       page,
     }) => {
-      const stillUrls = collectStillUrls(page);
+      const photoUrls = collectPhotoUrls(page);
       const started = Date.now();
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
@@ -59,10 +59,11 @@ for (const vp of VIEWPORTS) {
 
       const preloads = page.locator('link[rel="preload"][as="image"]');
       const frameCount = await page.getByRole('button', { name: /open photo/i }).count();
-      const expectedPreloads = Math.min(CONTACT_SHEET_EAGER_FRAMES, frameCount);
+      const expectedPreloads = Math.min(contactSheetEagerFrameCount(vp.width), frameCount);
       await expect(preloads).toHaveCount(expectedPreloads);
       if (expectedPreloads > 0) {
         await expect(preloads.first()).toHaveAttribute('fetchpriority', 'high');
+        await expect(preloads.first()).toHaveAttribute('href', /\/photos\/sheet\//);
       }
 
       const photoButton = page.getByRole('button', { name: /open photo/i }).first();
@@ -76,16 +77,20 @@ for (const vp of VIEWPORTS) {
 
       await page.waitForTimeout(750);
       expect(
-        stillUrls.size,
-        `${vp.name} fetched ${stillUrls.size} stills on first paint (budget ${vp.maxUniqueStills})`,
+        photoUrls.full.size,
+        `${vp.name} fetched ${photoUrls.full.size} full stills before lightbox (want 0)`,
+      ).toBe(0);
+      expect(
+        photoUrls.sheet.size,
+        `${vp.name} fetched ${photoUrls.sheet.size} sheet thumbs on first paint (budget ${vp.maxUniqueStills})`,
       ).toBeLessThanOrEqual(vp.maxUniqueStills);
-      expect(stillUrls.size).toBeGreaterThan(0);
+      expect(photoUrls.sheet.size).toBeGreaterThan(0);
 
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
-      const loadLine = `${vp.name} firstStill=${elapsed}ms unique=${stillUrls.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`;
+      const loadLine = `${vp.name} firstStill=${elapsed}ms sheet=${photoUrls.sheet.size} full=${photoUrls.full.size} overflow=${overflow} firstY=${Math.round(box!.y)} viewport=${vp.height}`;
       console.log(loadLine);
       test.info().annotations.push({
         type: 'load',

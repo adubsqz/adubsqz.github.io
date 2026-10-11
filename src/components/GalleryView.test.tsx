@@ -3,11 +3,19 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GalleryView from './GalleryView';
 import { COLLECTIONS } from '../data';
-import { CONTACT_SHEET_EAGER_FRAMES, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
+import {
+  CONTACT_SHEET_EAGER_FRAMES,
+  GALLERY_LIGHTBOX_PAD_CLASS,
+  contactSheetEagerFrameCount,
+} from '../gallery-layout';
 import { arrangeContactSheet } from '../gallery-sheet-order';
 
 const allPhotos = COLLECTIONS.flatMap((collection) => collection.photos);
 const sheetOrder = arrangeContactSheet(COLLECTIONS);
+const eagerForJsdom = () =>
+  typeof window !== 'undefined'
+    ? contactSheetEagerFrameCount(window.innerWidth)
+    : CONTACT_SHEET_EAGER_FRAMES;
 const CATEGORY_LABEL = /Photograph (bw|color|redscale|people|greyscale|portraits) /i;
 
 describe('GalleryView', () => {
@@ -64,7 +72,10 @@ describe('GalleryView', () => {
   it('preloads the first eager strip for a stable LCP path', async () => {
     if (sheetOrder.length === 0) return;
     render(<GalleryView />);
-    const expected = sheetOrder.slice(0, CONTACT_SHEET_EAGER_FRAMES).map((photo) => photo.src);
+    const painted = Math.min(eagerForJsdom(), sheetOrder.length);
+    const expected = sheetOrder
+      .slice(0, painted)
+      .map((photo) => photo.sheetSrc ?? photo.src);
     await waitFor(() => {
       const preloads = [...document.head.querySelectorAll('link[rel="preload"][as="image"]')];
       expect(preloads.map((link) => link.getAttribute('href'))).toEqual(expected);
@@ -137,14 +148,16 @@ describe('GalleryView', () => {
     const { container } = render(<GalleryView />);
     const eager = container.querySelectorAll('img[loading="eager"]');
     const lazy = container.querySelectorAll('img[loading="lazy"]');
-    const painted = Math.min(CONTACT_SHEET_EAGER_FRAMES, allPhotos.length);
+    const painted = Math.min(eagerForJsdom(), allPhotos.length);
     expect(eager).toHaveLength(painted);
     expect(lazy).toHaveLength(allPhotos.length - painted);
     expect(eager[0]).toHaveAttribute('fetchpriority', 'high');
+    expect(eager[0]?.getAttribute('src')).toMatch(/\/photos\/sheet\//);
   });
 
   it('keeps off-strip frames without a src until they intersect the film roll', () => {
-    if (allPhotos.length <= CONTACT_SHEET_EAGER_FRAMES) return;
+    const painted = eagerForJsdom();
+    if (allPhotos.length <= painted) return;
 
     class DeferredIntersectionObserver {
       static instances: DeferredIntersectionObserver[] = [];
@@ -169,9 +182,10 @@ describe('GalleryView', () => {
 
     const { container } = render(<GalleryView />);
     const imgs = container.querySelectorAll('img.gallery-image');
-    expect(imgs).toHaveLength(CONTACT_SHEET_EAGER_FRAMES);
+    expect(imgs).toHaveLength(painted);
     expect(container.querySelectorAll('.contact-frame-fallback[aria-hidden="true"]').length).toBe(
-      allPhotos.length - CONTACT_SHEET_EAGER_FRAMES,
+      allPhotos.length - painted,
     );
   });
 });
+

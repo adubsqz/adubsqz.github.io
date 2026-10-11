@@ -3,7 +3,12 @@ import { createPortal } from 'react-dom';
 import { COLLECTIONS } from '../data';
 import { contactPrefillForPhoto } from '../inquireStatic';
 import type { Photo } from '../types';
-import { CONTACT_SHEET_EAGER_FRAMES, GALLERY_LIGHTBOX_PAD_CLASS } from '../gallery-layout';
+import {
+  CONTACT_SHEET_EAGER_FRAMES,
+  FRAMES_PER_STRIP,
+  GALLERY_LIGHTBOX_PAD_CLASS,
+  contactSheetEagerFrameCount,
+} from '../gallery-layout';
 import { arrangeContactSheet } from '../gallery-sheet-order';
 import WatermarkedImage from './WatermarkedImage';
 import { Button } from './ui/button';
@@ -13,7 +18,10 @@ const InquiryModal = lazy(() => import('./InquiryModal'));
 
 /** Stable sheet order — same spots every load so we can preload the first strip. */
 const frames = arrangeContactSheet(COLLECTIONS);
-const FRAMES_PER_STRIP = 6;
+
+function sheetHref(photo: Photo): string {
+  return photo.sheetSrc ?? photo.src;
+}
 
 function displayName(alt: string): string {
   return alt.replace(/^Photograph\s+/i, '');
@@ -192,7 +200,7 @@ function Frame({
         </span>
       ) : loadSrc ? (
         <img
-          src={photo.src}
+          src={sheetHref(photo)}
           alt=""
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
@@ -201,7 +209,7 @@ function Frame({
           className="gallery-image"
           onError={() => {
             if (!acceptErrorsRef.current) return;
-            console.error('Gallery photo failed to load:', photo.src ?? photo.id);
+            console.error('Gallery photo failed to load:', sheetHref(photo));
             setFailed(true);
           }}
         />
@@ -217,24 +225,36 @@ export default function GalleryView() {
   const [index, setIndex] = useState<number | null>(null);
   const [contactPhoto, setContactPhoto] = useState<Photo | null>(null);
   const [inquiryPhoto, setInquiryPhoto] = useState<Photo | null>(null);
+  const [eagerCount, setEagerCount] = useState(() =>
+    typeof window !== 'undefined'
+      ? contactSheetEagerFrameCount(window.innerWidth)
+      : CONTACT_SHEET_EAGER_FRAMES,
+  );
   const photo = index === null ? null : frames[index] ?? null;
 
-  // Before first paint of the sheet: warm the fixed first strip like a saved snapshot.
-  // Stays behind PasswordGate (GalleryView only mounts after unlock).
+  useLayoutEffect(() => {
+    const syncEager = () => setEagerCount(contactSheetEagerFrameCount(window.innerWidth));
+    syncEager();
+    window.addEventListener('resize', syncEager);
+    return () => window.removeEventListener('resize', syncEager);
+  }, []);
+
+  // Before first paint of the sheet: warm viewport stills (sheet thumbs). Behind PasswordGate.
   useLayoutEffect(() => {
     const head = document.head;
-    const eager = frames.slice(0, CONTACT_SHEET_EAGER_FRAMES);
+    const eager = frames.slice(0, eagerCount);
     if (eager.length === 0) return;
     const existing = new Set(
       [...head.querySelectorAll('link[rel="preload"][as="image"]')].map((link) => link.getAttribute('href')),
     );
     const links: HTMLLinkElement[] = [];
     eager.forEach((still, i) => {
-      if (existing.has(still.src)) return;
+      const href = sheetHref(still);
+      if (existing.has(href)) return;
       const link = document.createElement('link');
       link.setAttribute('rel', 'preload');
       link.setAttribute('as', 'image');
-      link.href = still.src;
+      link.href = href;
       if (i === 0) link.setAttribute('fetchpriority', 'high');
       head.appendChild(link);
       links.push(link);
@@ -242,7 +262,7 @@ export default function GalleryView() {
     return () => {
       for (const link of links) link.remove();
     };
-  }, []);
+  }, [eagerCount]);
 
   const move = (direction: 'next' | 'previous') => {
     if (frames.length === 0 || index === null) return;
@@ -273,7 +293,7 @@ export default function GalleryView() {
                     <Frame
                       key={frame.id}
                       photo={frame}
-                      eager={frameIndex < CONTACT_SHEET_EAGER_FRAMES}
+                      eager={frameIndex < eagerCount}
                       onOpen={() => setIndex(frameIndex)}
                     />
                   );

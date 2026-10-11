@@ -12,7 +12,9 @@ export const INSTAGRAM_URL = 'https://www.instagram.com/adubsqz/';
 
 /**
  * GitHub Pages custom domain (Actions deploys ignore `public/CNAME`):
- * 1. Cloudflare DNS for adubs.site — DNS-only (grey cloud), not proxied.
+ * Gallery JPEG cache headers: GitHub Pages cannot set them; use Cloudflare when proxied
+ * (see hosting/photo-cache.md). DNS may be grey-cloud or proxied — verify with cf-ray.
+ * 1. Cloudflare DNS for adubs.site — DNS-only (grey cloud) or proxied (orange cloud).
  * 2. Apex A: 185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153
  * 3. Apex AAAA: 2606:50c0:8000::153 … :8003::153
  * 4. www CNAME → adubsqz.github.io

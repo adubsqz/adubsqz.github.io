@@ -90,6 +90,7 @@ Commands:
 npm run gallery:doctor                           # resolves repo paths + photo-prompt binary hint
 npm run gallery:test                             # pytest (gallery tooling)
 npm run gallery:verify                           # parity + max dimensions + burn-in watermark heuristic (`--parity-only` / `GALLERY_VERIFY_SKIP_WATERMARK=1` to narrow)
+npm run gallery:sheet-thumbs                     # rebuild contact-sheet thumbs under public/photos/sheet/ (max edge 640)
 npm run gallery:import -- --map YOUR_MAP.json   # optional: --dry-run, --limit N, --stage-only (HITL)
 npm run gallery:promote -- --list             # human review queue → then --tokens … or --approve-all
 npm run gallery:draft-probe-map -- -o .tmp/staged-curation.json   # 8 random ~/originals not in manifest

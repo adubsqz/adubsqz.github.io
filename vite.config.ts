@@ -3,8 +3,10 @@ import path from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { configDefaults } from 'vitest/config';
+import { isGalleryPhotoRequest, PHOTO_CACHE_CONTROL } from './hosting/photo-cache';
 
 const STILL_LIFE_PREFIX = '/photos/still-life/';
+const SHEET_PREFIX = '/photos/sheet/';
 const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
 
 function manifestEntryPath(category: string, entry: unknown): string {
@@ -45,17 +47,47 @@ function loadManifestAllowlist(): Set<string> {
   return allowed;
 }
 
+function attachGalleryPhotoCacheControl(
+  req: { url?: string },
+  res: {
+    setHeader(name: string, value: string): void;
+    writeHead?: (...args: unknown[]) => unknown;
+  },
+  next: () => void,
+): void {
+  const url = req.url ?? '';
+  const pathname = decodeURIComponent(url.split('?')[0] ?? '');
+  if (!isGalleryPhotoRequest(pathname)) {
+    next();
+    return;
+  }
+
+  const originalWriteHead = res.writeHead?.bind(res);
+  if (originalWriteHead) {
+    res.writeHead = (...args: unknown[]) => {
+      res.setHeader('Cache-Control', PHOTO_CACHE_CONTROL);
+      return originalWriteHead(...args);
+    };
+  } else {
+    res.setHeader('Cache-Control', PHOTO_CACHE_CONTROL);
+  }
+  next();
+}
+
 function manifestAssetGuardPlugin(): Plugin {
   const guard = (req: { url?: string }, res: { statusCode: number; end: (msg: string) => void }, next: () => void) => {
     const url = req.url ?? '';
     const pathname = decodeURIComponent(url.split('?')[0] ?? '');
 
-    if (!pathname.startsWith(STILL_LIFE_PREFIX)) {
+    const isStill = pathname.startsWith(STILL_LIFE_PREFIX);
+    const isSheet = pathname.startsWith(SHEET_PREFIX);
+    if (!isStill && !isSheet) {
       next();
       return;
     }
 
-    const rel = pathname.slice(STILL_LIFE_PREFIX.length);
+    const prefix = isSheet ? SHEET_PREFIX : STILL_LIFE_PREFIX;
+    const rel = pathname.slice(prefix.length);
     const baseName = rel.split('/').pop() ?? rel;
     if (!IMAGE_EXT.test(baseName)) {
       next();
@@ -63,7 +95,13 @@ function manifestAssetGuardPlugin(): Plugin {
     }
 
     const allowed = loadManifestAllowlist();
-    if (!allowed.has(rel)) {
+    // Sheet thumbs use .jpg; manifest rows may still be .JPG — compare stem paths.
+    const relNorm = rel.replace(/\.(jpe?g|png|webp)$/i, '').toLowerCase();
+    const ok = [...allowed].some((entry) => {
+      const entryNorm = entry.replace(/\.(jpe?g|png|webp)$/i, '').toLowerCase();
+      return entryNorm === relNorm || entry === rel;
+    });
+    if (!ok) {
       res.statusCode = 404;
       res.end('Not found');
       return;
@@ -75,9 +113,11 @@ function manifestAssetGuardPlugin(): Plugin {
   return {
     name: 'manifest-asset-guard',
     configureServer(server) {
+      server.middlewares.use(attachGalleryPhotoCacheControl);
       server.middlewares.use(guard);
     },
     configurePreviewServer(server) {
+      server.middlewares.use(attachGalleryPhotoCacheControl);
       server.middlewares.use(guard);
     },
   };

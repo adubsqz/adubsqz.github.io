@@ -2,7 +2,10 @@ export type PageView = 'gallery' | 'about';
 
 export interface Photo {
   id: string;
+  /** Full web publish JPEG (lightbox / invoice). */
   src: string;
+  /** Small contact-sheet JPEG when published; falls back to `src` in the UI. */
+  sheetSrc?: string;
   alt: string;
   caption?: string;
   orientation?: 'horizontal' | 'vertical' | 'square';

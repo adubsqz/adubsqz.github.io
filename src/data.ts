@@ -14,6 +14,7 @@ import { INSTAGRAM_URL } from './site';
 const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
 const galleryPhotosBase =
   (base.endsWith('/') ? base.slice(0, -1) : base) + '/photos/still-life';
+const sheetPhotosBase = (base.endsWith('/') ? base.slice(0, -1) : base) + '/photos/sheet';
 const SUPPORTED_IMAGE_FILE = /\.(jpe?g|png|webp)$/i;
 
 const ABOUT_MANIFEST_KEY = 'about';
@@ -132,6 +133,14 @@ export function resolveGalleryImagePath(collectionId: string, entry: string): st
   return `${galleryPhotosBase}/${collectionId}/${normalized}`;
 }
 
+/** Contact-sheet thumb URL mirroring a manifest still-life relative path. */
+export function resolveSheetImagePath(entry: string): string {
+  const normalized = entry.trim().replace(/^\/+/, '');
+  if (!normalized) return '';
+  const jpg = normalized.replace(/\.(jpe?g|png|webp)$/i, '.jpg');
+  return `${sheetPhotosBase}/${jpg}`;
+}
+
 function parseMasterPixels(row: ManifestRow): Pick<Photo, 'masterWidth' | 'masterHeight'> {
   if (typeof row === 'string') return {};
   const masterWidth = toPositivePixel(row.master_width);
@@ -161,6 +170,7 @@ function photosFromRows(
     return {
       id: `${collectionId}-${i + 1}`,
       src: resolveGalleryImagePath(collectionId, entry),
+      sheetSrc: resolveSheetImagePath(entry),
       alt: frameAlt(entry),
       caption: '',
       orientation,

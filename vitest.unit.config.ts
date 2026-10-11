@@ -11,6 +11,7 @@ export default mergeConfig(
         'tests/share-card.test.ts',
         'tests/chrome-css.test.ts',
         'tests/crawler-controls.test.ts',
+        'tests/photo-cache.test.ts',
       ],
       exclude: [
         'src/App.test.tsx',
