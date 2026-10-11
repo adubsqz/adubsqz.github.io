@@ -23,6 +23,7 @@
     "gallery:import": "bash tools/run_gallery_module.sh gallery.run_import",
     "gallery:verify": "bash tools/run_gallery_module.sh gallery.verify_manifest",
     "gallery:sheet-thumbs": "bash tools/run_gallery_module.sh gallery.make_sheet_thumbs",
+    "hosting:photo-cache-rules": "node hosting/apply-photo-cache-rules.mjs",
     "gallery:doctor": "bash tools/run_gallery_module.sh gallery.doctor",
     "gallery:draft-probe-map": "bash tools/run_gallery_module.sh gallery.draft_probe_map",
     "gallery:draft-bw-prefix-map": "bash tools/run_gallery_module.sh gallery.draft_bw_prefix_map",

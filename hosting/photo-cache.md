@@ -58,6 +58,19 @@ Cache response rules run **before** Cloudflare caches the origin response, so ed
 
 **Merge with existing rules:** add these at the **top** of the list (more specific than site-wide rules). The API examples in Cloudflare docs that `PUT` an entire ruleset **replace** all rules — prefer the dashboard or patch individual rules if you already have cache rules.
 
+### Apply via API (recommended)
+
+The Cursor Cloudflare MCP session is **read-only** (no Cache Rules Edit). Use a short-lived API token:
+
+1. [Create API token](https://dash.cloudflare.com/profile/api-tokens) → Custom → **Zone / Cache Rules / Edit** + **Zone / Zone / Read**, zone `adubs.site`.
+2. Run (token is not stored in the repo):
+
+```bash
+CLOUDFLARE_API_TOKEN='…' npm run hosting:photo-cache-rules
+```
+
+That script (`hosting/apply-photo-cache-rules.mjs`) upserts both rules via the Rulesets API and keeps any other rules already in those phases.
+
 ## After republishing photos
 
 Same URL + new bytes → purge or invalidate edge cache once `main` deploy finishes, or wait for TTL (up to 7 days at edge; browsers up to 7 days unless purged).
