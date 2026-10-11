@@ -254,7 +254,10 @@
       "master_height": 2048,
       "original_path": "000076080027.jpg",
       "master_bytes": 4260693
-    }
+    },
+    "color/yellow-mums.jpg",
+    "color/city-dog-splash-trash.jpg",
+    "color/organic-cleaners.jpg"
   ],
   "redscale": [
     {
@@ -348,7 +351,11 @@
     {
       "path": "redscale/redscale-04-harmon-red-0037.jpg",
       "orientation": "vertical"
-    }
+    },
+    "redscale/redscale-18-harmon-red-0038.jpg",
+    "redscale/redscale-19-harmon-red-ferry.jpg",
+    "redscale/redscale-20-harmon-red-skyline.jpg",
+    "redscale/redscale-21-harmon-red-0016.jpg"
   ],
   "people": [
     {

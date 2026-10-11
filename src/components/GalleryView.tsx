@@ -12,6 +12,19 @@ const ContactModal = lazy(() => import('./ContactModal'));
 const InquiryModal = lazy(() => import('./InquiryModal'));
 
 const photos = COLLECTIONS.flatMap((collection) => collection.photos);
+const FRAMES_PER_STRIP = 6;
+
+function displayName(alt: string): string {
+  return alt.replace(/^Photograph\s+/i, '');
+}
+
+function stripsOf<T>(items: readonly T[], size: number): T[][] {
+  const strips: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    strips.push(items.slice(i, i + size));
+  }
+  return strips;
+}
 
 function Lightbox({
   photo,
@@ -135,35 +148,34 @@ function Frame({
     };
   }, []);
 
-  if (failed) {
-    return (
-      <div className="contact-frame flex aspect-[3/2] items-center justify-center bg-neutral-100">
-        <span className="select-none font-mono text-sm text-neutral-400">—</span>
-      </div>
-    );
-  }
-
   return (
     <button
       type="button"
       onClick={() => onOpen(photo)}
       aria-label={`Open photo: ${photo.alt}`}
-      className="contact-frame relative aspect-[3/2] w-full overflow-hidden bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950"
+      className="contact-frame focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
     >
-      <img
-        src={photo.src}
-        alt={photo.alt}
-        loading={eager ? 'eager' : 'lazy'}
-        decoding="async"
-        fetchPriority={eager ? 'high' : 'auto'}
-        draggable="false"
-        className="gallery-image h-full w-full object-cover"
-        onError={() => {
-          if (!acceptErrorsRef.current) return;
-          console.error('Gallery photo failed to load:', photo.src ?? photo.id);
-          setFailed(true);
-        }}
-      />
+      {failed ? (
+        <span className="contact-frame-fallback flex items-center justify-center font-mono text-sm text-neutral-400">
+          —
+        </span>
+      ) : (
+        <img
+          src={photo.src}
+          alt=""
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={eager ? 'high' : 'auto'}
+          draggable="false"
+          className="gallery-image"
+          onError={() => {
+            if (!acceptErrorsRef.current) return;
+            console.error('Gallery photo failed to load:', photo.src ?? photo.id);
+            setFailed(true);
+          }}
+        />
+      )}
+      <span className="film-frame-name">{displayName(photo.alt)}</span>
     </button>
   );
 }
@@ -201,21 +213,35 @@ export default function GalleryView() {
 
   const contactPrefill = contactPhoto ? contactPrefillForPhoto(contactPhoto) : null;
 
-  return (
-    <div className="contact-sheet mx-auto w-full max-w-6xl bg-white px-2 py-2 sm:px-4">
-      {frames.length === 0 && <p className="px-2 text-sm text-neutral-500">No photos yet.</p>}
+  const strips = stripsOf(frames, FRAMES_PER_STRIP);
 
-      <ul className="grid grid-cols-4 gap-0.5 sm:grid-cols-6 lg:grid-cols-8">
-        {frames.map((frame, frameIndex) => (
-          <li key={frame.id}>
-            <Frame
-              photo={frame}
-              eager={frameIndex < CONTACT_SHEET_EAGER_FRAMES}
-              onOpen={() => setIndex(frameIndex)}
-            />
-          </li>
+  return (
+    <div className="contact-sheet w-full">
+      {frames.length === 0 && <p className="px-4 py-8 text-sm text-neutral-400">No photos yet.</p>}
+
+      <div className="film-roll">
+        {strips.map((strip, stripIndex) => (
+          <section key={strip[0]?.id ?? stripIndex} className="film-strip" aria-label="Film strip">
+            <div className="film-strip-body">
+              <div className="film-sprockets" aria-hidden="true" />
+              <div className="film-gates">
+                {strip.map((frame, offset) => {
+                  const frameIndex = stripIndex * FRAMES_PER_STRIP + offset;
+                  return (
+                    <Frame
+                      key={frame.id}
+                      photo={frame}
+                      eager={frameIndex < CONTACT_SHEET_EAGER_FRAMES}
+                      onOpen={() => setIndex(frameIndex)}
+                    />
+                  );
+                })}
+              </div>
+              <div className="film-sprockets" aria-hidden="true" />
+            </div>
+          </section>
         ))}
-      </ul>
+      </div>
 
       {photo && (
         <Lightbox

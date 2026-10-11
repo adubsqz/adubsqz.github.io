@@ -27,6 +27,15 @@ describe('GalleryView', () => {
       expect(frame.getAttribute('aria-label') ?? '').not.toMatch(CATEGORY_LABEL);
     });
     expect(document.querySelectorAll('.contact-frame')).toHaveLength(allPhotos.length);
+    expect(document.querySelectorAll('.film-strip').length).toBeGreaterThan(1);
+    expect(document.querySelectorAll('.film-sprockets').length).toBeGreaterThan(0);
+    expect(screen.queryByText('KODAK')).not.toBeInTheDocument();
+    const names = [...document.querySelectorAll('.film-frame-name')].map((el) => el.textContent ?? '');
+    expect(names.some((name) => name.length > 0)).toBe(true);
+    names.forEach((name) => {
+      expect(name).not.toMatch(/^Photograph\b/i);
+      expect(name).not.toMatch(/^(bw|color|redscale|people|greyscale|portraits)$/i);
+    });
     expect(document.querySelector('.contact-thumbs')).toBeNull();
   });
 

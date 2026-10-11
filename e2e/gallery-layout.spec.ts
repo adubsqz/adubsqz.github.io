@@ -19,7 +19,7 @@ for (const vp of VIEWPORTS) {
       const sheet = page.locator('.contact-sheet');
       await expect(sheet).toBeVisible();
       const bg = await sheet.evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(bg).toBe('rgb(255, 255, 255)');
+      expect(bg).toBe('rgb(12, 12, 12)');
 
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
@@ -28,8 +28,9 @@ for (const vp of VIEWPORTS) {
 
       const frames = page.locator('.contact-frame');
       expect(await frames.count()).toBeGreaterThan(8);
-      const columns = await page.locator('.contact-sheet ul').evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-      expect(columns, `${vp.name} sheet is a single column`).toBeGreaterThan(1);
+      expect(await page.locator('.film-strip').count()).toBeGreaterThan(1);
+      expect(await page.locator('.film-sprockets').count()).toBeGreaterThan(0);
+      await expect(page.getByText('KODAK')).toHaveCount(0);
     });
 
     test('lets the header scroll away', async ({ page }) => {
