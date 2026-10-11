@@ -2,7 +2,8 @@
 /**
  * Apply gallery photo Cache Rules on adubs.site via Cloudflare Rulesets API.
  *
- * Token needs: Zone → Cache Rules → Edit, Zone → Zone → Read
+ * Token needs: Zone → Cache Rules → Edit, Zone → Zone Settings → Edit,
+ * Zone → Zone → Read (cf OAuth login also works via CLOUDFLARE_API_TOKEN).
  * Create: https://dash.cloudflare.com/profile/api-tokens
  *
  *   CLOUDFLARE_API_TOKEN=… npm run hosting:photo-cache-rules
@@ -95,6 +96,7 @@ async function main() {
 2) Create Token → Custom token
 3) Permissions:
      Zone → Cache Rules → Edit
+     Zone → Zone Settings → Edit
      Zone → Zone → Read
 4) Zone Resources: Include → Specific zone → ${ZONE_NAME}
 5) Create, copy token, then:
@@ -109,6 +111,13 @@ async function main() {
   if (!zone?.id) throw new Error(`Zone not found for this token: ${ZONE_NAME}`);
   console.log(`zone ${ZONE_NAME} id=${zone.id}`);
 
+  // Free plan: zone Browser Cache TTL wins over Cache Rule browser_ttl / Transform
+  // rewrites for the Cache-Control header clients see. Keep it aligned with MAX_AGE.
+  const browserTtl = await cf(token, 'PATCH', `/zones/${zone.id}/settings/browser_cache_ttl`, {
+    value: MAX_AGE,
+  });
+  console.log(`zone browser_cache_ttl => ${browserTtl.value}`);
+
   await ensurePhaseRule(token, zone.id, 'http_request_cache_settings', {
     rulesetName: 'Gallery photo cache settings',
     description: 'Gallery photos — cache at edge',
@@ -117,19 +126,21 @@ async function main() {
     action_parameters: {
       cache: true,
       edge_ttl: { mode: 'override_origin', default: MAX_AGE },
+      browser_ttl: { mode: 'override_origin', default: MAX_AGE },
       serve_stale: { disable_stale_while_updating: false },
     },
   });
 
+  // Cache Response Rules use operation/value objects (not bare booleans/numbers).
   await ensurePhaseRule(token, zone.id, 'http_response_cache_settings', {
     rulesetName: 'Gallery photo cache response',
     description: 'Gallery photos — browser Cache-Control',
     expression: EXPRESSION,
     action: 'set_cache_control',
     action_parameters: {
-      public: true,
-      'max-age': MAX_AGE,
-      'stale-while-revalidate': SWR,
+      public: { operation: 'set' },
+      'max-age': { operation: 'set', value: MAX_AGE },
+      'stale-while-revalidate': { operation: 'set', value: SWR },
     },
   });
 

@@ -20,9 +20,11 @@ Long-lived caching requires **Cloudflare in front of GitHub Pages** (orange-clou
 
 See also `docs/ai-crawler-controls.md` (proxy / TLS runbook) and `src/site.ts` (DNS notes).
 
-## Recommended Cloudflare rules (Free plan)
+## Recommended Cloudflare settings (Free plan)
 
-Use **two** rules. Do **not** set `s-maxage` on these responses — it disables `stale-while-revalidate` at Cloudflare.
+On Free, the zone **Browser Cache TTL** (`Caching → Configuration`) is what clients actually see as `Cache-Control: max-age=…`. Cache Rules’ `browser_ttl` and Transform rewrites of `Cache-Control` did **not** change the header while zone TTL stayed at GitHub’s `14400`. Set zone Browser Cache TTL to **7 days (604800)** (the apply script does this). HTML/CSS from GitHub still often ship their own shorter `max-age` (e.g. `600` for `/`).
+
+Also use **two** rules below. Do **not** set `s-maxage` on these responses — it disables `stale-while-revalidate` at Cloudflare.
 
 ### 1. Cache rule (request phase)
 
@@ -62,14 +64,16 @@ Cache response rules run **before** Cloudflare caches the origin response, so ed
 
 The Cursor Cloudflare MCP session is **read-only** (no Cache Rules Edit). Use a short-lived API token:
 
-1. [Create API token](https://dash.cloudflare.com/profile/api-tokens) → Custom → **Zone / Cache Rules / Edit** + **Zone / Zone / Read**, zone `adubs.site`.
+1. Auth (either):
+   - `cf auth login` then export the OAuth token as `CLOUDFLARE_API_TOKEN`, or
+   - [Create API token](https://dash.cloudflare.com/profile/api-tokens) → Custom → **Zone / Cache Rules / Edit** + **Zone / Zone Settings / Edit** + **Zone / Zone / Read**, zone `adubs.site`.
 2. Run (token is not stored in the repo):
 
 ```bash
 CLOUDFLARE_API_TOKEN='…' npm run hosting:photo-cache-rules
 ```
 
-That script (`hosting/apply-photo-cache-rules.mjs`) upserts both rules via the Rulesets API and keeps any other rules already in those phases.
+That script sets zone `browser_cache_ttl` to 604800 and upserts both rules via the Rulesets API (keeps any other rules already in those phases).
 
 ## After republishing photos
 
@@ -90,7 +94,7 @@ curl -sI 'https://adubs.site/photos/still-life/color/cheers.jpg' \
 Expect:
 
 - `server: cloudflare` and a `cf-ray` (proxy on)
-- `cache-control: public, max-age=604800, stale-while-revalidate=86400` (after response rule)
+- `cache-control: max-age=604800` (zone Browser Cache TTL; response rule may also add `public` / SWR when the plan honors it)
 - Repeat request: `cf-cache-status: HIT` (after warm-up)
 
 ## Local dev / preview parity
