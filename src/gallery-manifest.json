@@ -104,6 +104,14 @@
       "master_height": 4181,
       "original_path": "30570008.JPG",
       "master_bytes": 18729484
+    },
+    {
+      "path": "bw/sidewalk-shadows.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "57530002.JPG",
+      "master_bytes": 28322315
     }
   ],
   "color": [
@@ -222,6 +230,30 @@
       "master_height": 4492,
       "original_path": "000331950015.jpg",
       "master_bytes": 8594856
+    },
+    {
+      "path": "color/brick-gothic-church.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "10860022.JPG",
+      "master_bytes": 27863028
+    },
+    {
+      "path": "color/nitehawk-marquee.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "67430021.JPG",
+      "master_bytes": 15645408
+    },
+    {
+      "path": "color/sand-hill-jump.jpg",
+      "orientation": "horizontal",
+      "master_width": 3091,
+      "master_height": 2048,
+      "original_path": "000076080027.jpg",
+      "master_bytes": 4260693
     }
   ],
   "redscale": [
@@ -349,6 +381,14 @@
     "people/bandana-night.jpg",
     "people/backyard-gold.jpg",
     "people/fdr-bridge-portrait.jpg",
-    "people/headphones-desk.jpg"
+    "people/headphones-desk.jpg",
+    {
+      "path": "people/yellow-dress-chairs.jpg",
+      "orientation": "vertical",
+      "master_width": 4492,
+      "master_height": 6774,
+      "original_path": "18660011.JPG",
+      "master_bytes": 10136275
+    }
   ]
 }

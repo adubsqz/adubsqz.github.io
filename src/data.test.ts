@@ -72,8 +72,8 @@ describe('data', () => {
     it('keeps scan-id stills that already live in a category folder', () => {
       const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
       const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
-      expect(greyscale?.photos.length).toBe(15);
-      expect(color?.photos.length).toBe(17);
+      expect(greyscale?.photos.length).toBe(16);
+      expect(color?.photos.length).toBe(20);
       expect(greyscale?.photos.some((p) => p.src.includes('30570008-kiln'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('000331950015-ember'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('colorfulstairs'))).toBe(true);
@@ -135,7 +135,7 @@ describe('data', () => {
       expect(people).toBeDefined();
       const srcs = (people?.photos ?? []).map((p) => p.src);
       expect(srcs.some((src) => /sangerhall\.jpg$/.test(src))).toBe(true);
-      expect(people?.photos).toHaveLength(13);
+      expect(people?.photos).toHaveLength(14);
 
       const byStem = Object.fromEntries(
         (people?.photos ?? []).map((p) => {
