@@ -14,6 +14,8 @@ compatibility_date = "2026-10-01"
 workers_dev = false
 
 # Worker runs in front of the existing GitHub Pages origin (proxied DNS required).
+# If deploy fails with "Could not find zone", pin account/zone via env — see AUTOMATION.md
+# (CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_ZONE_ID). Do not commit those IDs unless you want to.
 [[routes]]
 pattern = "adubs.site/photos/*"
 zone_name = "adubs.site"

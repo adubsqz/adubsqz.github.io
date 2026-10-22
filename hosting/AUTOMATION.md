@@ -66,6 +66,17 @@ npm run hosting:photo-gate:deploy              # dry-run + orange-cloud check
 npm run hosting:photo-gate:deploy -- --apply   # wrangler deploy
 ```
 
+If deploy uploads the Worker but fails with **Could not find zone for `adubs.site`**,
+Wrangler is on the wrong Cloudflare account (DNS can still show `cf-ray`). Fix:
+
+```bash
+npx wrangler whoami
+# Dashboard → account that owns adubs.site → Overview → copy Account ID + Zone ID
+export CLOUDFLARE_ACCOUNT_ID='…'
+export CLOUDFLARE_ZONE_ID='…'
+npm run hosting:photo-gate:deploy -- --apply
+```
+
 Then bake the SPA flag into Pages builds (GitHub Actions secret + `.env.local`):
 
 ```bash
