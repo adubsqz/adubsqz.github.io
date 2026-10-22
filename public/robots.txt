@@ -1,9 +1,12 @@
 # adubsqz — photography (https://adubs.site)
 #
-# Posture: conventional search engines may index the landing page. Nothing here
-# is offered for AI training, for AI grounding/retrieval, or to browser-use
-# agents. The gallery itself sits behind a password gate, so the photo
-# directory is closed to every crawler — there is no discovery value in it.
+# Sitemap: https://adubs.site/sitemap.xml
+#
+# Posture: conventional search engines may index the landing page and local
+# SEO pages (colorado-springs.html, nyc.html). Nothing here is offered for AI
+# training, for AI grounding/retrieval, or to browser-use agents. The gallery
+# itself sits behind a password gate, so the photo directory is closed to every
+# crawler — there is no discovery value in it.
 #
 # robots.txt is a stated preference, not an access control. Crawlers that
 # ignore it are handled at the network edge instead; see
@@ -39,6 +42,8 @@
 User-agent: *
 Content-Signal: search=yes, ai-input=no, ai-train=no, use=reference
 Allow: /
+Allow: /colorado-springs.html
+Allow: /nyc.html
 Disallow: /photos/
 
 # --- AI training and dataset collection -------------------------------------
