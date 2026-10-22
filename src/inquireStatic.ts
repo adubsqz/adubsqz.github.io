@@ -4,6 +4,8 @@ import type { Photo } from './types';
 /** FormSubmit hash from the activation email — required after confirm, not the naked inbox. */
 export const FORMSUBMIT_FORM_ID = '9e5f95e3027a5d9d5fd6e84de3e2ebf4';
 
+export const LOOKBOOK_ACCESS_SUBJECT = 'Lookbook access / print inquiry';
+
 export type InquirePayload = {
   photo: Photo;
   name: string;
@@ -23,6 +25,18 @@ export type ContactPayload = {
   subject: string;
   message: string;
   inquiryCode?: string;
+};
+
+export type InquiryResult = {
+  ok: boolean;
+  statusMessage: string;
+  mailtoFallbackUrl: string;
+  inquiryCode: string;
+};
+
+export type SubmitInquiryOptions = {
+  /** When false, skip `window.location = mailto:` so the UI can show the link. Default true. */
+  openMailtoOnFailure?: boolean;
 };
 
 export function contactPrefillForPhoto(photo: Pick<Photo, 'id' | 'alt'>): { subject: string; message: string } {
@@ -88,14 +102,19 @@ function formsubmitAjaxUrl(endpoint: string): string {
   return `https://formsubmit.co/ajax/${slug}`;
 }
 
-function mailtoHref(subject: string, body: string): string {
+export function mailtoHref(subject: string, body: string): string {
   return `mailto:${inbox()}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
+/**
+ * FormSubmit returns HTTP 200 with `{ success: "false", message: "…" }` when the
+ * form is unactivated — a bare `response.ok` check would treat that as success.
+ */
 function remoteSucceeded(res: Response, data: unknown): boolean {
   if (!res.ok) return false;
   if (!data || typeof data !== 'object') return false;
   const success = (data as { success?: unknown }).success;
+  if (success === false || success === 'false') return false;
   return success === true || success === 'true';
 }
 
@@ -176,17 +195,100 @@ function assignMailto(subject: string, body: string): void {
   window.location.href = mailtoHref(subject, body);
 }
 
-export async function submitContactMessage(p: ContactPayload): Promise<void> {
-  const inquiryCode = p.inquiryCode ?? newInquiryCode();
-  const body = `Inquiry #: ${inquiryCode}\nFrom: ${p.name} (${p.email})\n\n${p.message}`;
-  if (await tryRemoteSubmit(p.name, p.email, p.subject, body, inquiryCode)) return;
-  assignMailto(`${p.subject} [${inquiryCode}]`, body);
+function successResult(inquiryCode: string, mailtoFallbackUrl: string): InquiryResult {
+  return {
+    ok: true,
+    statusMessage: sentConfirmationHint(''),
+    mailtoFallbackUrl,
+    inquiryCode,
+  };
 }
 
-export async function submitPrintInquiry(p: InquirePayload): Promise<void> {
+function failureResult(
+  inquiryCode: string,
+  subject: string,
+  body: string,
+  openMailtoOnFailure: boolean,
+  statusMessage: string,
+): InquiryResult {
+  const mailtoFallbackUrl = mailtoHref(subject, body);
+  if (openMailtoOnFailure) assignMailto(subject, body);
+  return {
+    ok: false,
+    statusMessage,
+    mailtoFallbackUrl,
+    inquiryCode,
+  };
+}
+
+export async function submitContactMessage(
+  p: ContactPayload,
+  options: SubmitInquiryOptions = {},
+): Promise<InquiryResult> {
+  const openMailtoOnFailure = options.openMailtoOnFailure !== false;
+  const inquiryCode = p.inquiryCode ?? newInquiryCode();
+  const body = `Inquiry #: ${inquiryCode}\nFrom: ${p.name} (${p.email})\n\n${p.message}`;
+  const subjectWithCode = `${p.subject} [${inquiryCode}]`;
+  const mailtoFallbackUrl = mailtoHref(subjectWithCode, body);
+
+  if (await tryRemoteSubmit(p.name, p.email, p.subject, body, inquiryCode)) {
+    return {
+      ...successResult(inquiryCode, mailtoFallbackUrl),
+      statusMessage: sentConfirmationHint(p.email),
+    };
+  }
+
+  return failureResult(
+    inquiryCode,
+    subjectWithCode,
+    body,
+    openMailtoOnFailure,
+    'Form relay could not confirm delivery. Use the direct email link below.',
+  );
+}
+
+export async function submitPrintInquiry(
+  p: InquirePayload,
+  options: SubmitInquiryOptions = {},
+): Promise<InquiryResult> {
+  const openMailtoOnFailure = options.openMailtoOnFailure !== false;
   const inquiryCode = p.inquiryCode ?? newInquiryCode();
   const subject = `Print inquiry: ${p.photo.alt || p.photo.id}`;
   const body = bodyText(p, inquiryCode);
-  if (await tryRemoteSubmit(p.name, p.email, subject, body, inquiryCode)) return;
-  assignMailto(`${subject} [${inquiryCode}]`, body);
+  const subjectWithCode = `${subject} [${inquiryCode}]`;
+  const mailtoFallbackUrl = mailtoHref(subjectWithCode, body);
+
+  if (await tryRemoteSubmit(p.name, p.email, subject, body, inquiryCode)) {
+    return {
+      ...successResult(inquiryCode, mailtoFallbackUrl),
+      statusMessage: sentConfirmationHint(p.email),
+    };
+  }
+
+  return failureResult(
+    inquiryCode,
+    subjectWithCode,
+    body,
+    openMailtoOnFailure,
+    'Form relay could not confirm delivery. Use the direct email link below.',
+  );
+}
+
+/** Gate-screen outreach: lookbook key, print quote, or licensing — no unlock required. */
+export async function submitLookbookAccessRequest(
+  p: Pick<ContactPayload, 'name' | 'email' | 'message'> & { inquiryCode?: string },
+): Promise<InquiryResult> {
+  const message =
+    p.message.trim() ||
+    'Requesting lookbook access, an archival print quote, or a licensing conversation.';
+  return submitContactMessage(
+    {
+      name: p.name.trim(),
+      email: p.email.trim(),
+      subject: LOOKBOOK_ACCESS_SUBJECT,
+      message,
+      inquiryCode: p.inquiryCode,
+    },
+    { openMailtoOnFailure: false },
+  );
 }

@@ -14,13 +14,21 @@ const JWT_SECRET = 'adubsqz-gallery-hs256';
 
 const PUBLIC_HOSTS = new Set(['adubs.site', 'www.adubs.site']);
 
+/** Survives Private / in-app browsers that throw on localStorage. Lost on reload. */
+let memoryJwt: string | null = null;
+
 export function galleryGateBypassed(): boolean {
   if (typeof window !== 'undefined' && PUBLIC_HOSTS.has(window.location.hostname)) return false;
   return import.meta.env.VITE_E2E === '1';
 }
 
+/** Strip mobile keyboard noise before comparing (iOS often yields "Sqz" / trailing space). */
+export function normalizeGalleryPassword(password: string): string {
+  return password.trim().toLowerCase();
+}
+
 export async function mintGalleryJwt(password: string): Promise<string | null> {
-  if (!passwordsMatch(password, GALLERY_PASSWORD)) return null;
+  if (!passwordsMatch(normalizeGalleryPassword(password), GALLERY_PASSWORD)) return null;
   const nowSec = Math.floor(Date.now() / 1000);
   const payload = utf8ToBase64Url(
     JSON.stringify({
@@ -57,21 +65,24 @@ export async function verifyGalleryJwt(token: string): Promise<boolean> {
 export function readStoredGalleryJwt(): string | null {
   try {
     const value = window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY);
-    return value && value.trim() ? value.trim() : null;
+    if (value && value.trim()) return value.trim();
   } catch {
-    return null;
+    // Private mode / Instagram in-app can block storage reads.
   }
+  return memoryJwt && memoryJwt.trim() ? memoryJwt.trim() : null;
 }
 
 export function writeStoredGalleryJwt(token: string): void {
+  memoryJwt = token;
   try {
     window.localStorage.setItem(GALLERY_JWT_STORAGE_KEY, token);
   } catch {
-    // Private mode can throw; session is lost on reload.
+    // Keep memoryJwt so this tab stays unlocked when localStorage is blocked.
   }
 }
 
 export function clearStoredGalleryJwt(): void {
+  memoryJwt = null;
   try {
     window.localStorage.removeItem(GALLERY_JWT_STORAGE_KEY);
   } catch {

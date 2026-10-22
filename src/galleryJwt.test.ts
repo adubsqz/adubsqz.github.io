@@ -13,12 +13,14 @@ import {
 
 describe('galleryJwt', () => {
   beforeEach(() => {
+    clearStoredGalleryJwt();
     window.localStorage.clear();
     vi.useRealTimers();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    clearStoredGalleryJwt();
     window.localStorage.clear();
   });
 
@@ -87,11 +89,30 @@ describe('galleryJwt', () => {
     expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
   });
 
-  it('does not mint for empty, padded, or wrong-case passwords', async () => {
+  it('rejects empty or wrong passwords but accepts trimmed / case-folded input', async () => {
     expect(await mintGalleryJwt('')).toBeNull();
-    expect(await mintGalleryJwt(' sqz ')).toBeNull();
-    expect(await mintGalleryJwt('SQZ')).toBeNull();
+    expect(await mintGalleryJwt('nope')).toBeNull();
+    expect(await mintGalleryJwt(' sqz ')).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+    expect(await mintGalleryJwt('SQZ')).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
     expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('keeps an in-memory session when localStorage throws', async () => {
+    const token = await mintGalleryJwt('sqz');
+    expect(token).toBeTruthy();
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    writeStoredGalleryJwt(token!);
+    expect(readStoredGalleryJwt()).toBe(token);
+    expect(await hasValidGallerySession()).toBe(true);
+    clearStoredGalleryJwt();
+    expect(readStoredGalleryJwt()).toBeNull();
+    setItem.mockRestore();
+    getItem.mockRestore();
   });
 
   it('round-trips a stored token until it is cleared', async () => {

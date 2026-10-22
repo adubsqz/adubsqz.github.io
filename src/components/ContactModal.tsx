@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { sentConfirmationHint, submitContactMessage } from '../inquireStatic';
+import {
+  sentConfirmationHint,
+  submitContactMessage,
+  type InquiryResult,
+} from '../inquireStatic';
 import { FilmTvClearanceBlock, RightsReservedBlock, TearsheetAndFulfillmentGrid } from './LicensingDetails';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
@@ -19,12 +23,14 @@ export default function ContactModal({ onClose, initialSubject = '', initialMess
   const [content, setContent] = useState(initialMessage);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [result, setResult] = useState<InquiryResult | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await submitContactMessage({ name, email, subject, message: content });
+      const outcome = await submitContactMessage({ name, email, subject, message: content });
+      setResult(outcome);
       setSent(true);
     } finally {
       setIsSubmitting(false);
@@ -42,9 +48,19 @@ export default function ContactModal({ onClose, initialSubject = '', initialMess
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Message sent</DialogTitle>
             <DialogDescription className="text-sm text-photo-muted">
-              {sentConfirmationHint(email)}
+              {result?.ok === false
+                ? `${sentConfirmationHint(email)} ${result.statusMessage}`
+                : sentConfirmationHint(email)}
             </DialogDescription>
           </DialogHeader>
+          {result?.mailtoFallbackUrl ? (
+            <a
+              href={result.mailtoFallbackUrl}
+              className="mt-4 block text-sm text-photo-fg underline underline-offset-4"
+            >
+              Prefer direct email? Open in your mail app →
+            </a>
+          ) : null}
           <Button type="button" className="mt-6" onClick={onClose}>
             Close
           </Button>

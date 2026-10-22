@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Photo } from '../types';
-import { submitPrintInquiry } from '../inquireStatic';
+import { submitPrintInquiry, type InquiryResult } from '../inquireStatic';
 import {
   defaultPrintSize,
   MORE_SIZING_OPTIONS_HINT,
@@ -45,6 +45,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitResult, setSubmitResult] = useState<InquiryResult | null>(null);
 
   useEffect(() => {
     setNotes(initialNotes ?? '');
@@ -59,7 +60,7 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
 
     try {
       const size = printSize === 'custom' ? customSize : printSize;
-      await submitPrintInquiry({
+      const outcome = await submitPrintInquiry({
         photo,
         name,
         email,
@@ -70,7 +71,12 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
         printFinish,
         notes,
       });
+      setSubmitResult(outcome);
+      // Remote fail still opens mailto by default — treat as submitted for the visitor.
       setSubmitStatus('success');
+      if (!outcome.ok) {
+        setSubmitError(outcome.statusMessage);
+      }
       setTimeout(() => {
         onClose();
       }, 2000);
@@ -95,6 +101,14 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
             <p className="text-photo-muted text-sm">
               Thank you for your interest. I&apos;ll review your request and send an invoice via email shortly.
             </p>
+            {submitResult?.mailtoFallbackUrl ? (
+              <a
+                href={submitResult.mailtoFallbackUrl}
+                className="block text-sm text-photo-fg underline underline-offset-4"
+              >
+                Prefer direct email? Open in your mail app →
+              </a>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
@@ -321,10 +335,18 @@ export default function InquiryModal({ photo, initialNotes, onClose }: InquiryMo
           </div>
 
           {submitStatus === 'error' && (
-            <div className="p-3 bg-white/[0.04] border border-photo-border/60 rounded-lg">
+            <div className="space-y-2 p-3 bg-white/[0.04] border border-photo-border/60 rounded-lg">
               <p className="text-sm text-photo-muted">
                 {submitError ?? 'There was an error submitting your inquiry. Please try again or contact directly.'}
               </p>
+              {submitResult?.mailtoFallbackUrl ? (
+                <a
+                  href={submitResult.mailtoFallbackUrl}
+                  className="block text-sm text-photo-fg underline underline-offset-4"
+                >
+                  Send directly via your mail app →
+                </a>
+              ) : null}
             </div>
           )}
 

@@ -2,8 +2,10 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   submitPrintInquiry,
   submitContactMessage,
+  submitLookbookAccessRequest,
   contactPrefillForPhoto,
   FORMSUBMIT_FORM_ID,
+  LOOKBOOK_ACCESS_SUBJECT,
   newInquiryCode,
   sentConfirmationHint,
   type InquirePayload,
@@ -190,13 +192,75 @@ describe('submitContactMessage', () => {
     vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', '');
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     stubLocation();
-    await submitContactMessage({
+    const result = await submitContactMessage({
       name: 'Jane',
       email: 'jane@example.com',
       subject: 'Hello',
       message: 'Hi there',
     });
+    expect(result.ok).toBe(false);
     expect(window.location.href).toContain('mailto:adubsqz@gmail.com');
     expect(window.location.href).toContain(encodeURIComponent('Hello'));
+    expect(result.mailtoFallbackUrl).toContain('mailto:adubsqz@gmail.com');
+  });
+
+  it('treats FormSubmit activation failures as not ok', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', '');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: 'false', message: 'This form needs Activation' }),
+      }),
+    );
+    stubLocation();
+    const result = await submitContactMessage({
+      name: 'Jane',
+      email: 'jane@example.com',
+      subject: 'Hello',
+      message: 'Hi there',
+    });
+    expect(result.ok).toBe(false);
+    expect(result.statusMessage).toMatch(/direct email/i);
+    expect(window.location.href).toContain('mailto:');
+  });
+});
+
+describe('submitLookbookAccessRequest', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('posts lookbook access mail without navigating to mailto on failure', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', '');
+    stubLocation();
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    const result = await submitLookbookAccessRequest({
+      name: 'Pat',
+      email: 'pat@example.com',
+      message: 'Need the lookbook key for a print quote.',
+    });
+    expect(result.ok).toBe(false);
+    expect(result.mailtoFallbackUrl).toContain('mailto:adubsqz@gmail.com');
+    expect(result.mailtoFallbackUrl).toContain(encodeURIComponent(LOOKBOOK_ACCESS_SUBJECT));
+    expect(window.location.href).not.toMatch(/^mailto:/);
+  });
+
+  it('succeeds through FormSubmit when activated', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', '');
+    stubLocation();
+    const fetchMock = okFetch();
+    vi.stubGlobal('fetch', fetchMock);
+    const result = await submitLookbookAccessRequest({
+      name: 'Pat',
+      email: 'pat@example.com',
+      message: '',
+    });
+    expect(result.ok).toBe(true);
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body._subject).toContain(LOOKBOOK_ACCESS_SUBJECT);
+    expect(body.message).toMatch(/lookbook access/i);
   });
 });

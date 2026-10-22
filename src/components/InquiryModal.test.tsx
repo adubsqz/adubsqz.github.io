@@ -197,7 +197,12 @@ describe('InquiryModal (unit)', () => {
   });
 
   it('submits through submitPrintInquiry (FormSubmit path), never Stripe', async () => {
-    const submitSpy = vi.spyOn(inquireStatic, 'submitPrintInquiry').mockResolvedValueOnce();
+    const submitSpy = vi.spyOn(inquireStatic, 'submitPrintInquiry').mockResolvedValueOnce({
+      ok: true,
+      statusMessage: 'ok',
+      mailtoFallbackUrl: 'mailto:adubsqz@gmail.com',
+      inquiryCode: 'ABC123XYZ',
+    });
     const user = userEvent.setup();
     render(<InquiryModal photo={photo} onClose={onClose} />);
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
