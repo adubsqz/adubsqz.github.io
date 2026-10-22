@@ -10,7 +10,6 @@ import {
   mintGalleryJwt,
   writeStoredGalleryJwt,
 } from '../galleryJwt';
-import { unlockEdgePhotoGate } from '../edgeGate';
 import { INSTAGRAM_URL } from '../site';
 
 interface PasswordGateProps {
