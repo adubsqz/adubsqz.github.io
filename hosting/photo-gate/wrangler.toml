@@ -30,6 +30,10 @@ zone_name = "adubs.site"
 pattern = "www.adubs.site/api/gate-unlock"
 zone_name = "adubs.site"
 
+# Secrets (not in this file):
+#   GATE_PASSWORD, GATE_HMAC_SECRET, GALLERY_JWT_SECRET
+# GALLERY_JWT_SECRET must match the SPA lookbook HMAC (src/galleryJwt.ts).
+
 [vars]
 COOKIE_NAME = "adubs_gate"
 TTL_SECONDS = "2592000"

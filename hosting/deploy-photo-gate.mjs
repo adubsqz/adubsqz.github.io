@@ -13,6 +13,7 @@
  * Secrets (once, not via this script):
  *   npx wrangler secret put GATE_PASSWORD --config hosting/photo-gate/wrangler.toml
  *   npx wrangler secret put GATE_HMAC_SECRET --config hosting/photo-gate/wrangler.toml
+ *   npx wrangler secret put GALLERY_JWT_SECRET --config hosting/photo-gate/wrangler.toml
  */
 
 import { execSync, spawnSync } from 'node:child_process';

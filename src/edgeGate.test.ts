@@ -43,6 +43,29 @@ describe('edgeGate', () => {
     });
   });
 
+  it('POSTs stored jwt for session restore', async () => {
+    vi.stubEnv('VITE_EDGE_PHOTO_GATE', '1');
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await unlockEdgePhotoGate({ jwt: 'hdr.payload.sig' });
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/gate-unlock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ jwt: 'hdr.payload.sig' }),
+      credentials: 'same-origin',
+    });
+  });
+
+  it('no-ops when payload has neither password nor jwt', async () => {
+    vi.stubEnv('VITE_EDGE_PHOTO_GATE', '1');
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    await unlockEdgePhotoGate({});
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('swallows network errors so SPA unlock still proceeds', async () => {
     vi.stubEnv('VITE_EDGE_PHOTO_GATE', '1');
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));

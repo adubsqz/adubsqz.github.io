@@ -87,10 +87,11 @@ describe('galleryJwt', () => {
     expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
   });
 
-  it('does not mint for empty, padded, or wrong-case passwords', async () => {
+  it('rejects empty or wrong passwords but accepts trimmed / case-folded input', async () => {
     expect(await mintGalleryJwt('')).toBeNull();
-    expect(await mintGalleryJwt(' sqz ')).toBeNull();
-    expect(await mintGalleryJwt('SQZ')).toBeNull();
+    expect(await mintGalleryJwt('nope')).toBeNull();
+    expect(await mintGalleryJwt(' sqz ')).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+    expect(await mintGalleryJwt('SQZ')).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
     expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
   });
 

@@ -19,8 +19,13 @@ export function galleryGateBypassed(): boolean {
   return import.meta.env.VITE_E2E === '1';
 }
 
+/** Strip mobile keyboard noise (iOS often yields "Sqz" / trailing space). */
+export function normalizeGalleryPassword(password: string): string {
+  return password.trim().toLowerCase();
+}
+
 export async function mintGalleryJwt(password: string): Promise<string | null> {
-  if (!passwordsMatch(password, GALLERY_PASSWORD)) return null;
+  if (!passwordsMatch(normalizeGalleryPassword(password), GALLERY_PASSWORD)) return null;
   const nowSec = Math.floor(Date.now() / 1000);
   const payload = utf8ToBase64Url(
     JSON.stringify({

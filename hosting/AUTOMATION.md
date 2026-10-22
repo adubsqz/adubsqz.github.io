@@ -16,9 +16,18 @@ Full TLS / proxy hazard context: [docs/ai-crawler-controls.md](../docs/ai-crawle
 ```bash
 npx wrangler secret put GATE_PASSWORD --config hosting/photo-gate/wrangler.toml
 npx wrangler secret put GATE_HMAC_SECRET --config hosting/photo-gate/wrangler.toml
+npx wrangler secret put GALLERY_JWT_SECRET --config hosting/photo-gate/wrangler.toml
 ```
 
-Use a long random `GATE_HMAC_SECRET`. Do not commit either secret.
+Use a long random `GATE_HMAC_SECRET`. `GALLERY_JWT_SECRET` must match the SPA
+lookbook JWT HMAC in `src/galleryJwt.ts` (needed so returning visitors with a
+valid localStorage JWT can mint the edge cookie without re-typing the password).
+Do not commit secrets.
+
+**Cache conflict:** public gallery Cache Rules (`hosting:photo-cache-rules`) and
+the photo-gate Worker fight each other. Once the Worker is live it sets
+`Cache-Control: private, no-store` and `cf.cacheTtl: 0` on authorized fetches.
+Until the Worker is deployed, photos remain publicly cacheable at the edge.
 
 ## Part 2 — Orange cloud (safe order)
 

@@ -1,11 +1,14 @@
 /**
  * Edge cookie gate for /photos/* in front of GitHub Pages.
  *
- * POST /api/gate-unlock — verify GATE_PASSWORD (trim+lower), set signed cookie
- * GET  /photos/*        — require cookie; else 403 no-store + X-Robots-Tag noai
+ * POST /api/gate-unlock — password or valid lookbook JWT → signed HttpOnly cookie
+ * GET|HEAD /photos/*    — require cookie; else 403 no-store + X-Robots-Tag noai
  *
  * Cookie value: `<exp>.<hex HMAC-SHA256 of "unlocked:<exp>" with GATE_HMAC_SECRET>`
  * Flags: HttpOnly; Secure; SameSite=Strict; Path=/
+ *
+ * Secrets (wrangler): GATE_PASSWORD, GATE_HMAC_SECRET, GALLERY_JWT_SECRET
+ * (GALLERY_JWT_SECRET must match the SPA lookbook JWT HMAC secret.)
  */
 
 const DENY_HEADERS = {
@@ -13,6 +16,13 @@ const DENY_HEADERS = {
   'X-Robots-Tag': 'noai, noimageai',
   'Content-Type': 'text/plain; charset=utf-8',
 };
+
+const ALLOWED_ORIGINS = new Set([
+  'https://adubs.site',
+  'https://www.adubs.site',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]);
 
 export default {
   async fetch(request, env) {
@@ -36,47 +46,51 @@ async function handleUnlock(request, env) {
     return new Response('Method not allowed', { status: 405, headers: DENY_HEADERS });
   }
 
+  if (!originAllowed(request)) {
+    return new Response('Forbidden', { status: 403, headers: DENY_HEADERS });
+  }
+
   const password = env.GATE_PASSWORD;
-  const secret = env.GATE_HMAC_SECRET;
-  if (!password || !secret) {
+  const cookieSecret = env.GATE_HMAC_SECRET;
+  const jwtSecret = env.GALLERY_JWT_SECRET;
+  if (!cookieSecret || (!password && !jwtSecret)) {
     return new Response('Gate not configured', { status: 503, headers: DENY_HEADERS });
   }
 
-  let submitted = '';
+  let submittedPassword = '';
+  let submittedJwt = '';
   const contentType = request.headers.get('content-type') || '';
   try {
     if (contentType.includes('application/json')) {
       const body = await request.json();
-      submitted = typeof body?.password === 'string' ? body.password : '';
+      submittedPassword = typeof body?.password === 'string' ? body.password : '';
+      submittedJwt = typeof body?.jwt === 'string' ? body.jwt : '';
     } else {
       const form = await request.formData();
-      const value = form.get('password');
-      submitted = typeof value === 'string' ? value : '';
+      const pw = form.get('password');
+      const jwt = form.get('jwt');
+      submittedPassword = typeof pw === 'string' ? pw : '';
+      submittedJwt = typeof jwt === 'string' ? jwt : '';
     }
   } catch {
     return new Response('Bad request', { status: 400, headers: DENY_HEADERS });
   }
 
-  if (!passwordsMatch(normalizePassword(submitted), normalizePassword(password))) {
+  let authorized = false;
+  if (submittedPassword && password) {
+    authorized = passwordsMatch(
+      normalizePassword(submittedPassword),
+      normalizePassword(password),
+    );
+  }
+  if (!authorized && submittedJwt && jwtSecret) {
+    authorized = await verifyGalleryJwt(submittedJwt, jwtSecret);
+  }
+  if (!authorized) {
     return new Response('Forbidden', { status: 403, headers: DENY_HEADERS });
   }
 
-  const cookieName = env.COOKIE_NAME || 'adubs_gate';
-  const ttl = Number.parseInt(env.TTL_SECONDS || '2592000', 10) || 2_592_000;
-  const exp = Math.floor(Date.now() / 1000) + ttl;
-  const sig = await hmacHex(secret, `unlocked:${exp}`);
-  const value = `${exp}.${sig}`;
-
-  const headers = new Headers({
-    'Cache-Control': 'no-store',
-    'Content-Type': 'application/json; charset=utf-8',
-  });
-  headers.append(
-    'Set-Cookie',
-    `${cookieName}=${value}; Path=/; Max-Age=${ttl}; HttpOnly; Secure; SameSite=Strict`,
-  );
-
-  return new Response(JSON.stringify({ ok: true, exp }), { status: 200, headers });
+  return mintGateCookieResponse(env, cookieSecret);
 }
 
 async function handlePhotos(request, env) {
@@ -96,14 +110,48 @@ async function handlePhotos(request, env) {
     return new Response('Forbidden', { status: 403, headers: DENY_HEADERS });
   }
 
-  const upstream = await fetch(request);
+  // Bypass Cloudflare edge cache for gated bytes (public Cache Rules must not leak).
+  const upstream = await fetch(request, {
+    cf: { cacheTtl: 0, cacheEverything: false },
+  });
   const headers = new Headers(upstream.headers);
-  headers.set('Cache-Control', 'private');
+  headers.set('Cache-Control', 'private, no-store');
+  headers.set('X-Robots-Tag', 'noai, noimageai, noindex, noimageindex');
   return new Response(upstream.body, {
     status: upstream.status,
     statusText: upstream.statusText,
     headers,
   });
+}
+
+async function mintGateCookieResponse(env, cookieSecret) {
+  const cookieName = env.COOKIE_NAME || 'adubs_gate';
+  const ttl = Number.parseInt(env.TTL_SECONDS || '2592000', 10) || 2_592_000;
+  const exp = Math.floor(Date.now() / 1000) + ttl;
+  const sig = await hmacHex(cookieSecret, `unlocked:${exp}`);
+  const value = `${exp}.${sig}`;
+
+  const headers = new Headers({
+    'Cache-Control': 'no-store',
+    'Content-Type': 'application/json; charset=utf-8',
+  });
+  headers.append(
+    'Set-Cookie',
+    `${cookieName}=${value}; Path=/; Max-Age=${ttl}; HttpOnly; Secure; SameSite=Strict`,
+  );
+
+  return new Response(JSON.stringify({ ok: true, exp }), { status: 200, headers });
+}
+
+function originAllowed(request) {
+  const origin = request.headers.get('Origin');
+  if (!origin) {
+    // Same-origin navigations may omit Origin; require Sec-Fetch-Site when present.
+    const site = request.headers.get('Sec-Fetch-Site');
+    if (!site || site === 'same-origin' || site === 'none') return true;
+    return false;
+  }
+  return ALLOWED_ORIGINS.has(origin);
 }
 
 function normalizePassword(value) {
@@ -147,6 +195,29 @@ async function verifyGateCookie(value, secret) {
   return passwordsMatch(sig.toLowerCase(), expected.toLowerCase());
 }
 
+/** Verify the SPA lookbook JWT (HS256, base64url) minted by src/galleryJwt.ts. */
+async function verifyGalleryJwt(token, secret) {
+  const parts = String(token).split('.');
+  if (parts.length !== 3) return false;
+  const [header, payload, sig] = parts;
+  if (!header || !payload || !sig) return false;
+
+  let headerObj;
+  let claims;
+  try {
+    headerObj = JSON.parse(base64UrlToUtf8(header));
+    claims = JSON.parse(base64UrlToUtf8(payload));
+  } catch {
+    return false;
+  }
+  if (headerObj?.alg !== 'HS256' || headerObj?.typ !== 'JWT') return false;
+  if (claims?.sub !== 'gallery' || typeof claims.exp !== 'number') return false;
+  if (claims.exp * 1000 <= Date.now()) return false;
+
+  const expected = await hmacBase64Url(secret, `${header}.${payload}`);
+  return passwordsMatch(sig, expected);
+}
+
 async function hmacHex(secret, message) {
   const key = await crypto.subtle.importKey(
     'raw',
@@ -157,4 +228,30 @@ async function hmacHex(secret, message) {
   );
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function hmacBase64Url(secret, message) {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
+  return bytesToBase64Url(new Uint8Array(sig));
+}
+
+function bytesToBase64Url(bytes) {
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function base64UrlToUtf8(value) {
+  const pad = value.length % 4 === 0 ? '' : '='.repeat(4 - (value.length % 4));
+  const binary = atob(value.replace(/-/g, '+').replace(/_/g, '/') + pad);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
 }
