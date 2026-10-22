@@ -1,0 +1,35 @@
+# Part 3: edge cookie gate for /photos/* in front of GitHub Pages.
+# Requires orange-cloud DNS (Part 2) before routes fire.
+#
+# Secrets (set once):
+#   npx wrangler secret put GATE_PASSWORD --config hosting/photo-gate/wrangler.toml
+#   npx wrangler secret put GATE_HMAC_SECRET --config hosting/photo-gate/wrangler.toml
+#
+# Deploy:
+#   npm run hosting:photo-gate:deploy
+
+name = "adubs-photo-gate"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+# Worker runs in front of the existing GitHub Pages origin (proxied DNS required).
+[[routes]]
+pattern = "adubs.site/photos/*"
+zone_name = "adubs.site"
+
+[[routes]]
+pattern = "www.adubs.site/photos/*"
+zone_name = "adubs.site"
+
+[[routes]]
+pattern = "adubs.site/api/gate-unlock"
+zone_name = "adubs.site"
+
+[[routes]]
+pattern = "www.adubs.site/api/gate-unlock"
+zone_name = "adubs.site"
+
+[vars]
+COOKIE_NAME = "adubs_gate"
+TTL_SECONDS = "2592000"

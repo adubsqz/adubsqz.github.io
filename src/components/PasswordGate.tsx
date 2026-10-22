@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import BrandMark from './BrandMark';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { unlockEdgePhotoGate } from '../edgeGate';
 import {
   clearStoredGalleryJwt,
   galleryGateBypassed,
@@ -19,7 +20,8 @@ interface PasswordGateProps {
  * GitHub Pages cannot mint HttpOnly cookies. Visitors type the lookbook
  * password, receive a 30-day HS256 JWT in localStorage, and re-enter when it
  * expires. No refresh. Do not print the password in the UI.
- * `VITE_E2E=1` skips the gate for Playwright.
+ * When `VITE_EDGE_PHOTO_GATE=1`, also POSTs to `/api/gate-unlock` for the
+ * Worker cookie (see hosting/AUTOMATION.md). `VITE_E2E=1` skips for Playwright.
  */
 export default function PasswordGate({ children }: PasswordGateProps) {
   const bypass = galleryGateBypassed();
@@ -79,6 +81,7 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         return;
       }
       writeStoredGalleryJwt(token);
+      await unlockEdgePhotoGate(password);
       setPassword('');
       setUnlocked(true);
     } catch {

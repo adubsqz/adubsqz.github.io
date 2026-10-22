@@ -140,3 +140,9 @@ See [SETUP.md](./SETUP.md) for the Pages inquiry path (FormSubmit / mailto) and 
 
 See [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for the AI crawler posture
 and the Cloudflare runbook.
+
+Edge automation (orange-cloud phases + photo-gate Worker): [hosting/AUTOMATION.md](./hosting/AUTOMATION.md).
+
+Ungated local SEO pages (outside the SPA password curtain):
+[`/colorado-springs.html`](https://adubs.site/colorado-springs.html),
+[`/nyc.html`](https://adubs.site/nyc.html).

@@ -111,6 +111,10 @@ records are grey-clouded.** `src/site.ts` records the DNS-only setup as intentio
 
 ## Turning the proxy on
 
+Repo automation for orange-cloud (Part 2) and the photo-gate Worker (Part 3) lives in
+`hosting/` — see **`hosting/AUTOMATION.md`**. Scripts default to dry-run; they do not flip
+production DNS until you pass `--apply`.
+
 This is a real decision with a real hazard, not a toggle.
 
 ### The certificate hazard
@@ -254,8 +258,9 @@ camera-roll numbers, but only manifest-listed files are deployed, so unlisted fr
 already return 404 — verified against `30570007`, `30570014` and `30570015`, all absent.
 Enumeration is not the exposure; the bundle is.
 
-The only real fix is a gatekeeper in front of the bytes: images in R2 behind a Worker
-checking signed, expiring URLs, or Cloudflare Access. Both need the proxy on. Short of
+The practical next step in this repo is the Part 3 Worker in `hosting/photo-gate/`
+(cookie gate on `/photos/*` after orange-cloud) — runbook in `hosting/AUTOMATION.md`.
+Stronger options remain images in R2 behind signed URLs or Cloudflare Access. Short of
 that, the remaining lever is `GALLERY_MAX_WIDTH` / `GALLERY_MAX_HEIGHT`: dropping the
 published cap below 2400px shrinks what a successful scrape is worth, at the cost of how
 the lookbook looks on a large display.
@@ -279,3 +284,15 @@ curl -sI https://adubs.site/ | grep -iE 'cf-ray|server|x-robots-tag'
 
 A `cf-ray` header appearing is the signal that the edge controls are live and the
 Cloudflare dashboard settings have started to mean something.
+
+## Automation (Parts 2–3)
+
+Dry-run-first scripts live under `hosting/` — see [hosting/AUTOMATION.md](../hosting/AUTOMATION.md).
+
+```bash
+CLOUDFLARE_API_TOKEN='…' npm run hosting:orange-cloud -- --dry-run
+npm run hosting:verify-edge
+npm run hosting:photo-gate:deploy          # dry-run; add --apply after orange-cloud
+```
+
+Do not flip DNS or deploy the Worker until you have read the TLS hazard section above.
