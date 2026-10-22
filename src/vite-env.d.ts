@@ -10,6 +10,4 @@ interface ImportMetaEnv {
   readonly VITE_FORMSUBMIT_EMAIL?: string;
   readonly VITE_WEB3FORMS_ACCESS_KEY?: string;
   readonly VITE_CF_BEACON_TOKEN?: string;
-  /** Set to `1` after photo-gate Worker is live (orange-cloud). */
-  readonly VITE_EDGE_PHOTO_GATE?: string;
 }
