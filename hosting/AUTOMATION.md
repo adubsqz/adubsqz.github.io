@@ -87,10 +87,35 @@ VITE_EDGE_PHOTO_GATE=1
 UI still works if the Worker is down; JPEGs stay unprotected until the Worker is
 live **and** DNS is orange-clouded.
 
+### CI deploy (push to `main`)
+
+[`.github/workflows/photo-gate.yml`](../.github/workflows/photo-gate.yml) runs on pushes to
+`main` that touch the Worker / deploy / verify scripts (and on **Actions → Photo gate →
+Run workflow**). It:
+
+1. `npm run hosting:photo-gate:deploy -- --apply`
+2. `HOSTING_VERIFY_EXPECT_PHOTO_403=1 npm run hosting:verify-edge` (sample photo must be 403 without a cookie)
+
+**GitHub Actions secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Required | Purpose |
+| --- | --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Yes | Token with Workers edit + zone read for `adubs.site` ([docs](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/)) |
+| `CLOUDFLARE_ACCOUNT_ID` | Yes | Account that owns the zone |
+| `CLOUDFLARE_ZONE_ID` | Recommended | Pins routes when Wrangler cannot resolve `zone_name` |
+| `VITE_EDGE_PHOTO_GATE` | For SPA unlock | Set to `1` so Pages builds call `/api/gate-unlock` (wired in `pages.yml`) |
+
+Worker **runtime** secrets (`GATE_PASSWORD`, `GATE_HMAC_SECRET`, `GALLERY_JWT_SECRET`) are
+**not** GitHub secrets — put them once with `wrangler secret put` (they survive code deploys).
+
+Until `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` exist, the Photo gate workflow fails
+loudly so a merge is not silently undelivered.
+
 ## Verify
 
 ```bash
 npm run hosting:verify-edge
+HOSTING_VERIFY_EXPECT_PHOTO_403=1 npm run hosting:verify-edge   # CI / after Worker live
 curl -sI https://adubs.site/photos/still-life/color/cheers.jpg   # 403 after Worker
 # unlock in browser, then:
 curl -sI -b 'adubs_gate=…' https://adubs.site/photos/still-life/color/cheers.jpg

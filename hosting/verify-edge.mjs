@@ -75,10 +75,15 @@ async function main() {
 
   const photo = await head(SAMPLE_PHOTO);
   const photoDetail = `status=${photo.status} cache-control=${photo.headers['cache-control'] || '?'} cf-cache-status=${photo.headers['cf-cache-status'] || 'none'}`;
-  if (!flag(photo.status === 200 || photo.status === 403, 'sample photo HEAD', photoDetail)) {
+  const expectGate403 = process.env.HOSTING_VERIFY_EXPECT_PHOTO_403 === '1';
+  if (expectGate403) {
+    if (!flag(photo.status === 403, 'sample photo HEAD (gate required)', photoDetail)) {
+      failures += 1;
+      console.log('    (expected 403 without cookie after photo-gate deploy)');
+    }
+  } else if (!flag(photo.status === 200 || photo.status === 403, 'sample photo HEAD', photoDetail)) {
     failures += 1;
-  }
-  if (photo.status === 403) {
+  } else if (photo.status === 403) {
     console.log('    (403 expected once photo-gate Worker is live without cookie)');
   }
 

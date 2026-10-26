@@ -21,8 +21,11 @@ Create `.env.local` in the repo root when you need overrides. None of these are 
 | `VITE_WEB3FORMS_ACCESS_KEY` | No | Optional public Web3Forms key |
 | `VITE_E2E` | Tests only | Set to `1` to skip the password gate in Playwright |
 | `VITE_CF_BEACON_TOKEN` | No | Cloudflare Web Analytics beacon; GitHub Actions secret of the same name for Pages builds |
+| `VITE_EDGE_PHOTO_GATE` | No | Set to `1` (Actions secret + local) so the SPA unlocks the photo-gate cookie after orange-cloud |
 | `GALLERY_PHOTO_PROMPT` | Gallery CLI only | Absolute path to the `photo-prompt` binary |
 | `GALLERY_ORIGINALS` | Backfill only | Override `~/photography/originals` when recording scan pixels |
+
+Photo-gate **Worker** deploys from [`.github/workflows/photo-gate.yml`](./.github/workflows/photo-gate.yml) on relevant `main` pushes. That job needs Actions secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (optional `CLOUDFLARE_ZONE_ID`). Details: [hosting/AUTOMATION.md](./hosting/AUTOMATION.md).
 
 Do not put Resend or Vercel keys in `.env` / `.env.example`. Rotate anything that was ever committed.
 

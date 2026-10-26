@@ -295,4 +295,9 @@ npm run hosting:verify-edge
 npm run hosting:photo-gate:deploy          # dry-run; add --apply after orange-cloud
 ```
 
+After orange-cloud is live and Worker secrets exist, merges that touch `hosting/photo-gate/`
+(or the deploy/verify scripts) run [`.github/workflows/photo-gate.yml`](../.github/workflows/photo-gate.yml)
+(`--apply` + live verify). See [hosting/AUTOMATION.md](../hosting/AUTOMATION.md) for the
+Actions secrets checklist.
+
 Do not flip DNS or deploy the Worker until you have read the TLS hazard section above.

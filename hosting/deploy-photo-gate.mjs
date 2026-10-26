@@ -15,7 +15,10 @@
  *   npm run hosting:photo-gate:deploy
  *   npm run hosting:photo-gate:deploy -- --apply
  *
- * Secrets (once, not via this script):
+ * CI: .github/workflows/photo-gate.yml runs `--apply` on relevant main pushes
+ * (needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID Actions secrets).
+ *
+ * Worker runtime secrets (once, not via this script or GitHub Actions):
  *   npx wrangler secret put GATE_PASSWORD --config hosting/photo-gate/wrangler.toml
  *   npx wrangler secret put GATE_HMAC_SECRET --config hosting/photo-gate/wrangler.toml
  *   npx wrangler secret put GALLERY_JWT_SECRET --config hosting/photo-gate/wrangler.toml
