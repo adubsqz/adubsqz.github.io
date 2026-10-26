@@ -1,0 +1,70 @@
+# Deploy the Cloudflare photo-gate Worker after merges to main, then live-verify.
+# Requires GitHub Actions secrets (see hosting/AUTOMATION.md):
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+# Optional: CLOUDFLARE_ZONE_ID (recommended when the token can see multiple zones)
+#
+# Worker runtime secrets (GATE_PASSWORD, GATE_HMAC_SECRET, GALLERY_JWT_SECRET)
+# stay in Wrangler — set once with `wrangler secret put`, not in this workflow.
+
+name: Photo gate
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - hosting/photo-gate/**
+      - hosting/deploy-photo-gate.mjs
+      - hosting/verify-edge.mjs
+      - .github/workflows/photo-gate.yml
+  workflow_dispatch:
+
+concurrency:
+  group: photo-gate
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install dig
+        run: sudo apt-get update && sudo apt-get install -y dnsutils
+
+      - name: Require Cloudflare deploy secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          missing=
+          [ -n "$CLOUDFLARE_API_TOKEN" ] || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Actions secrets:$missing"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            echo "See hosting/AUTOMATION.md (CI deploy)."
+            exit 1
+          fi
+
+      - name: Deploy photo-gate Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: npm run hosting:photo-gate:deploy -- --apply
+
+      - name: Verify live edge
+        env:
+          HOSTING_VERIFY_EXPECT_PHOTO_403: '1'
+        run: npm run hosting:verify-edge

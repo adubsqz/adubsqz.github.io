@@ -28,6 +28,8 @@ jobs:
       - run: npm run build
         env:
           VITE_CF_BEACON_TOKEN: ${{ secrets.VITE_CF_BEACON_TOKEN }}
+          # Set to 1 after photo-gate Worker is live (see hosting/AUTOMATION.md).
+          VITE_EDGE_PHOTO_GATE: ${{ secrets.VITE_EDGE_PHOTO_GATE }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
