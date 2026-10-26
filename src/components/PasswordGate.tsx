@@ -8,6 +8,7 @@ import {
   galleryGateBypassed,
   hasValidGallerySession,
   mintGalleryJwt,
+  readStoredGalleryJwt,
   writeStoredGalleryJwt,
 } from '../galleryJwt';
 import { INSTAGRAM_URL } from '../site';
@@ -34,7 +35,13 @@ export default function PasswordGate({ children }: PasswordGateProps) {
   useEffect(() => {
     if (bypass) return;
     let cancelled = false;
-    void hasValidGallerySession().then((ok) => {
+    void hasValidGallerySession().then(async (ok) => {
+      if (cancelled) return;
+      if (ok) {
+        // Session restore has no password — mint edge cookie via lookbook JWT.
+        const jwt = readStoredGalleryJwt();
+        if (jwt) await unlockEdgePhotoGate({ jwt });
+      }
       if (cancelled) return;
       setUnlocked(ok);
       setReady(true);
@@ -81,7 +88,7 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         return;
       }
       writeStoredGalleryJwt(token);
-      await unlockEdgePhotoGate(password);
+      await unlockEdgePhotoGate({ password, jwt: token });
       setPassword('');
       setUnlocked(true);
     } catch {
@@ -109,6 +116,9 @@ export default function PasswordGate({ children }: PasswordGateProps) {
             type="password"
             name="password"
             autoComplete="current-password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
