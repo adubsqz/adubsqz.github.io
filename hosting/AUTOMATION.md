@@ -108,8 +108,25 @@ Run workflow**). It:
 Worker **runtime** secrets (`GATE_PASSWORD`, `GATE_HMAC_SECRET`, `GALLERY_JWT_SECRET`) are
 **not** GitHub secrets — put them once with `wrangler secret put` (they survive code deploys).
 
-Until `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` exist, the Photo gate workflow fails
-loudly so a merge is not silently undelivered.
+If `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` are missing, the Photo gate workflow
+**skips deploy**, runs `npm run hosting:diagnose-edge`, and exits 0 so `main` stays green
+while zone/account ownership is fixed. Once secrets exist, deploy + strict verify run.
+
+### Zone vs Worker account split (common wait state)
+
+Symptoms:
+
+- Cloudflare login shows Worker `adubs-photo-gate` but **Domains is empty**
+- Live site still has `cf-ray` (zone lives on **another** account)
+- `curl -sI` photo → **200** (not 403); `POST /api/gate-unlock` → **404/405** HTML
+
+Fix: the account that lists **`adubs.site` under Domains** must also own the Worker.
+Do not recreate the repo; reconnect zone + Worker, then set Actions secrets and re-run
+**Photo gate**. Diagnose anytime:
+
+```bash
+npm run hosting:diagnose-edge
+```
 
 ## Verify
 
