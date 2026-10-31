@@ -30,14 +30,15 @@ test.describe('site', () => {
 
     await clickOpenPhoto(page);
     await expect(lightbox).toBeVisible();
-    await expect(lightbox.getByRole('button', { name: /request invoice/i })).toBeVisible();
+    await expect(lightbox.getByRole('button', { name: /request a print quote/i })).toBeVisible();
     await expect(lightbox.getByRole('button', { name: /licensing or hire/i })).toBeVisible();
     await expect(lightbox.getByRole('button', { name: /contact me/i })).toHaveCount(0);
     await expect(lightbox.getByText(/tearsheet/i)).toHaveCount(0);
-    await lightbox.getByRole('button', { name: /request invoice/i }).click();
-    const invoiceFromPhoto = page.getByRole('dialog', { name: /request invoice/i });
+    await lightbox.getByRole('button', { name: /request a print quote/i }).click();
+    const invoiceFromPhoto = page.getByRole('dialog', { name: /request a print quote/i });
     await expect(invoiceFromPhoto).toBeVisible();
     await expect(page.getByLabel(/shipping address/i)).toBeVisible();
+    await expect(page.getByText(/optional for now/i)).toBeVisible();
     await page.getByRole('button', { name: /cancel/i }).click();
     await expect(invoiceFromPhoto).toHaveCount(0);
 
@@ -46,7 +47,7 @@ test.describe('site', () => {
     await lightbox.getByRole('button', { name: /licensing or hire/i }).click();
     const contactFromPhoto = page.getByRole('dialog', { name: /contact/i });
     await expect(contactFromPhoto).toBeVisible();
-    await expect(page.getByRole('dialog', { name: /request invoice/i })).toHaveCount(0);
+    await expect(page.getByRole('dialog', { name: /request a print quote/i })).toHaveCount(0);
     await expect(page.getByLabel(/shipping address/i)).toHaveCount(0);
     await expect(page.getByLabel(/subject/i)).not.toHaveValue('');
     await expect(page.getByLabel(/message/i)).not.toHaveValue('');
@@ -58,7 +59,7 @@ test.describe('site', () => {
     await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
     await expect(page.getByText(/I take 35mm and medium format film photography/i)).toBeVisible();
     await expect(page.getByText(/AWS Certified AI Practitioner/i)).toBeVisible();
-    await expect(page.getByText(/Need prints, a license, or a site/i)).toBeVisible();
+    await expect(page.getByText(/Need a print, a license, or a site/i)).toBeVisible();
     await expect(page.getByText(/rights reserved/i)).toBeVisible();
     const instagram = page.getByRole('link', { name: /^instagram$/i });
     await expect(instagram).toBeVisible();
@@ -66,7 +67,7 @@ test.describe('site', () => {
     await expect(instagram).toHaveAttribute('target', '_blank');
     await expect(instagram).toHaveAttribute('rel', 'noopener noreferrer');
     await expect(page.getByRole('link', { name: SITE_HOST }).first()).toBeVisible();
-    await expect(page.getByAltText(/portrait/i)).toHaveCount(0);
+    await expect(page.getByAltText(/cayla holling|portrait/i)).toBeVisible();
 
     const talk = page.getByRole('button', { name: /let's talk/i });
     await expect(talk).toBeVisible();

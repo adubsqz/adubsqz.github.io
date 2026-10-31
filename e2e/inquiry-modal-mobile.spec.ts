@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Request Invoice sheet (mobile)', () => {
+test.describe('Print quote sheet (mobile)', () => {
   test.use({
     viewport: { width: 390, height: 844 },
     isMobile: true,
@@ -22,25 +22,27 @@ test.describe('Request Invoice sheet (mobile)', () => {
 
     const lightbox = page.getByRole('dialog', { name: /image lightbox/i });
     await expect(lightbox).toBeVisible();
-    const invoiceCta = lightbox.getByRole('button', { name: /request invoice/i });
+    const invoiceCta = lightbox.getByRole('button', { name: /request a print quote/i });
     const ctaBox = await invoiceCta.boundingBox();
-    expect(ctaBox, 'Request Invoice missing box').not.toBeNull();
-    expect(ctaBox!.height, 'Request Invoice tap target under 44px').toBeGreaterThanOrEqual(44);
+    expect(ctaBox, 'print quote CTA missing box').not.toBeNull();
+    expect(ctaBox!.height, 'print quote tap target under 44px').toBeGreaterThanOrEqual(44);
     await invoiceCta.click();
 
-    const invoice = page.getByRole('dialog', { name: /request invoice/i });
+    const invoice = page.getByRole('dialog', { name: /request a print quote/i });
     await expect(invoice).toBeVisible();
     await expect(invoice).toHaveAttribute('data-inquiry-sheet');
+    await expect(invoice.getByText(/film \+ tv clearance/i)).toBeVisible();
+    await expect(invoice.getByText(/^rights reserved$/i)).toBeVisible();
 
     const sheet = await invoice.boundingBox();
-    expect(sheet, 'invoice sheet missing box').not.toBeNull();
+    expect(sheet, 'quote sheet missing box').not.toBeNull();
     expect(sheet!.x, 'sheet not flush left').toBeLessThanOrEqual(1);
     expect(sheet!.y, 'sheet not flush top').toBeLessThanOrEqual(1);
     expect(sheet!.width, 'sheet narrower than the phone').toBeGreaterThanOrEqual(388);
     expect(sheet!.height, 'sheet shorter than the phone').toBeGreaterThanOrEqual(840);
 
     const overflow = await invoice.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
-    expect(overflow, 'invoice sheet has horizontal overflow').toBe(false);
+    expect(overflow, 'quote sheet has horizontal overflow').toBe(false);
 
     const close = invoice.getByRole('button', { name: /close/i });
     const closeBox = await close.boundingBox();
@@ -65,7 +67,7 @@ test.describe('Request Invoice sheet (mobile)', () => {
     await expect(page.getByText(/inquire via email for more sizing options/i)).toBeVisible();
 
     const cancel = page.getByRole('button', { name: /cancel/i });
-    const submit = page.getByRole('button', { name: /submit inquiry/i });
+    const submit = page.getByRole('button', { name: /send quote request/i });
     const cancelBox = await cancel.boundingBox();
     const submitBox = await submit.boundingBox();
     expect(cancelBox).not.toBeNull();
