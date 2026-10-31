@@ -46,7 +46,7 @@ describe('PasswordGate', () => {
     const field = await screen.findByLabelText(/password/i);
     expect(screen.queryByText('gallery')).not.toBeInTheDocument();
     await user.type(field, 'nope');
-    await user.click(screen.getByRole('button', { name: /enter/i }));
+    await user.click(screen.getByRole('button', { name: /enter lookbook/i }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/incorrect password/i);
     expect(screen.queryByText('gallery')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('adubsqz.gallery.jwt')).toBeNull();
@@ -54,7 +54,7 @@ describe('PasswordGate', () => {
 
     await user.clear(field);
     await user.type(field, 'sqz');
-    await user.click(screen.getByRole('button', { name: /enter/i }));
+    await user.click(screen.getByRole('button', { name: /enter lookbook/i }));
     expect(await screen.findByText('gallery')).toBeInTheDocument();
     expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument();
   });

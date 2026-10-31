@@ -287,6 +287,12 @@ export const ABOUT_IMAGE_SRC = aboutFilename
 
 export const COLLECTIONS: PhotoCollection[] = buildPublicCollections();
 
+/** Muted stills for the password curtain — first frame from each public bucket. */
+export const GATE_PREVIEW_SRCS: string[] = COLLECTIONS.flatMap((collection) => {
+  const first = collection.photos[0];
+  return first ? [first.sheetSrc || first.src] : [];
+}).slice(0, 4);
+
 export const ABOUT = {
   name: 'adubsqz',
   tagline: 'Photography',

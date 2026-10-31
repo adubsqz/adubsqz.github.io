@@ -117,18 +117,14 @@ function Lightbox({
       </div>
 
       <div className="flex flex-col items-center gap-1 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
-        <Button
-          type="button"
-          onClick={onRequestInvoice}
-          className="h-11 bg-neutral-950 px-8 text-white shadow-none hover:bg-neutral-800"
-        >
-          Request Invoice
+        <Button type="button" onClick={onRequestInvoice} variant="lightboxPrimary" className="h-11 px-8">
+          Request a print quote
         </Button>
         <Button
           type="button"
           onClick={onLicensing}
           variant="ghost"
-          className="h-9 px-3 text-sm font-normal text-neutral-500"
+          className="h-9 px-3 text-sm font-normal text-photo-muted"
         >
           Licensing or hire
         </Button>

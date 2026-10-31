@@ -11,8 +11,8 @@ describe('App', () => {
     expect(header).not.toHaveClass('sticky');
     expect(header?.className ?? '').not.toMatch(/\bsticky\b/);
     expect(header).toHaveAttribute('id', 'top');
-    expect(container.querySelector('main')?.className.split(' ')).toContain('bg-white');
-    expect(container.querySelector('.gallery-shell')?.className.split(' ')).toContain('bg-white');
+    expect(container.querySelector('main')?.className.split(' ')).toContain('bg-mcm-paper');
+    expect(container.querySelector('.gallery-shell')?.className.split(' ')).toContain('bg-mcm-paper');
     expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 

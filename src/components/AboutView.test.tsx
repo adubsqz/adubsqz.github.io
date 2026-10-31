@@ -13,12 +13,12 @@ describe('AboutView', () => {
       screen.getByText(/AWS Certified AI Practitioner/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/portfolio sites like this for pictures, video, and music/i)).toBeInTheDocument();
-    expect(screen.getByText(/Need prints, a license, or a site/i)).toBeInTheDocument();
+    expect(screen.getByText(/Need a print, a license, or a site/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i }).querySelector('.graffiti-label')).toBeNull();
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     expect(screen.getByText(/copyright © 2026 Alexander Ames/i)).toBeInTheDocument();
-    expect(screen.queryByAltText(/portrait/i)).not.toBeInTheDocument();
+    expect(screen.getByAltText(/portrait|cayla|photographer/i)).toBeInTheDocument();
     const instagram = screen.getByRole('link', { name: /^instagram$/i });
     expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
     expect(instagram).toHaveAttribute('target', '_blank');
