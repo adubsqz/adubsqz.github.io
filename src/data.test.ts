@@ -73,7 +73,7 @@ describe('data', () => {
       const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
       const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
       expect(greyscale?.photos.length).toBe(16);
-      expect(color?.photos.length).toBe(26);
+      expect(color?.photos.length).toBe(37);
       expect(greyscale?.photos.some((p) => p.src.includes('30570008-kiln'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('000331950015-ember'))).toBe(true);
       expect(color?.photos.some((p) => p.src.includes('colorfulstairs'))).toBe(true);
@@ -135,7 +135,7 @@ describe('data', () => {
       expect(people).toBeDefined();
       const srcs = (people?.photos ?? []).map((p) => p.src);
       expect(srcs.some((src) => /sangerhall\.jpg$/.test(src))).toBe(true);
-      expect(people?.photos).toHaveLength(14);
+      expect(people?.photos).toHaveLength(19);
 
       const byStem = Object.fromEntries(
         (people?.photos ?? []).map((p) => {

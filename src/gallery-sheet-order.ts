@@ -98,10 +98,12 @@ export function arrangeContactSheet(collections: readonly PhotoCollection[]): Ph
       if (!head) continue;
 
       const remainingInFamily = queues[q]!.length;
-      let score = remainingInFamily * 20;
+      // Mild deplete pressure only — family switches must win while other
+      // buckets still have frames (large color sets used to clump otherwise).
+      let score = remainingInFamily;
 
-      if (head.family !== lastFamily) score += 120;
-      else score -= 90;
+      if (head.family !== lastFamily) score += 1000;
+      else score -= 500;
 
       if (head.tone !== lastTone) score += 40;
       else score -= 50;
