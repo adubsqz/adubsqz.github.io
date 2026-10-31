@@ -31,14 +31,12 @@ export function RightsReservedBlock({
   if (plain) {
     return (
       <div className={`space-y-1.5 ${className}`}>
-        <p className="text-[0.7rem] font-medium tracking-wide text-photo-muted/70">
-          Rights reserved
-        </p>
-        <p className="max-w-3xl text-[0.65rem] leading-relaxed text-photo-muted/60">
+        <p className="text-xs font-medium tracking-wide text-photo-muted">Rights reserved</p>
+        <p className="max-w-3xl text-xs leading-relaxed text-photo-muted">
           All photographs, site design, source code, written content, and metadata are copyright © 2026
           Alexander Ames. No copying, redistribution, scraping, or derivative use without prior written
           permission.{' '}
-          <a href={SITE_ORIGIN} className="hover:underline">
+          <a href={SITE_ORIGIN} className="underline-offset-2 hover:underline">
             {SITE_HOST}
           </a>
         </p>

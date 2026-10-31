@@ -94,8 +94,8 @@ describe('GalleryView', () => {
     GALLERY_LIGHTBOX_PAD_CLASS.split(' ').forEach((cls) => {
       expect(stage?.className.split(' ')).toContain(cls);
     });
-    expect(screen.getByRole('button', { name: /request invoice/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /request invoice/i }).className).toMatch(/bg-neutral-950/);
+    expect(screen.getByRole('button', { name: /request a print quote/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /request a print quote/i }).className).toMatch(/bg-mcm-brick|lightboxPrimary|mcm-brick/);
     expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBe(allPhotos.length);
   });
 
@@ -119,8 +119,8 @@ describe('GalleryView', () => {
     expect(screen.queryByText(/tearsheet/i)).not.toBeInTheDocument();
     await user.keyboard('{ArrowRight}');
     await user.keyboard('{ArrowLeft}');
-    await user.click(screen.getByRole('button', { name: /request invoice/i }));
-    expect(await screen.findByRole('dialog', { name: /request invoice/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /request a print quote/i }));
+    expect(await screen.findByRole('dialog', { name: /request a print quote/i })).toBeInTheDocument();
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
     expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
   });

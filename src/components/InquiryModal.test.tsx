@@ -29,7 +29,7 @@ describe('InquiryModal (unit)', () => {
 
   it('renders the inquiry form dialog', () => {
     render(<InquiryModal photo={photo} onClose={onClose} />);
-    expect(screen.getByRole('dialog', { name: /request invoice/i })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /request a print quote/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/shipping address/i)).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe('InquiryModal (unit)', () => {
     expect(printSize).not.toContainHTML('16″ × 20″');
     expect(printSize).toContainHTML('custom');
     expect(screen.getByText(/inquire via email for more sizing options/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /submit inquiry/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send quote request/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     expect(screen.queryByText(/stripe/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/checkout/i)).not.toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('InquiryModal (unit)', () => {
 
   it('keeps a full-viewport sheet with 44px taps and 16px fields for phones', () => {
     render(<InquiryModal photo={photo} onClose={onClose} />);
-    const dialog = screen.getByRole('dialog', { name: /request invoice/i });
+    const dialog = screen.getByRole('dialog', { name: /request a print quote/i });
     expect(dialog).toHaveAttribute('data-inquiry-sheet');
     expect(dialog.className).toMatch(/inset-0/);
     expect(dialog.className).toMatch(/h-\[100dvh\]/);
@@ -68,7 +68,7 @@ describe('InquiryModal (unit)', () => {
       expect(screen.getByLabelText(label).className).toMatch(/min-h-11/);
     }
 
-    const submit = screen.getByRole('button', { name: /submit inquiry/i });
+    const submit = screen.getByRole('button', { name: /send quote request/i });
     const cancel = screen.getByRole('button', { name: /cancel/i });
     expect(submit.className).toMatch(/min-h-12/);
     expect(cancel.className).toMatch(/min-h-12/);
@@ -109,7 +109,7 @@ describe('InquiryModal (unit)', () => {
     expect(screen.getByLabelText(/custom dimensions/i)).toBeInTheDocument();
   });
 
-  it('submits via mailto and shows success, then calls onClose after 2s', async () => {
+  it('submits via mailto and shows success without auto-closing', async () => {
     const realSetTimeout = globalThis.setTimeout;
     const setTimeoutSpy = vi
       .spyOn(globalThis, 'setTimeout')
@@ -129,7 +129,7 @@ describe('InquiryModal (unit)', () => {
       await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
       await user.type(screen.getByLabelText(/shipping address/i), '123 Main St\nNew York, NY 10001');
 
-      fireEvent.click(screen.getByRole('button', { name: /submit inquiry/i }));
+      fireEvent.click(screen.getByRole('button', { name: /send quote request/i }));
 
       await act(async () => {
         await Promise.resolve();
@@ -138,8 +138,8 @@ describe('InquiryModal (unit)', () => {
       expect(window.location.href).toContain('mailto:adubsqz@gmail.com');
       expect(window.location.href).toContain(ABOUT.contactEmail);
       expect(window.location.href).toContain(encodeURIComponent(photo.id));
-      expect(screen.getByText(/inquiry submitted/i)).toBeInTheDocument();
-      expect(onClose).toHaveBeenCalledTimes(1);
+      expect(screen.getByText(/quote request sent/i)).toBeInTheDocument();
+      expect(onClose).not.toHaveBeenCalled();
     } finally {
       setTimeoutSpy.mockRestore();
     }
@@ -156,9 +156,9 @@ describe('InquiryModal (unit)', () => {
     await user.type(screen.getByLabelText(/shipping address/i), '123 Main St\nNew York, NY 10001');
     await user.selectOptions(screen.getByLabelText(/print medium/i), 'canvas');
     await user.selectOptions(screen.getByLabelText(/^finish$/i), 'gloss');
-    await user.type(screen.getByLabelText(/additional notes/i), 'frame it');
+    await user.type(screen.getByLabelText(/^notes$/i), 'frame it');
 
-    await user.click(screen.getByRole('button', { name: /submit inquiry/i }));
+    await user.click(screen.getByRole('button', { name: /send quote request/i }));
 
     expect(window.location.href).toContain(encodeURIComponent('30x40 inches'));
   });
@@ -191,7 +191,7 @@ describe('InquiryModal (unit)', () => {
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
     await user.type(screen.getByLabelText(/shipping address/i), '123 Main St\nNew York, NY 10001');
 
-    await user.click(screen.getByRole('button', { name: /submit inquiry/i }));
+    await user.click(screen.getByRole('button', { name: /send quote request/i }));
 
     expect(window.location.href).toContain(encodeURIComponent('house 8x10 ft'));
   });
@@ -203,7 +203,7 @@ describe('InquiryModal (unit)', () => {
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
     await user.type(screen.getByLabelText(/shipping address/i), '123 Main St');
-    await user.click(screen.getByRole('button', { name: /submit inquiry/i }));
+    await user.click(screen.getByRole('button', { name: /send quote request/i }));
     expect(submitSpy).toHaveBeenCalledTimes(1);
     expect(submitSpy.mock.calls[0]?.[0]).toMatchObject({
       name: 'Jane Doe',
@@ -220,7 +220,7 @@ describe('InquiryModal (unit)', () => {
     await user.type(screen.getByLabelText(/full name/i), 'Jane Doe');
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
     await user.type(screen.getByLabelText(/shipping address/i), '123 Main St');
-    await user.click(screen.getByRole('button', { name: /submit inquiry/i }));
+    await user.click(screen.getByRole('button', { name: /send quote request/i }));
     expect(await screen.findByText(/nope/i)).toBeInTheDocument();
   });
 

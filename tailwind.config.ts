@@ -23,7 +23,7 @@ export default {
         'photo-bg': '#f4eee4',
         'photo-panel': '#ebe3d4',
         'photo-fg': '#1a1714',
-        'photo-muted': '#5c564e',
+        'photo-muted': '#4a453e',
         'photo-border': '#d4c8b4',
         'photo-accent': '#a63c32',
         'photo-accent-soft': '#8eb9ce',

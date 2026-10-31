@@ -23,7 +23,7 @@ describe('lookbook password gate', () => {
     );
 
     expect(await screen.findByLabelText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /enter/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /enter lookbook/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /open photo/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /request invoice/i })).not.toBeInTheDocument();
     expect(document.body.textContent ?? '').not.toMatch(/(^|[^a-z0-9])sqz([^a-z0-9]|$)/i);

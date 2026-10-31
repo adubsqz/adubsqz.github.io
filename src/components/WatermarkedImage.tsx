@@ -39,8 +39,8 @@ export default function WatermarkedImage({
   onError,
   onClick,
   watermarkText = 'adubsqz',
-  /** 0–1 CSS opacity on the overlay spans; keep in sync with gallery contrast needs */
-  watermarkOpacity = 0.3,
+  /** Soft CSS overlay only — JPEG burn-in carries the durable mark. */
+  watermarkOpacity = 0.14,
 }: WatermarkedImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -81,7 +81,7 @@ export default function WatermarkedImage({
         draggable="false"
       />
 
-      {/* One diagonal watermark plus one bottom-right signature */}
+      {/* Soft diagonal overlay only — bottom © lives in the JPEG burn-in. */}
       {imageLoaded && (
         <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none" aria-hidden="true">
           <span
@@ -89,36 +89,18 @@ export default function WatermarkedImage({
             style={{
               transform: 'translate(-50%, -50%) rotate(-24deg)',
               opacity: watermarkOpacity,
-              fontSize: 'clamp(1.1rem, 3vw, 2.25rem)',
-              fontWeight: 700,
-              letterSpacing: '0.28em',
+              fontSize: 'clamp(1rem, 2.6vw, 1.85rem)',
+              fontWeight: 600,
+              letterSpacing: '0.22em',
               textTransform: 'uppercase',
               userSelect: 'none',
               pointerEvents: 'none',
               color: '#ffffff',
-              textShadow:
-                '0 1px 2px rgba(0, 0, 0, 0.65), 0 0 12px rgba(0, 0, 0, 0.35)',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.4)',
               whiteSpace: 'nowrap',
             }}
           >
             {watermarkText}
-          </span>
-          <span
-            className="absolute right-3 bottom-2"
-            style={{
-              opacity: Math.min(watermarkOpacity + 0.08, 0.5),
-              fontSize: 'clamp(0.72rem, 1.1vw, 0.92rem)',
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              textTransform: 'lowercase',
-              userSelect: 'none',
-              pointerEvents: 'none',
-              color: '#ffffff',
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.55)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            © {watermarkText}
           </span>
         </div>
       )}

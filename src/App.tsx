@@ -13,11 +13,11 @@ export default function App() {
   const [showContact, setShowContact] = useState(false);
 
   return (
-    <div className="relative min-h-[100dvh] bg-white font-sans text-neutral-950 antialiased">
+    <div className="relative min-h-[100dvh] bg-mcm-paper font-sans text-photo-fg antialiased">
       <div className="relative z-[1] min-h-[100dvh]">
         <header
           id="top"
-          className="site-header border-b border-neutral-200 bg-white pt-[max(0.6rem,env(safe-area-inset-top))]"
+          className="site-header border-b border-photo-border bg-mcm-paper/95 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur-sm"
         >
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-4 sm:px-8">
             <BrandMark onClick={() => setView('gallery')} />
@@ -44,11 +44,11 @@ export default function App() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-none bg-white px-0 pb-10 sm:pb-16">
+        <main className="mx-auto max-w-none bg-mcm-paper px-0 pb-10 sm:pb-16">
           <div
             className={
               view === 'gallery'
-                ? 'gallery-shell bg-white px-0 py-6 sm:py-8'
+                ? 'gallery-shell bg-mcm-paper px-0 py-6 sm:py-8'
                 : 'mx-auto max-w-6xl animate-fade-up px-4 py-8 sm:px-8'
             }
             role="region"
@@ -58,14 +58,14 @@ export default function App() {
           >
             {view === 'gallery' && <GalleryView />}
             {view === 'about' && (
-              <Suspense fallback={<p className="text-base text-neutral-500">Loading…</p>}>
+              <Suspense fallback={<p className="text-base text-photo-muted">Loading…</p>}>
                 <AboutView onContactClick={() => setShowContact(true)} />
               </Suspense>
             )}
           </div>
 
           {view === 'gallery' && (
-            <footer className="hidden px-4 py-8 sm:block sm:px-8">
+            <footer className="px-4 py-8 sm:px-8">
               <RightsReservedBlock plain />
             </footer>
           )}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import BrandMark from './BrandMark';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { GATE_PREVIEW_SRCS } from '../data';
 import { unlockEdgePhotoGate } from '../edgeGate';
 import {
   clearStoredGalleryJwt,
@@ -74,7 +75,13 @@ export default function PasswordGate({ children }: PasswordGateProps) {
   }
 
   if (!ready) {
-    return <p className="sr-only">Checking access</p>;
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-mcm-ink font-sans text-mcm-cream antialiased">
+        <p className="text-sm tracking-wide text-mcm-cream/80" role="status">
+          Opening lookbook…
+        </p>
+      </div>
+    );
   }
 
   const onSubmit = async (event: React.FormEvent) => {
@@ -98,17 +105,48 @@ export default function PasswordGate({ children }: PasswordGateProps) {
     }
   };
 
+  const previews = GATE_PREVIEW_SRCS.length > 0 ? GATE_PREVIEW_SRCS : [];
+
   return (
-    <div className="relative min-h-[100dvh] bg-white font-sans text-neutral-950 antialiased">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-mcm-ink font-sans text-mcm-cream antialiased">
+      {previews.length > 0 ? (
+        <div
+          className="pointer-events-none absolute inset-0 grid grid-cols-2 gap-1 opacity-45 sm:grid-cols-4 sm:opacity-50"
+          aria-hidden="true"
+        >
+          {previews.map((src) => (
+            <div key={src} className="relative min-h-[50dvh] overflow-hidden bg-mcm-ink sm:min-h-[100dvh]">
+              <img
+                src={src}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+                draggable={false}
+              />
+            </div>
+          ))}
+        </div>
+      ) : null}
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-mcm-ink/55 via-mcm-ink/72 to-mcm-ink/88"
+        aria-hidden="true"
+      />
+
       <form
         onSubmit={(event) => {
           void onSubmit(event);
         }}
-        className="relative z-[1] mx-auto flex min-h-[100dvh] max-w-sm flex-col justify-center gap-5 px-4"
+        className="relative z-[1] mx-auto flex min-h-[100dvh] max-w-md flex-col justify-center gap-6 px-5 py-10 animate-fade-up"
       >
-        <BrandMark />
+        <div className="space-y-3 text-center sm:text-left">
+          <BrandMark size="hero" />
+          <p className="text-base leading-snug text-mcm-cream/85 sm:text-lg">
+            35mm and medium-format stills. Password opens the lookbook.
+          </p>
+        </div>
         <div>
-          <label htmlFor="gallery-password" className="mb-1.5 block text-sm text-photo-muted">
+          <label htmlFor="gallery-password" className="mb-1.5 block text-sm text-mcm-cream/75">
             Password
           </label>
           <Input
@@ -122,21 +160,22 @@ export default function PasswordGate({ children }: PasswordGateProps) {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
+            className="min-h-12 border-mcm-cream/25 bg-mcm-ink/40 text-base text-mcm-cream placeholder:text-mcm-cream/40"
           />
         </div>
         {error ? (
-          <p className="text-sm text-mcm-brick" role="alert">
+          <p className="text-sm text-mcm-rust" role="alert">
             {error}
           </p>
         ) : null}
         <Button type="submit" className="h-12 text-base" disabled={submitting}>
-          Enter
+          {submitting ? 'Checking…' : 'Enter lookbook'}
         </Button>
         <a
           href={INSTAGRAM_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-center text-sm text-photo-muted underline-offset-4 hover:text-photo-fg hover:underline"
+          className="text-center text-sm text-mcm-cream/70 underline-offset-4 hover:text-mcm-cream hover:underline sm:text-left"
         >
           Need the lookbook password? DM @adubsqz.
         </a>

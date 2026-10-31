@@ -65,7 +65,7 @@ export default function ContactModal({ onClose, initialSubject = '', initialMess
               Say hi. It goes to adubsqz@gmail.com.
             </DialogDescription>
           </DialogHeader>
-          <Button aria-label="Close" className="h-8 px-2 text-lg leading-none" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+          <Button aria-label="Close" className="h-11 w-11 min-h-11 min-w-11 px-0 text-lg leading-none" variant="ghost" onClick={onClose} disabled={isSubmitting}>
             ×
           </Button>
         </div>

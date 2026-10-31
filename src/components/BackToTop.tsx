@@ -17,7 +17,7 @@ export default function BackToTop() {
   return (
     <button
       type="button"
-      className="back-to-top fixed bottom-5 right-4 z-30 min-h-11 rounded-full border border-mcm-ink/15 bg-white px-4 text-sm font-medium text-photo-fg shadow-[0_8px_24px_rgba(26,23,20,0.12)] hover:border-mcm-brick/40 sm:bottom-8 sm:right-6"
+      className="back-to-top fixed bottom-5 right-4 z-30 min-h-11 border border-photo-border bg-mcm-paper px-4 text-sm text-photo-fg hover:border-mcm-brick/50 hover:text-mcm-brick sm:bottom-8 sm:right-6"
       onClick={() => {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
