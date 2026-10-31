@@ -142,7 +142,7 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         <div className="space-y-3 text-center sm:text-left">
           <BrandMark size="hero" />
           <p className="text-base leading-snug text-mcm-cream/85 sm:text-lg">
-            35mm and medium-format stills. Password opens the lookbook.
+            35mm and medium-format stills. Password opens the light table.
           </p>
         </div>
         <div>

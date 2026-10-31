@@ -10,6 +10,68 @@ body {
   background-color: #f4eee4;
 }
 
+/* Darkroom light table — luminous acrylic under the film body */
+.light-table-field {
+  background-color: #f4eee4;
+  background-image:
+    radial-gradient(ellipse 110% 70% at 50% 18%, #fff8ec 0%, rgba(244, 238, 228, 0) 58%),
+    radial-gradient(ellipse 90% 50% at 50% 100%, #e8dcc8 0%, rgba(244, 238, 228, 0) 55%);
+}
+
+.light-table-rail {
+  border-bottom: 1px solid rgba(26, 23, 20, 0.12);
+  background: rgba(246, 243, 236, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.gallery-shell .contact-sheet {
+  margin-inline: 0.5rem;
+  box-shadow:
+    0 0 0 1px rgba(26, 23, 20, 0.08),
+    0 18px 40px rgba(26, 23, 20, 0.14),
+    0 0 72px rgba(255, 248, 236, 0.65);
+}
+
+@media (min-width: 640px) {
+  .gallery-shell .contact-sheet {
+    margin-inline: 1.25rem;
+  }
+}
+
+.grease-pencil {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: #4a453e;
+  text-transform: uppercase;
+}
+
+.proof-plate {
+  margin: 0;
+}
+
+@keyframes table-lit {
+  from {
+    filter: brightness(0.55) saturate(0.85);
+    opacity: 0.92;
+  }
+  to {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+.animate-table-lit {
+  animation: table-lit 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-table-lit {
+    animation: none;
+  }
+}
+
 .brand-mark {
   margin: 0;
   font-family: "Newsreader", ui-serif, Georgia, serif;

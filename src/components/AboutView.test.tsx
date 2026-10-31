@@ -19,6 +19,7 @@ describe('AboutView', () => {
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     expect(screen.getByText(/copyright © 2026 Alexander Ames/i)).toBeInTheDocument();
     expect(screen.getByAltText(/portrait|cayla|photographer/i)).toBeInTheDocument();
+    expect(screen.getByText(/nyc proof/i)).toBeInTheDocument();
     const instagram = screen.getByRole('link', { name: /^instagram$/i });
     expect(instagram).toHaveAttribute('href', 'https://www.instagram.com/adubsqz/');
     expect(instagram).toHaveAttribute('target', '_blank');

@@ -11,16 +11,23 @@ const instagram = ABOUT.socials.find((social) => social.name === 'Instagram');
 
 export default function AboutView({ onContactClick }: AboutViewProps) {
   return (
-    <div className="mx-auto max-w-2xl space-y-8 sm:space-y-12">
+    <div className="space-y-10 sm:space-y-14">
       {ABOUT_IMAGE_SRC ? (
-        <WatermarkedImage
-          src={ABOUT_IMAGE_SRC}
-          alt={ABOUT.photoCredit || 'Portrait of the photographer'}
-          wrapperClassName="relative w-full overflow-hidden rounded-sm bg-photo-panel"
-          className="max-h-[28rem] w-full object-cover object-center"
-          loading="eager"
-          watermarkOpacity={0.1}
-        />
+        <figure className="proof-plate space-y-3">
+          <WatermarkedImage
+            src={ABOUT_IMAGE_SRC}
+            alt={ABOUT.photoCredit || 'Portrait of the photographer'}
+            wrapperClassName="relative w-full overflow-hidden bg-photo-panel"
+            className="max-h-[min(70vh,44rem)] w-full object-contain object-center"
+            loading="eager"
+            watermarkOpacity={0.08}
+          />
+          <figcaption className="grease-pencil px-0.5">
+            {ABOUT.photoCredit || 'Portrait of the photographer'}
+            <span aria-hidden="true"> · </span>
+            NYC proof
+          </figcaption>
+        </figure>
       ) : null}
 
       <div className="space-y-3">
@@ -29,11 +36,11 @@ export default function AboutView({ onContactClick }: AboutViewProps) {
         </p>
       </div>
 
-      <div className="space-y-3 border-t border-photo-border pt-6">
+      <div className="space-y-3 border-t border-photo-border/80 pt-6">
         <p className="text-base leading-relaxed text-photo-muted sm:text-lg">{ABOUT.portfolioPitch}</p>
       </div>
 
-      <div className="flex flex-col gap-4 border-t border-photo-border pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+      <div className="flex flex-col gap-4 border-t border-photo-border/80 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
         <p className="max-w-md text-base leading-snug text-photo-fg">
           Need a print, a license, or a site built around your work? One message.
         </p>
