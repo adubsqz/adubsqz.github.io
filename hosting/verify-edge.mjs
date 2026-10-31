@@ -93,6 +93,38 @@ async function main() {
     failures += 1;
   }
 
+  // Probe unlock: Worker returns 401/403/503; Pages origin usually 404/405 HTML.
+  try {
+    const unlock = await fetch(`${APEX}/api/gate-unlock`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: APEX },
+      body: JSON.stringify({ password: '__verify__' }),
+      redirect: 'manual',
+    });
+    const body = (await unlock.text().catch(() => '')).slice(0, 80);
+    const workerLike =
+      unlock.status === 401 ||
+      unlock.status === 403 ||
+      unlock.status === 503 ||
+      (unlock.status === 400 && !/html/i.test(body));
+    if (expectGate403) {
+      if (!flag(workerLike, 'gate-unlock Worker route', `status=${unlock.status}`)) {
+        failures += 1;
+        console.log('    (POST /api/gate-unlock must hit the Worker, not GitHub Pages)');
+      }
+    } else if (workerLike) {
+      flag(true, 'gate-unlock Worker route', `status=${unlock.status}`);
+    } else {
+      flag(true, 'gate-unlock (not required yet)', `status=${unlock.status} — routes not attached`);
+      console.log('    (run npm run hosting:diagnose-edge for the zone/Worker account wait state)');
+    }
+  } catch (e) {
+    if (expectGate403) {
+      failures += 1;
+      flag(false, 'gate-unlock Worker route', String(e.message || e));
+    }
+  }
+
   console.log('');
   if (failures) {
     console.log(`verify finished with ${failures} failure(s).`);

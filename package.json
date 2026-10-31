@@ -26,6 +26,7 @@
     "hosting:photo-cache-rules": "node hosting/apply-photo-cache-rules.mjs",
     "hosting:orange-cloud": "node hosting/apply-orange-cloud.mjs",
     "hosting:verify-edge": "node hosting/verify-edge.mjs",
+    "hosting:diagnose-edge": "node hosting/diagnose-edge.mjs",
     "hosting:photo-gate:deploy": "node hosting/deploy-photo-gate.mjs",
     "gallery:doctor": "bash tools/run_gallery_module.sh gallery.doctor",
     "gallery:draft-probe-map": "bash tools/run_gallery_module.sh gallery.draft_probe_map",

@@ -62,7 +62,7 @@ CI does not currently run Playwright e2e. For UI or navigation changes, run `npm
 
 - GitHub Actions deploys `dist/` to Pages. Custom domain: `adubs.site` **and** `www.adubs.site`.
 - Cloudflare DNS: grey-cloud A/AAAA for apex, `www` CNAME to `adubsqz.github.io` until Part 2 orange-cloud.
-- Photo-gate Worker: `.github/workflows/photo-gate.yml` deploys + verifies on relevant `main` pushes (needs `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`; see `hosting/AUTOMATION.md`). Local dry-run remains `npm run hosting:photo-gate:deploy`.
+- Photo-gate Worker: `.github/workflows/photo-gate.yml` deploys + verifies on relevant `main` pushes (needs `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`; see `hosting/AUTOMATION.md`). Missing secrets → diagnose + skip (green). Local: `npm run hosting:diagnose-edge` / `hosting:photo-gate:deploy`.
 - After manifest or `public/photos/` changes, run `npm run gallery:verify -- --parity-only` before push.
 - Gallery buckets: `bw`, `color`, `redscale`, `people`, `about` (manifest keys). The site shows one contact sheet. `about` stays off the sheet.
 
