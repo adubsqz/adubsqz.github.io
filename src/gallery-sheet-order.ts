@@ -1,4 +1,5 @@
 import type { Photo, PhotoCollection } from './types';
+import sheetPins from './gallery-sheet-pins.json';
 import sheetTones from './gallery-sheet-tones.json';
 
 /** Coarse palette bins used to spread color across the contact sheet. */
@@ -66,28 +67,60 @@ function spreadByTone(cells: SheetCell[]): SheetCell[] {
   return out;
 }
 
+const PINNED_PATHS: readonly string[] = Array.isArray(sheetPins)
+  ? sheetPins.filter((p): p is string => typeof p === 'string' && p.length > 0)
+  : [];
+
 /**
  * Stable contact-sheet order: same collections → same frames every load
  * (preload-friendly), while spreading bucket + palette so the proof sheet
  * does not clump greys, redscale, or one hue.
+ *
+ * Paths listed in `gallery-sheet-pins.json` are forced to the top rows (first
+ * strips) in that order; remaining frames keep the aesthetic interleave.
  */
 export function arrangeContactSheet(collections: readonly PhotoCollection[]): Photo[] {
+  const byPath = new Map<string, { photo: Photo; family: string }>();
+  for (const collection of collections) {
+    for (const photo of collection.photos) {
+      byPath.set(stillLifePathFromSrc(photo.src), { photo, family: collection.id });
+    }
+  }
+
+  const pinned: Photo[] = [];
+  const pinnedSet = new Set<string>();
+  for (const path of PINNED_PATHS) {
+    const hit = byPath.get(path);
+    if (!hit || pinnedSet.has(path)) continue;
+    pinned.push(hit.photo);
+    pinnedSet.add(path);
+  }
+
   const queues: SheetCell[][] = [];
   let order = 0;
   for (const collection of collections) {
-    const cells: SheetCell[] = collection.photos.map((photo) => ({
-      photo,
-      family: collection.id,
-      tone: toneForPhoto(photo, collection.id),
-      order: order++,
-    }));
-    queues.push(spreadByTone(cells));
+    const cells: SheetCell[] = collection.photos
+      .filter((photo) => !pinnedSet.has(stillLifePathFromSrc(photo.src)))
+      .map((photo) => ({
+        photo,
+        family: collection.id,
+        tone: toneForPhoto(photo, collection.id),
+        order: order++,
+      }));
+    if (cells.length) queues.push(spreadByTone(cells));
   }
 
-  const out: Photo[] = [];
-  let lastFamily = '';
-  let lastTone: SheetTone | '' = '';
-  const recentTones: SheetTone[] = [];
+  const out: Photo[] = [...pinned];
+  let lastFamily = pinned.length
+    ? (byPath.get(stillLifePathFromSrc(pinned[pinned.length - 1]!.src))?.family ?? '')
+    : '';
+  let lastTone: SheetTone | '' = pinned.length
+    ? toneForPhoto(
+        pinned[pinned.length - 1]!,
+        byPath.get(stillLifePathFromSrc(pinned[pinned.length - 1]!.src))?.family ?? '',
+      )
+    : '';
+  const recentTones: SheetTone[] = lastTone ? [lastTone] : [];
 
   while (queues.some((queue) => queue.length > 0)) {
     let bestQueue = -1;

@@ -416,7 +416,10 @@
     "people/desk-glasses-laptop.jpg",
     "people/street-photographer-flash.jpg",
     "people/mint-hat-parasol.jpg",
-    "people/guardian-classic-layup.jpg",
+    {
+      "path": "people/guardian-classic-layup.jpg",
+      "orientation": "square"
+    },
     "people/bench-dog-waterfront.jpg"
   ]
 }

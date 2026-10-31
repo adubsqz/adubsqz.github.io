@@ -1,11 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { COLLECTIONS } from './data';
+import sheetPins from './gallery-sheet-pins.json';
 import sheetTones from './gallery-sheet-tones.json';
 import { arrangeContactSheet, stillLifePathFromSrc, toneForPhoto } from './gallery-sheet-order';
 
 describe('arrangeContactSheet', () => {
   const frames = arrangeContactSheet(COLLECTIONS);
   const flat = COLLECTIONS.flatMap((collection) => collection.photos);
+  const pinPaths = (Array.isArray(sheetPins) ? sheetPins : []).filter(
+    (p): p is string => typeof p === 'string' && p.length > 0,
+  );
 
   it('keeps every published still exactly once', () => {
     expect(frames).toHaveLength(flat.length);
@@ -45,6 +49,15 @@ describe('arrangeContactSheet', () => {
     expect(sameToneNeighbors).toBeLessThan(frames.length * 0.35);
   });
 
+  it('puts pinned paths first on the sheet', () => {
+    const expected = pinPaths.filter((path) =>
+      flat.some((photo) => stillLifePathFromSrc(photo.src) === path),
+    );
+    expect(frames.slice(0, expected.length).map((photo) => stillLifePathFromSrc(photo.src))).toEqual(
+      expected,
+    );
+  });
+
   it('interleaves buckets through most of the sheet', () => {
     if (frames.length < 8) return;
     const familyOf = new Map(
@@ -52,8 +65,14 @@ describe('arrangeContactSheet', () => {
         collection.photos.map((photo) => [photo.id, collection.id] as const),
       ),
     );
-    // Leftover frames from the largest bucket may clump at the tail — judge the body.
-    const body = frames.slice(0, Math.floor(frames.length * 0.85));
+    // Featured pins may intentionally lead; leftover frames from the largest bucket
+    // may clump at the tail — judge the aesthetic body between those regions.
+    const pinLen = pinPaths.filter((path) =>
+      flat.some((photo) => stillLifePathFromSrc(photo.src) === path),
+    ).length;
+    const bodyEnd = Math.floor(frames.length * 0.85);
+    const body = frames.slice(pinLen, Math.max(pinLen + 1, bodyEnd));
+    if (body.length < 4) return;
     let longestRun = 1;
     let run = 1;
     for (let i = 1; i < body.length; i += 1) {
