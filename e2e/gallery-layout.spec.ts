@@ -7,29 +7,28 @@ const VIEWPORTS = [
 ] as const;
 
 for (const vp of VIEWPORTS) {
-  test.describe(`contact sheet (${vp.name})`, () => {
+  test.describe(`lookbook collage (${vp.name})`, () => {
     test.use({ viewport: { width: vp.width, height: vp.height } });
 
-    test('shows one frame, a thumb strip, and no category chrome', async ({ page }) => {
+    test('shows a gate-style photo grid with no film-strip chrome', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
       await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
       await expect(page.getByRole('navigation', { name: /collections/i })).toHaveCount(0);
 
-      const sheet = page.locator('.contact-sheet');
-      await expect(sheet).toBeVisible();
-      const bg = await sheet.evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(bg).toBe('rgb(12, 12, 12)');
+      const collage = page.locator('.lookbook-collage');
+      await expect(collage).toBeVisible();
+      await expect(page.locator('.film-strip')).toHaveCount(0);
+      await expect(page.locator('.film-sprockets')).toHaveCount(0);
+      await expect(page.locator('.lookbook-cell').first()).toBeVisible();
 
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(overflow, `${vp.name} has horizontal overflow`).toBe(false);
 
-      const frames = page.locator('.contact-frame');
+      const frames = page.locator('.lookbook-cell');
       expect(await frames.count()).toBeGreaterThan(8);
-      expect(await page.locator('.film-strip').count()).toBeGreaterThan(1);
-      expect(await page.locator('.film-sprockets').count()).toBeGreaterThan(0);
       await expect(page.getByText('KODAK', { exact: true })).toHaveCount(0);
     });
 
@@ -62,13 +61,13 @@ for (const vp of VIEWPORTS) {
       }
     });
 
-    test('one sheet includes color and people stills', async ({ page }) => {
+    test('one collage includes color and people stills', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await revealAllStills(page);
-      await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
-      await expect(page.locator('img[src*="sweetener-tour"]')).toHaveCount(1);
-      await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
-      await expect(page.locator('.contact-frame').first()).toBeVisible();
+      await expect(page.locator('.lookbook-collage img[src*="hospitalwindows"]')).toHaveCount(1);
+      await expect(page.locator('.lookbook-collage img[src*="sweetener-tour"]')).toHaveCount(1);
+      await expect(page.locator('.lookbook-collage img[src*="sangerhall"]')).toHaveCount(1);
+      await expect(page.locator('.lookbook-cell').first()).toBeVisible();
     });
   });
 }

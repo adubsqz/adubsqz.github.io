@@ -14,9 +14,9 @@ test.describe('site', () => {
     await expect(page.getByRole('navigation', { name: /collections/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /about me/i })).toHaveCount(0);
     await revealAllStills(page);
-    await expect(page.locator('img[src*="hospitalwindows"]')).toHaveCount(1);
-    await expect(page.locator('img[src*="colorfulhousegreenery"]')).toHaveCount(1);
-    await expect(page.locator('img[src*="sangerhall"]')).toHaveCount(1);
+    await expect(page.locator('.lookbook-collage img[src*="hospitalwindows"]')).toHaveCount(1);
+    await expect(page.locator('.lookbook-collage img[src*="colorfulhousegreenery"]')).toHaveCount(1);
+    await expect(page.locator('.lookbook-collage img[src*="sangerhall"]')).toHaveCount(1);
     await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /next page/i })).toHaveCount(0);
 

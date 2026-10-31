@@ -11,9 +11,10 @@ describe('chrome CSS', () => {
     expect(css).not.toMatch(/\.gallery-still \{[\s\S]*scroll-margin-top/);
   });
 
-  it('uses light-table glow under a small serif wordmark (hero mark is opt-in)', () => {
-    expect(css).toMatch(/background-color:\s*#f4eee4/);
-    expect(css).toMatch(/\.light-table-field/);
+  it('keeps gate ink continuity with a soft table glow under the film body', () => {
+    expect(css).toMatch(/background-color:\s*#1a1714/);
+    expect(css).toMatch(/\.lookbook-ink/);
+    expect(css).toMatch(/\.lookbook-rail/);
     expect(css).toMatch(/\.grease-pencil/);
     expect(css).toMatch(/\.brand-mark \{[\s\S]*font-size:\s*1\.35rem/);
     expect(css).toMatch(/\.brand-mark \{[\s\S]*Newsreader/);

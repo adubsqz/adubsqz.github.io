@@ -6,36 +6,40 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  color: #1a1714;
-  background-color: #f4eee4;
+  color: #f7f1e6;
+  background-color: #1a1714;
 }
 
-/* Darkroom light table — luminous acrylic under the film body */
-.light-table-field {
-  background-color: #f4eee4;
-  background-image:
-    radial-gradient(ellipse 110% 70% at 50% 18%, #fff8ec 0%, rgba(244, 238, 228, 0) 58%),
-    radial-gradient(ellipse 90% 50% at 50% 100%, #e8dcc8 0%, rgba(244, 238, 228, 0) 55%);
+/* Same ink world as the password curtain — Work is the gate collage, lit. */
+.lookbook-ink {
+  background-color: #1a1714;
 }
 
-.light-table-rail {
-  border-bottom: 1px solid rgba(26, 23, 20, 0.12);
-  background: rgba(246, 243, 236, 0.72);
-  backdrop-filter: blur(8px);
+.lookbook-rail {
+  border-bottom: 1px solid rgba(247, 241, 230, 0.14);
+  background: rgba(26, 23, 20, 0.72);
+  backdrop-filter: blur(10px);
 }
 
-.gallery-shell .contact-sheet {
-  margin-inline: 0.5rem;
-  box-shadow:
-    0 0 0 1px rgba(26, 23, 20, 0.08),
-    0 18px 40px rgba(26, 23, 20, 0.14),
-    0 0 72px rgba(255, 248, 236, 0.65);
+.lookbook-ink .brand-mark {
+  color: #f7f1e6;
 }
 
-@media (min-width: 640px) {
-  .gallery-shell .contact-sheet {
-    margin-inline: 1.25rem;
-  }
+.gallery-shell {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.lookbook-collage {
+  max-width: 100%;
+}
+
+.lookbook-cell {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
 }
 
 .grease-pencil {
@@ -47,14 +51,24 @@ body {
   text-transform: uppercase;
 }
 
+.grease-pencil--on-ink {
+  color: rgba(247, 241, 230, 0.62);
+}
+
 .proof-plate {
   margin: 0;
 }
 
+.proof-plate__frame {
+  box-shadow:
+    0 0 0 1px rgba(247, 241, 230, 0.12),
+    0 0 56px 6px rgba(246, 243, 236, 0.08);
+}
+
 @keyframes table-lit {
   from {
-    filter: brightness(0.55) saturate(0.85);
-    opacity: 0.92;
+    filter: brightness(0.72) saturate(0.9);
+    opacity: 0.94;
   }
   to {
     filter: none;
@@ -106,94 +120,15 @@ body {
   gap: 1.25rem;
 }
 
-.contact-sheet {
-  background: #0c0c0c;
-}
-
-.film-roll {
-  display: flex;
-  gap: 0.85rem;
-  width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  padding: 1.25rem 0.75rem 1.75rem;
-  scrollbar-width: thin;
-}
-
-.film-strip {
-  flex: 0 0 11.5rem;
-  background: #161616;
-  padding: 0.35rem 0 0.7rem;
-}
-
-.film-strip-body {
-  display: grid;
-  grid-template-columns: 14px minmax(0, 1fr) 14px;
-  align-items: stretch;
-}
-
-.film-sprockets {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0 7px,
-    #f6f3ec 7px 16px,
-    transparent 16px 26px
-  );
-}
-
-.film-gates {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  background: #0a0a0a;
-  padding: 0.45rem 0;
-}
-
-.contact-frame {
-  display: block;
-  width: 100%;
-  margin: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-.contact-frame img,
-.contact-frame .contact-frame-fallback {
-  display: block;
-  box-sizing: border-box;
-  aspect-ratio: 3 / 2;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  background: #111;
-  border: 3px solid #f6f3ec;
-}
-
-.film-frame-name {
-  display: block;
-  margin-top: 0.2rem;
-  padding: 0 0.2rem;
-  color: #f4f1ea;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  line-height: 1.3;
-  text-align: center;
-  word-break: break-word;
-}
-
 html {
   scroll-behavior: smooth;
   min-height: 100dvh;
-  background-color: #f4eee4;
+  background-color: #1a1714;
 }
 
 ::selection {
-  background-color: rgba(22, 22, 22, 0.14);
-  color: #161616;
+  background-color: rgba(247, 241, 230, 0.22);
+  color: #1a1714;
 }
 
 .gallery-image {

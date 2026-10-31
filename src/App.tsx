@@ -13,11 +13,11 @@ export default function App() {
   const [showContact, setShowContact] = useState(false);
 
   return (
-    <div className="light-table-field relative min-h-[100dvh] font-sans text-photo-fg antialiased animate-table-lit">
+    <div className="lookbook-ink relative min-h-[100dvh] overflow-x-clip font-sans text-mcm-cream antialiased animate-table-lit">
       <div className="relative z-[1] min-h-[100dvh]">
         <header
           id="top"
-          className="site-header light-table-rail pt-[max(0.6rem,env(safe-area-inset-top))]"
+          className="site-header lookbook-rail pt-[max(0.6rem,env(safe-area-inset-top))]"
         >
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3.5 sm:px-8">
             <BrandMark onClick={() => setView('gallery')} />
@@ -26,7 +26,7 @@ export default function App() {
                 type="button"
                 aria-pressed={view === 'gallery'}
                 onClick={() => setView('gallery')}
-                className={`min-h-11 text-sm tracking-wide ${view === 'gallery' ? 'underline underline-offset-4' : 'text-photo-muted hover:text-photo-fg'}`}
+                className={`min-h-11 text-sm tracking-wide ${view === 'gallery' ? 'underline underline-offset-4' : 'text-mcm-cream/65 hover:text-mcm-cream'}`}
               >
                 Work
               </button>
@@ -36,7 +36,7 @@ export default function App() {
                 aria-pressed={view === 'about'}
                 aria-controls="panel-about"
                 onClick={() => setView('about')}
-                className={`min-h-11 text-sm tracking-wide ${view === 'about' ? 'underline underline-offset-4' : 'text-photo-muted hover:text-photo-fg'}`}
+                className={`min-h-11 text-sm tracking-wide ${view === 'about' ? 'underline underline-offset-4' : 'text-mcm-cream/65 hover:text-mcm-cream'}`}
               >
                 About
               </button>
@@ -48,7 +48,7 @@ export default function App() {
           <div
             className={
               view === 'gallery'
-                ? 'gallery-shell px-0 py-5 sm:py-8'
+                ? 'gallery-shell px-0 py-0'
                 : 'mx-auto max-w-3xl animate-fade-up px-4 py-8 sm:px-8'
             }
             role="region"
@@ -58,7 +58,7 @@ export default function App() {
           >
             {view === 'gallery' && <GalleryView />}
             {view === 'about' && (
-              <Suspense fallback={<p className="text-base text-photo-muted">Loading…</p>}>
+              <Suspense fallback={<p className="text-base text-mcm-cream/60">Loading…</p>}>
                 <AboutView onContactClick={() => setShowContact(true)} />
               </Suspense>
             )}
@@ -66,7 +66,7 @@ export default function App() {
 
           {view === 'gallery' && (
             <footer className="px-4 py-8 sm:px-8">
-              <RightsReservedBlock plain />
+              <RightsReservedBlock plain className="text-mcm-cream/55 [&_a]:text-mcm-cream/70" />
             </footer>
           )}
         </main>
