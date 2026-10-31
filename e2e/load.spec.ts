@@ -2,9 +2,9 @@ import { expect, test, type Page } from '@playwright/test';
 import { contactSheetEagerFrameCount } from '../src/gallery-layout';
 
 const VIEWPORTS = [
-  // Budgets ≈ visible film strips × 6 frames (sheet thumbs only on first paint).
-  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 48 },
-  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 18 },
+  // Budgets ≈ first collage viewport + a little scroll lead (sheet thumbs only).
+  { name: 'desktop', width: 1280, height: 800, firstStillMs: 8000, maxUniqueStills: 24 },
+  { name: 'mobile', width: 390, height: 844, firstStillMs: 10000, maxUniqueStills: 12 },
 ] as const;
 
 function collectPhotoUrls(page: Page): { sheet: Set<string>; full: Set<string> } {
@@ -70,7 +70,7 @@ for (const vp of VIEWPORTS) {
       await expect(photoButton).toBeVisible();
       const box = await photoButton.boundingBox();
       expect(box, `${vp.name} first frame should be on screen`).not.toBeNull();
-      expect(box!.x, `${vp.name} first still flush left`).toBeGreaterThanOrEqual(12);
+      expect(box!.x, `${vp.name} first still should hug the left edge`).toBeLessThanOrEqual(8);
       const brand = await page.getByRole('button', { name: 'adubsqz' }).boundingBox();
       expect(brand, `${vp.name} wordmark missing`).not.toBeNull();
       expect(brand!.x + brand!.width, `${vp.name} wordmark overflows`).toBeLessThanOrEqual(vp.width + 8);
@@ -99,8 +99,8 @@ for (const vp of VIEWPORTS) {
       expect(box!.y, `${vp.name} chrome pushed the first frame down`).toBeLessThan(vp.height * 0.45);
       expect(box!.y + 48, `${vp.name} first frame off screen`).toBeLessThan(vp.height);
 
-      expect(await page.locator('.contact-frame').count()).toBeGreaterThan(8);
-      expect(await page.locator('.contact-thumbs').count()).toBe(0);
+      expect(await page.locator('.lookbook-cell').count()).toBeGreaterThan(8);
+      expect(await page.locator('.film-strip').count()).toBe(0);
     });
   });
 }

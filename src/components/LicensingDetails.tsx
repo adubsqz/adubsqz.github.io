@@ -30,9 +30,9 @@ export function RightsReservedBlock({
 }) {
   if (plain) {
     return (
-      <div className={`space-y-1.5 ${className}`}>
-        <p className="text-xs font-medium tracking-wide text-photo-muted">Rights reserved</p>
-        <p className="max-w-3xl text-xs leading-relaxed text-photo-muted">
+      <div className={`space-y-1.5 ${className || 'text-photo-muted'}`}>
+        <p className="text-xs font-medium tracking-wide">Rights reserved</p>
+        <p className="max-w-3xl text-xs leading-relaxed">
           All photographs, site design, source code, written content, and metadata are copyright © 2026
           Alexander Ames. No copying, redistribution, scraping, or derivative use without prior written
           permission.{' '}

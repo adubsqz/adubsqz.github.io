@@ -11,8 +11,9 @@ describe('App', () => {
     expect(header).not.toHaveClass('sticky');
     expect(header?.className ?? '').not.toMatch(/\bsticky\b/);
     expect(header).toHaveAttribute('id', 'top');
-    expect(container.querySelector('main')?.className.split(' ')).toContain('bg-mcm-paper');
-    expect(container.querySelector('.gallery-shell')?.className.split(' ')).toContain('bg-mcm-paper');
+    expect(container.querySelector('.lookbook-ink')).toBeTruthy();
+    expect(container.querySelector('.gallery-shell')).toBeTruthy();
+    expect(container.querySelector('.lookbook-rail')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
