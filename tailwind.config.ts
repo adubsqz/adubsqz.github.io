@@ -5,8 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Nunito', 'ui-rounded', 'system-ui', 'sans-serif'],
-        display: ['Newsreader', 'Georgia', 'serif'],
+        sans: ['"Exo 2"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Audiowide', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: [
           'IBM Plex Mono',
           'ui-monospace',

@@ -15,7 +15,7 @@ Replace the contact-sheet lookbook metaphor on `develop` with one quiet page: th
 3. One print offer may be named once, as words, in the same quiet as the pictures.
 4. The page keeps no account of the career (no news, shop, discography).
 5. The number of visitor choices stays the same when new media arrives — a new work replaces a seat; it does not add a section.
-6. Fonts and weights stay as they are on the live lookbook chrome; change text color only if contrast fails on the new ground.
+6. Typography: wordmark `adubsqz` uses **Audiowide** (Expressa / Texas Sun–adjacent heavy geometric display). UI and body use **Exo 2**. Grease-pencil mono may stay IBM Plex Mono. On grain paper, change text color only if contrast fails.
 
 ## Surfaces
 

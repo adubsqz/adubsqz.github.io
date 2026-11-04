@@ -17,10 +17,17 @@ describe('chrome CSS', () => {
     expect(css).toMatch(/\.lookbook-rail/);
     expect(css).toMatch(/\.grease-pencil/);
     expect(css).toMatch(/\.brand-mark \{[\s\S]*font-size:\s*1\.35rem/);
-    expect(css).toMatch(/\.brand-mark \{[\s\S]*Newsreader/);
+    expect(css).toMatch(/\.brand-mark \{[\s\S]*Audiowide/);
     expect(css).toMatch(/\.brand-mark--hero \{[\s\S]*clamp\(2\.4rem/);
-    expect(html).toMatch(/family=Nunito/);
-    expect(html).toMatch(/family=Newsreader/);
+    expect(html).toMatch(/family=Audiowide/);
+    expect(html).toMatch(/family=Exo\+2|family=Exo%202/);
+    expect(html).not.toMatch(/family=Newsreader/);
+    expect(html).not.toMatch(/family=Nunito/);
+  });
+
+  it('uses Exo 2 for UI chrome and Audiowide for the wordmark', () => {
+    expect(css).toMatch(/font-family:\s*"Exo 2"/);
+    expect(css).toMatch(/\.brand-mark \{[\s\S]*font-family:\s*"Audiowide"/);
   });
 
   it('drops the graffiti chrome, collection reel, and spray-paint font', () => {

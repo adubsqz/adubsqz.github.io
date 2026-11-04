@@ -2,7 +2,7 @@
 @config "../tailwind.config.ts";
 
 body {
-  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Exo 2", ui-sans-serif, system-ui, sans-serif;
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
@@ -88,17 +88,17 @@ body {
 
 .brand-mark {
   margin: 0;
-  font-family: "Newsreader", ui-serif, Georgia, serif;
+  font-family: "Audiowide", ui-sans-serif, system-ui, sans-serif;
   font-size: 1.35rem;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
   text-transform: lowercase;
 }
 
 .brand-mark--hero {
   font-size: clamp(2.4rem, 8vw, 3.75rem);
-  letter-spacing: -0.03em;
+  letter-spacing: 0.06em;
 }
 
 .brand-mark__hit {
