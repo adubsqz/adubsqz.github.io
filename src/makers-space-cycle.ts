@@ -1,19 +1,19 @@
 import {
   CYCLE_CLOSER_PATH,
   DAY1_SEATS,
-  DAY1_SHEET_PATHS,
   SEATS_PER_DAY,
 } from './makers-space-day1';
 
-const DAY1_SHEET_SET = new Set<string>(DAY1_SHEET_PATHS);
+/** Every opening-seat path (sheet + Shooks Run) must not recur mid-cycle. */
+const DAY1_SEAT_SET = new Set<string>(DAY1_SEATS);
 
 /**
- * Fixed rotation list: opening seven, then contact-sheet order minus day-1 sheet
- * paths, then brass_trojan. No mid-cycle repeats.
+ * Fixed rotation list: opening seven, then contact-sheet order minus day-1
+ * seats, then brass_trojan. No mid-cycle repeats.
  */
 export function buildMakersSpaceCycle(sheetPathsInOrder: readonly string[]): string[] {
   const rest = sheetPathsInOrder.filter(
-    (path) => !DAY1_SHEET_SET.has(path) && path !== CYCLE_CLOSER_PATH,
+    (path) => !DAY1_SEAT_SET.has(path) && path !== CYCLE_CLOSER_PATH,
   );
   return [...DAY1_SEATS, ...rest, CYCLE_CLOSER_PATH];
 }
