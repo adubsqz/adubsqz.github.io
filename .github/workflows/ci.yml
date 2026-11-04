@@ -11,10 +11,6 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    env:
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      INQUIRY_RECIPIENT_EMAIL: ${{ secrets.INQUIRY_RECIPIENT_EMAIL }}
-      RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
 
     steps:
       - name: Checkout repository
@@ -23,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -32,8 +28,17 @@ jobs:
       - name: Run lint (TypeScript checks)
         run: npm run lint
 
-      - name: Run tests
-        run: npm run test:run
+      - name: Run unit tests (90% coverage)
+        run: npm run test:unit
+
+      - name: Run integration tests (90% coverage)
+        run: npm run test:integration
+
+      - name: Install Playwright Chromium
+        run: npm run playwright:install
+
+      - name: Run end-to-end tests
+        run: npm run test:e2e
 
       - name: Run production build
         run: npm run build

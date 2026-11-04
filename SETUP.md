@@ -1,95 +1,70 @@
-# Setup Guide: Inquiry-to-Invoice Workflow
+# Setup Guide: Inquiry-to-invoice on GitHub Pages
 
-This guide explains how to set up the inquiry system for your photography portfolio.
+Live shop: [adubs.site](https://adubs.site). Production is **GitHub Pages + Cloudflare DNS**. Do not treat Vercel, Resend, or `adubs.shop` as the live path.
 
-## Environment Variables
+## What actually runs
 
-1. **Get a Resend API Key**
-   - Sign up at [resend.com](https://resend.com)
-   - Navigate to API Keys section
-   - Create a new API key
-   - Copy the key (starts with `re_`)
+1. Visitor unlocks the lookbook with the client JWT gate (`src/galleryJwt.ts`).
+2. Lightbox **Request Invoice** or About **let's talk** opens a form.
+3. The browser submits via FormSubmit (activation hash), then Web3Forms if configured, then `mailto:adubsqz@gmail.com` (`src/inquireStatic.ts`).
+4. You quote off-site (Zelle / Venmo / PayPal Invoice). There is no Stripe checkout.
 
-2. **Configure Environment Variables in Vercel**
-   - Go to your Vercel project settings
-   - Navigate to "Environment Variables"
-   - Add the following variables:
+`api/inquire.ts` and `api/auth.ts` are unused on Pages. `npm run dev` is the right local command.
 
-   ```
-   RESEND_API_KEY=re_your_api_key_here
-   INQUIRY_RECIPIENT_EMAIL=alexanderthomasames@gmail.com
-   RESEND_FROM_EMAIL=inquiries@yourdomain.com
-   ```
+## Environment variables
 
-   **Note on RESEND_FROM_EMAIL:**
-   - If you have a custom domain, use an email like `inquiries@yourdomain.com`
-   - You'll need to verify the domain in Resend first
-   - Alternatively, use Resend's test domain (check Resend dashboard for available domains)
+Create `.env.local` in the repo root when you need overrides. None of these are required to view the Vite UI.
 
-3. **Configure the Same Variables for CI/CD**
-   - If you use GitHub Actions, add these repository secrets:
-     - `RESEND_API_KEY`
-     - `INQUIRY_RECIPIENT_EMAIL`
-     - `RESEND_FROM_EMAIL`
-   - This repository's CI workflow reads these values from `secrets.*`.
+| Variable | Required for Pages shop | Purpose |
+| --- | --- | --- |
+| `VITE_FORMSUBMIT_ID` | No (code has a default hash) | FormSubmit form id from the activation email, never the naked inbox |
+| `VITE_WEB3FORMS_ACCESS_KEY` | No | Optional public Web3Forms key |
+| `VITE_E2E` | Tests only | Set to `1` to skip the password gate in Playwright |
+| `VITE_CF_BEACON_TOKEN` | No | Cloudflare Web Analytics beacon; GitHub Actions secret of the same name for Pages builds |
+| `VITE_EDGE_PHOTO_GATE` | No | Set to `1` (Actions secret + local) so the SPA unlocks the photo-gate cookie after orange-cloud |
+| `GALLERY_PHOTO_PROMPT` | Gallery CLI only | Absolute path to the `photo-prompt` binary |
+| `GALLERY_ORIGINALS` | Backfill only | Override `~/photography/originals` when recording scan pixels |
 
-4. **Verify Your Domain in Resend (Optional but Recommended)**
-   - For production use, verify your domain in Resend
-   - This allows you to send from your own domain
-   - Follow Resend's domain verification guide
+Photo-gate **Worker** deploys from [`.github/workflows/photo-gate.yml`](./.github/workflows/photo-gate.yml) on relevant `main` pushes. That job needs Actions secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (optional `CLOUDFLARE_ZONE_ID`). Details: [hosting/AUTOMATION.md](./hosting/AUTOMATION.md).
 
-## Testing the Inquiry Flow
+Do not put Resend or Vercel keys in `.env` / `.env.example`. Rotate anything that was ever committed.
 
-1. **Local Development**
-   - Create a `.env.local` file in the project root
-   - Add the environment variables (same as above)
-   - Run `npm run dev`
-   - Test the inquiry form by clicking "Request Invoice" on any photo
+## Testing the inquiry flow
 
-2. **Production**
-   - Deploy to Vercel
-   - Ensure environment variables are set in Vercel dashboard
-   - Test the inquiry form on the live site
+GitHub Actions does not send real mail. Unit tests mock FormSubmit / mailto.
 
-## How It Works
+1. `npm run dev`
+2. Unlock the gate (or `VITE_E2E=1`)
+3. Open a still → **Request Invoice**, or About → **let's talk**
+4. Submit; confirm the network call goes to FormSubmit (or mailto fallback)
 
-1. **User Flow:**
-   - User views a photo in the lightbox
-   - Clicks "Request Invoice" button
-   - Fills out inquiry form (Name, Email, Company, Shipping Address, Print Size, Notes)
-   - Submits the form
+## Your workflow after an inquiry
 
-2. **Backend Flow:**
-   - Form submission sends POST request to `/api/inquire`
-   - Vercel Edge Function processes the request
-   - Email is sent via Resend to your configured email address
-   - User sees success message
+1. Read the FormSubmit (or mailto) message in `adubsqz@gmail.com`
+2. Quote from original-scan pixels in `src/gallery-manifest.json` (`master_width` / `master_height`), not the 2400px web JPEG
+3. Send a Zelle / Venmo / PayPal invoice off-site
 
-3. **Your Workflow:**
-   - Receive email notification with inquiry details
-   - Review the request
-   - Create invoice manually (via Zelle/Venmo)
-   - Send invoice to the client's email address
+## DNS / www TLS
+
+1. Cloudflare DNS for `adubs.site` — DNS-only (grey cloud) for GitHub Pages records
+2. Apex A records to GitHub Pages IPs; `www` CNAME to `adubsqz.github.io`
+3. GitHub Pages custom domain: **both** `adubs.site` and `www.adubs.site`
+4. Enforce HTTPS after GitHub issues the certificate
+
+If `www.adubs.site` shows a TLS error, add `www` on the Pages custom-domain screen.
 
 ## Troubleshooting
 
-**Email not sending?**
-- Check that `RESEND_API_KEY` is set correctly
-- Verify `RESEND_FROM_EMAIL` is a verified domain/email in Resend
-- Check Vercel function logs for errors
+**Form did not reach the inbox?**
 
-**API route not found?**
-- Ensure the file is at `/api/inquire.ts` (not in `src/api`)
-- Verify the file exports a default function
-- Check Vercel deployment logs
+- Confirm FormSubmit was activated (hash in `FORMSUBMIT_FORM_ID`, not the raw gmail address as the path)
+- Check the visitor confirmation copy points at *their* inbox
+- Mailto fallback opens the visitor’s mail app; that is expected when remote POST fails
 
-**Form submission errors?**
-- Open browser console to see error messages
-- Check network tab for API response
-- Verify all required fields are filled
+**Password gate in e2e?**
 
-## Customization
+- Playwright must run with `VITE_E2E=1`. Stop a leftover `npm run dev` on port 5173 or start it with that env.
 
-- **Email Template**: Edit the HTML template in `/api/inquire.ts`
-- **Form Fields**: Modify `InquiryModal.tsx` to add/remove fields
-- **Print Sizes**: Update the `PrintSize` type and select options in `InquiryModal.tsx`
+**Print sizes look too small?**
+
+- The site never serves files from `originals/`. Run `npm run gallery:backfill-master-size -- --write` on a machine that has `~/photography/originals` so the manifest stores scan resolution.

@@ -1,67 +1,77 @@
 import { ABOUT, ABOUT_IMAGE_SRC } from '../data';
+import { SITE_HOST, SITE_ORIGIN } from '../site';
+import { RightsReservedBlock } from './LicensingDetails';
+import WatermarkedImage from './WatermarkedImage';
 
 interface AboutViewProps {
   onContactClick?: () => void;
 }
 
+const instagram = ABOUT.socials.find((social) => social.name === 'Instagram');
+
 export default function AboutView({ onContactClick }: AboutViewProps) {
   return (
-    <div className="max-w-5xl space-y-6">
-      <div className="grid gap-6 md:grid-cols-[minmax(0,22rem)_1fr] md:items-start">
-        <div className="relative overflow-hidden rounded-3xl bg-black/45 aspect-[4/5] max-h-[32rem]">
-          <img
+    <div className="space-y-10 sm:space-y-14">
+      {ABOUT_IMAGE_SRC ? (
+        <figure className="proof-plate space-y-3">
+          <WatermarkedImage
             src={ABOUT_IMAGE_SRC}
-            alt="Portrait of adubs seated in a chair, photographed on film."
-            className="w-full h-full object-cover object-center"
+            alt={ABOUT.photoCredit || 'Portrait of the photographer'}
+            wrapperClassName="proof-plate__frame relative w-full overflow-hidden bg-mcm-ink"
+            className="max-h-[min(70vh,44rem)] w-full object-contain object-center"
+            loading="eager"
+            watermarkOpacity={0.08}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-        </div>
+          <figcaption className="grease-pencil grease-pencil--on-ink px-0.5">
+            {ABOUT.photoCredit || 'Portrait of the photographer'}
+            <span aria-hidden="true"> · </span>
+            NYC proof
+          </figcaption>
+        </figure>
+      ) : null}
 
-        <div className="rounded-2xl border border-photo-border/60 bg-black/35 p-5 sm:p-7 space-y-4">
-          <p className="text-[0.7rem] tracking-[0.25em] uppercase text-photo-muted">
-            {ABOUT.name}
-          </p>
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight">
-            {ABOUT.tagline}
-          </h2>
-          <p className="text-xs sm:text-sm md:text-[0.92rem] leading-relaxed text-slate-100/90">
-            {ABOUT.bio}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-4">
-        {ABOUT.socials.map((social) => (
-          <a
-            key={social.name}
-            href={social.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-photo-muted hover:text-photo-fg text-sm uppercase tracking-wider transition-colors"
-          >
-            {social.name}
-          </a>
-        ))}
-      </div>
-
-      <div className="pt-4 border-t border-photo-border/50 flex flex-wrap items-center gap-3">
-        <p className="text-[0.65rem] sm:text-xs italic text-photo-muted">
-          I made this site and hosted it for free (and so could you).
+      <div className="space-y-3">
+        <p className="font-display text-[1.55rem] leading-[1.4] text-mcm-cream sm:text-4xl sm:leading-[1.3]">
+          {ABOUT.voice}
         </p>
-        {onContactClick ? (
+      </div>
+
+      <div className="space-y-3 border-t border-mcm-cream/20 pt-6">
+        <p className="text-base leading-relaxed text-mcm-cream/70 sm:text-lg">{ABOUT.portfolioPitch}</p>
+      </div>
+
+      <div className="flex flex-col gap-4 border-t border-mcm-cream/20 pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+        <p className="max-w-md text-base leading-snug text-mcm-cream">
+          Need a print, a license, or a site built around your work? One message.
+        </p>
+        <div className="flex shrink-0 flex-col gap-1 sm:items-end">
           <button
             type="button"
             onClick={onContactClick}
-            className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-photo-accent text-photo-bg text-xs uppercase tracking-[0.16em] font-semibold shadow-lg shadow-photo-accent/20 hover:brightness-110 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-photo-accent"
+            className="min-h-11 text-left text-base text-mcm-cream underline underline-offset-4"
           >
-            Contact me
+            let&apos;s talk
           </button>
-        ) : (
-          <span className="text-[0.68rem] sm:text-xs uppercase tracking-[0.12em] text-photo-accent">
-            Contact me if you&apos;re interested.
-          </span>
-        )}
+          {instagram ? (
+            <a
+              href={instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center text-base text-mcm-cream/80 underline-offset-4 hover:text-mcm-cream hover:underline"
+            >
+              Instagram
+            </a>
+          ) : null}
+          <a
+            href={SITE_ORIGIN}
+            className="inline-flex min-h-11 items-center text-sm text-mcm-cream/55 underline-offset-4 hover:text-mcm-cream hover:underline"
+          >
+            {SITE_HOST}
+          </a>
+        </div>
       </div>
+
+      <RightsReservedBlock plain className="text-mcm-cream/55 [&_a]:text-mcm-cream/70" />
     </div>
   );
 }

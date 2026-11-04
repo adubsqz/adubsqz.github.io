@@ -1,39 +1,425 @@
 {
+  "about": [
+    "about-nyc-collage.jpg"
+  ],
   "bw": [
-    "000230040034.jpg",
-    "000230040018.jpg",
-    "000230040015.jpg",
-    "000230040014.jpg",
-    "000230040012.jpg"
+    {
+      "path": "bw/000220500009-otter.jpg",
+      "orientation": "vertical",
+      "master_width": 4483,
+      "master_height": 6761,
+      "original_path": "000220500009.jpg",
+      "master_bytes": 7688746
+    },
+    {
+      "path": "bw/30570009-loam.JPG",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570009.JPG",
+      "master_bytes": 19034477
+    },
+    {
+      "path": "bw/30570011-hail.JPG",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570011.JPG",
+      "master_bytes": 20143847
+    },
+    {
+      "path": "bw/30570013-cork.JPG",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570013.JPG",
+      "master_bytes": 18500438
+    },
+    {
+      "path": "bw/000220500005xy.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/000220500003-pier.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "000220500003.jpg",
+      "master_bytes": 16274743
+    },
+    {
+      "path": "bw/bw-05-000220490008.jpg",
+      "orientation": "vertical"
+    },
+    {
+      "path": "bw/30570022-brim.JPG",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570022.JPG",
+      "master_bytes": 21455440
+    },
+    {
+      "path": "bw/bw-06-57530032.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/bw-police-car-1.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "bw-police-car-1.jpg",
+      "master_bytes": 12789247
+    },
+    {
+      "path": "bw/bw-02-000230040012.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "bw/30570010-dusk.JPG",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "photolife992_3057e-high-res-uncut_2026-06-19_1600/30570010.JPG",
+      "master_bytes": 12490344
+    },
+    {
+      "path": "bw/000220500023-moth.jpg",
+      "orientation": "horizontal",
+      "master_width": 6728,
+      "master_height": 4461,
+      "original_path": "000220500023.jpg",
+      "master_bytes": 12939578
+    },
+    {
+      "path": "bw/30570012-fern.JPG",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570012.JPG",
+      "master_bytes": 17921901
+    },
+    {
+      "path": "bw/30570008-kiln.JPG",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570008.JPG",
+      "master_bytes": 18729484
+    },
+    {
+      "path": "bw/sidewalk-shadows.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "57530002.JPG",
+      "master_bytes": 28322315
+    }
   ],
   "color": [
-    "30570018.JPG",
-    "30570023.JPG",
-    "B96AA7C2-DC69-42C6-B5B3-87205F0BF3BF.jpg",
-    "ivy.jpg",
-    "cheers.jpg"
+    {
+      "path": "color/30570018.JPG",
+      "orientation": "vertical",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570018.JPG",
+      "master_bytes": 19654123
+    },
+    {
+      "path": "color/30570023.JPG",
+      "orientation": "vertical",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "30570023.JPG",
+      "master_bytes": 20697583
+    },
+    {
+      "path": "color/B96AA7C2-DC69-42C6-B5B3-87205F0BF3BF.jpg",
+      "orientation": "vertical",
+      "master_width": 3024,
+      "master_height": 4032,
+      "original_path": "B96AA7C2-DC69-42C6-B5B3-87205F0BF3BF.jpg",
+      "master_bytes": 1798339
+    },
+    {
+      "path": "color/ivy.jpg",
+      "orientation": "vertical",
+      "master_width": 4492,
+      "master_height": 6774,
+      "original_path": "ivy.jpg",
+      "master_bytes": 23513110
+    },
+    {
+      "path": "color/cheers.jpg",
+      "orientation": "vertical",
+      "master_width": 4492,
+      "master_height": 6774,
+      "original_path": "cheers.jpg",
+      "master_bytes": 24231405
+    },
+    {
+      "path": "color/00033195-ames-skatepark-reflection.jpg",
+      "orientation": "horizontal",
+      "master_width": 6611,
+      "master_height": 4384,
+      "original_path": "00033195-ames-skatepark-reflection.jpg",
+      "master_bytes": 8870297
+    },
+    {
+      "path": "color/color-04-260604000055080021.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/00033195-ames-chinatown.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "00033195-ames-chinatown.jpg",
+      "master_bytes": 9797414
+    },
+    {
+      "path": "color/00033195-ames-gitsum.jpg",
+      "orientation": "vertical",
+      "master_width": 4492,
+      "master_height": 6774,
+      "original_path": "00033195-ames-gitsum.jpg",
+      "master_bytes": 9689854
+    },
+    {
+      "path": "color/colorfulstairs.jpg",
+      "orientation": "horizontal",
+      "master_width": 1024,
+      "master_height": 536,
+      "original_path": "colorfulstairs.jpg",
+      "master_bytes": 256760
+    },
+    {
+      "path": "color/camcorder-night.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/hospitalwindows.jpg",
+      "master_width": 5712,
+      "master_height": 4284,
+      "original_path": "hospitalwindows.jpeg",
+      "master_bytes": 9235137
+    },
+    {
+      "path": "color/00033195-ames-psychic-readings.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "00033195-ames-psychic-readings.jpg",
+      "master_bytes": 10245995
+    },
+    {
+      "path": "color/color-kodak-000008.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/00033195-ames-neon-moon.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "00033195-ames-neon-moon.jpg",
+      "master_bytes": 7817817
+    },
+    "color/colorfulhousegreenery.jpg",
+    {
+      "path": "color/000331950015-ember.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "000331950015.jpg",
+      "master_bytes": 8594856
+    },
+    {
+      "path": "color/brick-gothic-church.jpg",
+      "orientation": "horizontal",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "10860022.JPG",
+      "master_bytes": 27863028
+    },
+    {
+      "path": "color/nitehawk-marquee.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "67430021.JPG",
+      "master_bytes": 15645408
+    },
+    {
+      "path": "color/sand-hill-jump.jpg",
+      "orientation": "horizontal",
+      "master_width": 3091,
+      "master_height": 2048,
+      "original_path": "000076080027.jpg",
+      "master_bytes": 4260693
+    },
+    "color/yellow-mums.jpg",
+    "color/city-dog-splash-trash.jpg",
+    "color/organic-cleaners.jpg",
+    "color/fog-beach-figures.jpg",
+    "color/driftwood-in-the-wash.jpg",
+    "color/lone-walker-beach.jpg",
+    "color/rain-puddle-ripples.jpg",
+    "color/ka-water-tower.jpg",
+    "color/address-163-night.jpg",
+    "color/creeper-wall.jpg",
+    "color/backyard-pool-dusk.jpg",
+    "color/green-fire-escape.jpg",
+    "color/alley-motion-blur.jpg",
+    "color/railing-light-leak.jpg",
+    "color/denver-skyline-pencil.jpg",
+    "color/manhattan-east-river.jpg",
+    "color/creekside-mint-building.jpg"
   ],
   "redscale": [
-    "redscale-01-harmon-red-0018.jpg",
-    "redscale-02-harmon-red-0021.jpg",
-    "redscale-03-harmon-red-0031.jpg",
-    "redscale-04-harmon-red-0033.jpg",
-    "redscale-05-harmon-red-0035.jpg",
-    "redscale-06-harmon-red-0034.jpg",
-    "redscale-07-harmon-red-0017.jpg",
-    "redscale-08-harmon-red-0030.jpg",
-    "redscale-09-harmon-red-0019.jpg",
-    "redscale-10-harmon-red-0029.jpg",
-    "redscale-11-harmon-red-0020.jpg",
-    "redscale-12-harmon-red-0022.jpg",
-    "redscale-13-harmon-red-0026.jpg",
-    "redscale-14-harmon-red-0036.jpg",
-    "redscale-15-harmon-red-0032.jpg",
-    "redscale-16-harmon-red-0027.jpg",
-    "redscale-17-harmon-red-0023.jpg",
-    "redscale-04-harmon-red-0037.jpg"
+    {
+      "path": "redscale/redscale-01-harmon-red-0018.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0018.JPG",
+      "master_bytes": 20921701
+    },
+    {
+      "path": "redscale/redscale-02-harmon-red-0021.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0021.JPG",
+      "master_bytes": 18978093
+    },
+    {
+      "path": "redscale/redscale-06-harmon-red-0034.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0034.JPG",
+      "master_bytes": 5386725
+    },
+    {
+      "path": "redscale/redscale-08-harmon-red-0030.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0030.JPG",
+      "master_bytes": 19452161
+    },
+    {
+      "path": "redscale/redscale-10-harmon-red-0029.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0029.JPG",
+      "master_bytes": 21460967
+    },
+    {
+      "path": "redscale/redscale-11-harmon-red-0020.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0020.JPG",
+      "master_bytes": 6276549
+    },
+    {
+      "path": "redscale/redscale-13-harmon-red-0026.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0026.JPG",
+      "master_bytes": 15415313
+    },
+    {
+      "path": "redscale/redscale-14-harmon-red-0036.jpg",
+      "orientation": "vertical",
+      "master_width": 4181,
+      "master_height": 6305,
+      "original_path": "harmon-red-0036.JPG",
+      "master_bytes": 5403879
+    },
+    {
+      "path": "redscale/redscale-15-harmon-red-0032.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0032.JPG",
+      "master_bytes": 18419985
+    },
+    {
+      "path": "redscale/redscale-16-harmon-red-0027.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0027.JPG",
+      "master_bytes": 13516393
+    },
+    {
+      "path": "redscale/redscale-17-harmon-red-0023.jpg",
+      "orientation": "horizontal",
+      "master_width": 6305,
+      "master_height": 4181,
+      "original_path": "harmon-red-0023.JPG",
+      "master_bytes": 21736867
+    },
+    {
+      "path": "redscale/redscale-04-harmon-red-0037.jpg",
+      "orientation": "vertical"
+    },
+    "redscale/redscale-18-harmon-red-0038.jpg",
+    "redscale/redscale-19-harmon-red-ferry.jpg",
+    "redscale/redscale-20-harmon-red-skyline.jpg",
+    "redscale/redscale-21-harmon-red-0016.jpg"
   ],
-  "still-life": [
-    "about_me.jpg"
+  "people": [
+    {
+      "path": "people/sangerhall.jpg",
+      "master_width": 6774,
+      "master_height": 4492,
+      "original_path": "sangerhall.jpeg",
+      "master_bytes": 10039131
+    },
+    {
+      "path": "people/rooftop-laugh.jpg",
+      "orientation": "vertical",
+      "reel_orientation": "vertical"
+    },
+    {
+      "path": "people/rooftop-look.jpg",
+      "orientation": "vertical",
+      "reel_orientation": "vertical"
+    },
+    "people/exit-singer.jpg",
+    "people/sweetener-tour.jpg",
+    "people/cyclone-fan.jpg",
+    "people/curls-night.jpg",
+    {
+      "path": "people/drawer-sketch.jpg",
+      "orientation": "vertical",
+      "reel_orientation": "vertical"
+    },
+    "people/club-punk-lean.jpg",
+    "people/bandana-night.jpg",
+    "people/backyard-gold.jpg",
+    "people/fdr-bridge-portrait.jpg",
+    "people/headphones-desk.jpg",
+    {
+      "path": "people/yellow-dress-chairs.jpg",
+      "orientation": "vertical",
+      "master_width": 4492,
+      "master_height": 6774,
+      "original_path": "18660011.JPG",
+      "master_bytes": 10136275
+    },
+    "people/desk-glasses-laptop.jpg",
+    "people/street-photographer-flash.jpg",
+    "people/mint-hat-parasol.jpg",
+    {
+      "path": "people/guardian-classic-layup.jpg",
+      "orientation": "square"
+    },
+    "people/bench-dog-waterfront.jpg"
   ]
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { COLLECTIONS, ABOUT } from './data';
+import galleryManifest from './gallery-manifest.json';
+import { COLLECTIONS, ABOUT, classifyManifestEntry, resolveGalleryImagePath, resolveAboutImagePath } from './data';
 import type { Photo, PhotoCollection } from './types';
 
 describe('data', () => {
@@ -41,6 +42,116 @@ describe('data', () => {
         });
       });
     });
+
+    it('keeps import buckets grouped for the contact sheet (About is not a frame)', () => {
+      const ids = COLLECTIONS.map((c) => c.id).sort();
+      expect(ids).toEqual(['full-spectrum', 'greyscale', 'people', 'redscale']);
+      expect(COLLECTIONS.every((collection) => collection.title === '')).toBe(true);
+      expect(
+        COLLECTIONS.flatMap((collection) => collection.photos).every(
+          (photo) => !/^Photograph (bw|color|redscale|people|greyscale|portraits) /i.test(photo.alt),
+        ),
+      ).toBe(true);
+    });
+
+    it('about manifest may be empty until a portrait is republished', () => {
+      const manifest = galleryManifest as { about?: string[] };
+      expect(Array.isArray(manifest.about)).toBe(true);
+    });
+
+    it('reads internal orientation from manifest objects when present (not shown in UI)', () => {
+      const withOrientation = COLLECTIONS.flatMap((c) => c.photos).filter((p) => p.orientation);
+      const hasObjectRows = COLLECTIONS.some((c) => c.photos.length > 0);
+      if (hasObjectRows) {
+        expect(withOrientation.length).toBeGreaterThan(0);
+      } else {
+        expect(withOrientation.length).toBe(0);
+      }
+    });
+
+    it('keeps scan-id stills that already live in a category folder', () => {
+      const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
+      const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
+      expect(greyscale?.photos.length).toBe(16);
+      expect(color?.photos.length).toBe(37);
+      expect(greyscale?.photos.some((p) => p.src.includes('30570008-kiln'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('000331950015-ember'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('colorfulstairs'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('hospitalwindows'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('colorfulhousegreenery'))).toBe(true);
+      expect(color?.photos.some((p) => p.src.includes('camcorder-night'))).toBe(true);
+      expect(greyscale?.photos.some((p) => p.src.includes('000220500003-pier'))).toBe(true);
+    });
+
+    it('tracks original-scan pixels for skatepark, not the 2400px web JPEG', () => {
+      const color = COLLECTIONS.find((c) => c.id === 'full-spectrum');
+      const skatepark = color?.photos.find((p) => p.src.includes('00033195-ames-skatepark-reflection'));
+      expect(skatepark?.masterWidth).toBe(6611);
+      expect(skatepark?.masterHeight).toBe(4384);
+    });
+
+    it('tracks kiln scan pixels after duplicate originals collapsed', () => {
+      const greyscale = COLLECTIONS.find((c) => c.id === 'greyscale');
+      const kiln = greyscale?.photos.find((p) => p.src.includes('30570008-kiln'));
+      expect(kiln?.masterWidth).toBe(6305);
+      expect(kiln?.masterHeight).toBe(4181);
+    });
+
+    it('does not surface import-########.jpg filenames in public collections', () => {
+      const allSrc = COLLECTIONS.flatMap((c) => c.photos.map((p) => p.src));
+      for (const src of allSrc) {
+        expect(src).not.toMatch(/\/import-\d+\.jpe?g$/i);
+      }
+    });
+
+    it('uses gallery-manifest.json array order as the reel order', () => {
+      const manifest = galleryManifest as {
+        bw?: Array<string | { path: string }>;
+        color?: Array<string | { path: string }>;
+        redscale?: Array<string | { path: string }>;
+        people?: Array<string | { path: string }>;
+      };
+      const rowPath = (row: string | { path: string }) => (typeof row === 'string' ? row : row.path);
+      const publicPaths = (rows: Array<string | { path: string }>) =>
+        rows.map(rowPath).filter((entry) => classifyManifestEntry(entry).kind === 'public');
+      const expected: Record<string, string[]> = {
+        greyscale: publicPaths(manifest.bw ?? []),
+        'full-spectrum': publicPaths(manifest.color ?? []),
+        redscale: publicPaths(manifest.redscale ?? []),
+        people: publicPaths(manifest.people ?? []),
+      };
+      for (const collection of COLLECTIONS) {
+        const srcs = collection.photos.map((photo) => {
+          const marker = '/photos/still-life/';
+          const idx = photo.src.indexOf(marker);
+          return decodeURIComponent(idx >= 0 ? photo.src.slice(idx + marker.length) : photo.src);
+        });
+        expect(srcs).toEqual(expected[collection.id]);
+      }
+    });
+
+    it('pages rooftop-laugh and drawer-sketch as vertical in the people reel', () => {
+      const people = COLLECTIONS.find((c) => c.id === 'people');
+      expect(people).toBeDefined();
+      const srcs = (people?.photos ?? []).map((p) => p.src);
+      expect(srcs.some((src) => /sangerhall\.jpg$/.test(src))).toBe(true);
+      expect(people?.photos).toHaveLength(19);
+
+      const byStem = Object.fromEntries(
+        (people?.photos ?? []).map((p) => {
+          const name = decodeURIComponent(p.src.split('/').pop() ?? '');
+          return [name, p.orientation ?? 'horizontal'];
+        }),
+      );
+      expect(byStem['rooftop-laugh.jpg']).toBe('vertical');
+      expect(byStem['rooftop-look.jpg']).toBe('vertical');
+      expect(byStem['drawer-sketch.jpg']).toBe('vertical');
+      expect(byStem['exit-singer.jpg']).toBe('horizontal');
+      expect(byStem['sangerhall.jpg']).toBe('horizontal');
+      expect(byStem['backyard-gold.jpg']).toBe('horizontal');
+      expect(byStem['fdr-bridge-portrait.jpg']).toBe('horizontal');
+    });
+
   });
 
   describe('ABOUT', () => {
@@ -48,10 +159,18 @@ describe('data', () => {
       expect(ABOUT).toHaveProperty('name');
       expect(ABOUT).toHaveProperty('tagline');
       expect(ABOUT).toHaveProperty('contactEmail');
+      expect(ABOUT.contactEmail).toBe('adubsqz@gmail.com');
       expect(ABOUT).toHaveProperty('bio');
+      expect(ABOUT).toHaveProperty('voice');
+      expect(ABOUT).toHaveProperty('portfolioPitch');
+      expect(ABOUT).toHaveProperty('photoCredit');
       expect(ABOUT).toHaveProperty('socials');
       expect(typeof ABOUT.name).toBe('string');
       expect(typeof ABOUT.bio).toBe('string');
+      expect(typeof ABOUT.voice).toBe('string');
+      expect(ABOUT.voice).toContain('35mm and medium format film photography');
+      expect(ABOUT.portfolioPitch).toContain('AWS Certified AI Practitioner');
+      expect(typeof ABOUT.photoCredit).toBe('string');
       expect(Array.isArray(ABOUT.socials)).toBe(true);
     });
 
@@ -62,6 +181,35 @@ describe('data', () => {
         expect(typeof social.name).toBe('string');
         expect(typeof social.url).toBe('string');
       });
+      expect(ABOUT.socials).toEqual(
+        expect.arrayContaining([{ name: 'Instagram', url: 'https://www.instagram.com/adubsqz/' }]),
+      );
+    });
+  });
+
+  describe('path helpers', () => {
+    it('classifies public buckets and hides junk paths', () => {
+      expect(classifyManifestEntry('bw/a.jpg').kind).toBe('public');
+      expect(classifyManifestEntry('color/a.jpg').kind).toBe('public');
+      expect(classifyManifestEntry('redscale/a.jpg').kind).toBe('public');
+      expect(classifyManifestEntry('people/a.jpg').kind).toBe('public');
+      expect(classifyManifestEntry('people/a.jpg')).toEqual({ kind: 'public', bucket: 'people' });
+      expect(classifyManifestEntry('bw/30570008-kiln.JPG')).toEqual({ kind: 'public', bucket: 'greyscale' });
+      expect(classifyManifestEntry('color/000331950014-quartz.jpg')).toEqual({
+        kind: 'public',
+        bucket: 'full-spectrum',
+      });
+      expect(classifyManifestEntry('bw/bear12.jpg')).toEqual({ kind: 'public', bucket: 'greyscale' });
+      expect(classifyManifestEntry('bw/importone.jpg')).toEqual({ kind: 'public', bucket: 'greyscale' });
+      expect(classifyManifestEntry('import-1.jpg')).toEqual({ kind: 'hidden', reason: 'import_numeric' });
+      expect(classifyManifestEntry('bw/import-1.jpg')).toEqual({ kind: 'hidden', reason: 'import_numeric' });
+      expect(classifyManifestEntry('12.jpg')).toEqual({ kind: 'hidden', reason: 'numeric_only_filename' });
+      expect(classifyManifestEntry('note.txt')).toEqual({ kind: 'hidden', reason: 'unsupported_mime' });
+      expect(classifyManifestEntry('other/a.jpg')).toEqual({ kind: 'hidden', reason: 'unsupported_path' });
+      expect(resolveGalleryImagePath('greyscale', '')).toBe('');
+      expect(resolveGalleryImagePath('greyscale', 'plain.jpg')).toContain('/greyscale/plain.jpg');
+      expect(resolveAboutImagePath('')).toBe('');
+      expect(resolveAboutImagePath('about.jpg')).toContain('/photos/still-life/about.jpg');
     });
   });
 });

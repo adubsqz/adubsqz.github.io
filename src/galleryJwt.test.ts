@@ -1,0 +1,105 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  GALLERY_JWT_STORAGE_KEY,
+  GALLERY_JWT_TTL_MS,
+  clearStoredGalleryJwt,
+  galleryGateBypassed,
+  hasValidGallerySession,
+  mintGalleryJwt,
+  readStoredGalleryJwt,
+  verifyGalleryJwt,
+  writeStoredGalleryJwt,
+} from './galleryJwt';
+
+describe('galleryJwt', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.useRealTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    window.localStorage.clear();
+  });
+
+  it('uses a 30-day TTL so a biz-card visit still has a session', () => {
+    expect(GALLERY_JWT_TTL_MS).toBe(30 * 24 * 60 * 60 * 1000);
+  });
+
+  it('keeps the public site gated even when the test bypass is on', () => {
+    vi.stubEnv('VITE_E2E', '1');
+    const original = window.location;
+    vi.stubGlobal('location', { ...original, hostname: 'adubs.site' });
+    expect(galleryGateBypassed()).toBe(false);
+    vi.stubGlobal('location', { ...original, hostname: 'www.adubs.site' });
+    expect(galleryGateBypassed()).toBe(false);
+    vi.stubGlobal('location', original);
+    vi.unstubAllEnvs();
+  });
+
+  it('mints a three-part JWT for sqz and rejects other passwords', async () => {
+    expect(await mintGalleryJwt('nope')).toBeNull();
+    const token = await mintGalleryJwt('sqz');
+    expect(token).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+    expect(await verifyGalleryJwt(token ?? '')).toBe(true);
+  });
+
+  it('rejects a tampered payload', async () => {
+    const token = await mintGalleryJwt('sqz');
+    expect(token).toBeTruthy();
+    const [header, payload, sig] = token!.split('.');
+    const flipped = payload.endsWith('A') ? `${payload.slice(0, -1)}B` : `${payload}A`;
+    expect(await verifyGalleryJwt(`${header}.${flipped}.${sig}`)).toBe(false);
+  });
+
+  it('stays valid 1ms before TTL and expires at TTL+1ms, clearing storage', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-09T12:00:00.000Z'));
+    const token = await mintGalleryJwt('sqz');
+    expect(token).toBeTruthy();
+    writeStoredGalleryJwt(token!);
+    expect(await hasValidGallerySession()).toBe(true);
+
+    vi.setSystemTime(new Date(Date.now() + GALLERY_JWT_TTL_MS - 1));
+    expect(await verifyGalleryJwt(token!)).toBe(true);
+    expect(await hasValidGallerySession()).toBe(true);
+    expect(readStoredGalleryJwt()).toBe(token);
+
+    vi.setSystemTime(new Date(Date.now() + 2));
+    expect(await verifyGalleryJwt(token!)).toBe(false);
+    expect(await hasValidGallerySession()).toBe(false);
+    expect(readStoredGalleryJwt()).toBeNull();
+    expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('rejects an expired JWT and clears storage', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-09T12:00:00.000Z'));
+    const token = await mintGalleryJwt('sqz');
+    expect(token).toBeTruthy();
+    writeStoredGalleryJwt(token!);
+    expect(await hasValidGallerySession()).toBe(true);
+
+    vi.setSystemTime(new Date(Date.now() + GALLERY_JWT_TTL_MS + 1000));
+    expect(await verifyGalleryJwt(token!)).toBe(false);
+    expect(await hasValidGallerySession()).toBe(false);
+    expect(readStoredGalleryJwt()).toBeNull();
+    expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('rejects empty or wrong passwords but accepts trimmed / case-folded input', async () => {
+    expect(await mintGalleryJwt('')).toBeNull();
+    expect(await mintGalleryJwt('nope')).toBeNull();
+    expect(await mintGalleryJwt(' sqz ')).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+    expect(await mintGalleryJwt('SQZ')).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+    expect(window.localStorage.getItem(GALLERY_JWT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('round-trips a stored token until it is cleared', async () => {
+    const token = await mintGalleryJwt('sqz');
+    writeStoredGalleryJwt(token!);
+    expect(readStoredGalleryJwt()).toBe(token);
+    clearStoredGalleryJwt();
+    expect(readStoredGalleryJwt()).toBeNull();
+  });
+});

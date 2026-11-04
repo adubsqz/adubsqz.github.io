@@ -1,0 +1,25 @@
+{
+  // Keep lint focused on user-facing docs.
+  "ignores": [
+    ".claude/**",
+    ".cursor/hooks/**",
+    "node_modules/**",
+    "dist/**",
+    "playwright-report/**",
+    "test-results/**"
+  ],
+  "config": {
+    // Long command examples and URLs are common in technical docs.
+    "MD013": false,
+    // Many internal/project docs intentionally start with H2+.
+    "MD041": false,
+    // Allow flexible list/fence formatting in existing docs.
+    "MD007": false,
+    "MD022": false,
+    "MD029": false,
+    "MD031": false,
+    "MD032": false,
+    // Ignore trailing newline strictness.
+    "MD047": false
+  }
+}

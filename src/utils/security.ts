@@ -94,15 +94,23 @@ export function detectDevTools() {
     }
   };
 
-  setInterval(check, 1000);
+  // Low-frequency check avoids adding main-thread work during interaction (INP / TBT).
+  setInterval(check, 5000);
 }
 
 /**
  * Disable text selection globally
  */
 export function disableTextSelection() {
-  document.body.style.userSelect = 'none';
-  document.body.style.webkitUserSelect = 'none';
+  const style = document.createElement('style');
+  style.textContent = `
+    body { user-select: none; -webkit-user-select: none; }
+    input, textarea, select, [contenteditable="true"] {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 /**

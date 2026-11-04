@@ -1,10 +1,27 @@
 import { Resend } from 'resend';
+import { escapeHtml, isSafePhotoSrc, isValidInquiryEmail, sanitizeEmailHeader } from './inquireEmail.js';
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
+// Unused on GitHub Pages (static). Do not embed keys. Pages outreach uses inquireStatic.
+
+function getResendClient(): Resend | null {
+  const key = process.env.RESEND_API_KEY?.trim();
+  return key ? new Resend(key) : null;
+}
+
+function resendConfigError(): string | null {
+  if (!process.env.RESEND_API_KEY?.trim()) {
+    return 'RESEND_API_KEY is not configured';
+  }
+  if (!process.env.RESEND_FROM_EMAIL?.trim()) {
+    return 'RESEND_FROM_EMAIL is not configured';
+  }
+  if (!process.env.INQUIRY_RECIPIENT_EMAIL?.trim()) {
+    return 'INQUIRY_RECIPIENT_EMAIL is not configured';
+  }
+  return null;
+}
 
 export default async function handler(req: Request) {
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
@@ -13,8 +30,17 @@ export default async function handler(req: Request) {
   }
 
   try {
+    const configError = resendConfigError();
+    if (configError) {
+      return new Response(JSON.stringify({ error: configError }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const resend = getResendClient();
     if (!resend) {
-      return new Response(JSON.stringify({ error: 'Server email is not configured' }), {
+      return new Response(JSON.stringify({ error: 'RESEND_API_KEY is not configured' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -35,7 +61,6 @@ export default async function handler(req: Request) {
       notes,
     } = body;
 
-    // Validate required fields
     if (!name || !email || !shippingAddress || !printSize) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
@@ -46,16 +71,29 @@ export default async function handler(req: Request) {
       );
     }
 
-    const recipientEmail = process.env.INQUIRY_RECIPIENT_EMAIL;
-    const fromEmail = process.env.RESEND_FROM_EMAIL;
-    if (!recipientEmail || !fromEmail) {
-      return new Response(JSON.stringify({ error: 'Email recipient/sender is not configured' }), {
-        status: 500,
+    if (!isValidInquiryEmail(email)) {
+      return new Response(JSON.stringify({ error: 'Invalid email address' }), {
+        status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Format the email content
+    const recipientEmail = process.env.INQUIRY_RECIPIENT_EMAIL!.trim();
+    const fromEmail = process.env.RESEND_FROM_EMAIL!.trim();
+
+    const safePhotoSrc =
+      typeof photoSrc === 'string' && isSafePhotoSrc(photoSrc) ? photoSrc : '';
+    const photoLabel = escapeHtml(String(photoAlt || photoId || 'Unknown photo'));
+    const safeName = escapeHtml(String(name));
+    const safeEmail = escapeHtml(String(email));
+    const safeCompany = company ? escapeHtml(String(company)) : '';
+    const safeShipping = escapeHtml(String(shippingAddress));
+    const safePrintSize = escapeHtml(String(printSize));
+    const safePrintMedium = printMedium ? escapeHtml(String(printMedium)) : '';
+    const safePrintFinish = printFinish ? escapeHtml(String(printFinish)) : '';
+    const safeNotes = notes ? escapeHtml(String(notes)) : '';
+    const hrefPhotoSrc = safePhotoSrc ? escapeHtml(safePhotoSrc) : '';
+
     const emailHtml = `
       <!DOCTYPE html>
       <html>
@@ -82,59 +120,63 @@ export default async function handler(req: Request) {
               <div class="photo-info">
                 <div class="field">
                   <div class="label">Photo</div>
-                  <div class="value">${photoAlt || photoId}</div>
+                  <div class="value">${photoLabel}</div>
                 </div>
-                <div class="field">
+                ${
+                  hrefPhotoSrc
+                    ? `<div class="field">
                   <div class="label">Photo URL</div>
-                  <div class="value"><a href="${photoSrc}" target="_blank">${photoSrc}</a></div>
-                </div>
+                  <div class="value"><a href="${hrefPhotoSrc}" target="_blank" rel="noopener noreferrer">${hrefPhotoSrc}</a></div>
+                </div>`
+                    : ''
+                }
               </div>
 
               <div class="field">
                 <div class="label">Name</div>
-                <div class="value">${name}</div>
+                <div class="value">${safeName}</div>
               </div>
 
               <div class="field">
                 <div class="label">Email</div>
-                <div class="value"><a href="mailto:${email}">${email}</a></div>
+                <div class="value"><a href="mailto:${safeEmail}">${safeEmail}</a></div>
               </div>
 
-              ${company ? `
+              ${safeCompany ? `
               <div class="field">
                 <div class="label">Company / Organization</div>
-                <div class="value">${company}</div>
+                <div class="value">${safeCompany}</div>
               </div>
               ` : ''}
 
               <div class="field">
                 <div class="label">Shipping Address</div>
-                <div class="value" style="white-space: pre-line;">${shippingAddress}</div>
+                <div class="value" style="white-space: pre-line;">${safeShipping}</div>
               </div>
 
               <div class="field">
                 <div class="label">Print Size</div>
-                <div class="value">${printSize}</div>
+                <div class="value">${safePrintSize}</div>
               </div>
 
-              ${printMedium ? `
+              ${safePrintMedium ? `
               <div class="field">
                 <div class="label">Print Medium</div>
-                <div class="value">${printMedium}</div>
+                <div class="value">${safePrintMedium}</div>
               </div>
               ` : ''}
 
-              ${printFinish ? `
+              ${safePrintFinish ? `
               <div class="field">
                 <div class="label">Finish</div>
-                <div class="value">${printFinish}</div>
+                <div class="value">${safePrintFinish}</div>
               </div>
               ` : ''}
 
-              ${notes ? `
+              ${safeNotes ? `
               <div class="field">
                 <div class="label">Additional Notes</div>
-                <div class="value" style="white-space: pre-line;">${notes}</div>
+                <div class="value" style="white-space: pre-line;">${safeNotes}</div>
               </div>
               ` : ''}
             </div>
@@ -150,8 +192,7 @@ export default async function handler(req: Request) {
 New Print Inquiry
 
 Photo: ${photoAlt || photoId}
-Photo URL: ${photoSrc}
-
+${safePhotoSrc ? `Photo URL: ${safePhotoSrc}\n` : ''}
 Name: ${name}
 Email: ${email}
 ${company ? `Company: ${company}\n` : ''}
@@ -163,25 +204,29 @@ ${printMedium ? `Print Medium: ${printMedium}\n` : ''}${printFinish ? `Finish: $
 ${notes ? `\nAdditional Notes:\n${notes}` : ''}
     `.trim();
 
-    // Send email via Resend
+    const subjectPhoto = sanitizeEmailHeader(String(photoAlt || photoId || 'Unknown photo'));
+    const subjectName = sanitizeEmailHeader(String(name));
+    const subjectCompany = company ? sanitizeEmailHeader(String(company)) : '';
+
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: recipientEmail,
       replyTo: email,
-      subject: `New Print Inquiry: ${photoAlt || photoId} - ${name}${company ? ` (${company})` : ''}`,
+      subject: `New Print Inquiry: ${subjectPhoto} - ${subjectName}${subjectCompany ? ` (${subjectCompany})` : ''}`,
       html: emailHtml,
       text: emailText,
     });
 
     if (error) {
       console.error('Resend error:', error);
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email', details: error }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      const message =
+        typeof error.message === 'string' && error.message.length > 0
+          ? error.message
+          : 'Failed to send email';
+      return new Response(JSON.stringify({ error: message }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     return new Response(
@@ -193,20 +238,14 @@ ${notes ? `\nAdditional Notes:\n${notes}` : ''}
     );
   } catch (error) {
     console.error('Inquiry handler error:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
 export const config = {
-  runtime: 'edge',
-  regions: ['iad1'], // Optional: specify regions for faster response
+  runtime: 'nodejs',
+  regions: ['iad1'],
 };

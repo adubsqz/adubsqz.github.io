@@ -1,43 +1,136 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
   margin: 0;
   min-height: 100vh;
-  color: #F5F5F5;
-  background-color: #0a0a0a;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.65)),
-    url('/photos/unsplash/etienne-girardet-5Rhi-078nls-unsplash.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  /* Security: Disable text selection globally */
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  min-height: 100dvh;
+  color: #f7f1e6;
+  background-color: #1a1714;
+}
+
+/* Same ink world as the password curtain — Work is the gate collage, lit. */
+.lookbook-ink {
+  background-color: #1a1714;
+}
+
+.lookbook-rail {
+  border-bottom: 1px solid rgba(247, 241, 230, 0.14);
+  background: rgba(26, 23, 20, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.lookbook-ink .brand-mark {
+  color: #f7f1e6;
+}
+
+.gallery-shell {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.lookbook-collage {
+  max-width: 100%;
+}
+
+.lookbook-cell {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.grease-pencil {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: #4a453e;
+  text-transform: uppercase;
+}
+
+.grease-pencil--on-ink {
+  color: rgba(247, 241, 230, 0.62);
+}
+
+.proof-plate {
+  margin: 0;
+}
+
+.proof-plate__frame {
+  box-shadow:
+    0 0 0 1px rgba(247, 241, 230, 0.12),
+    0 0 56px 6px rgba(246, 243, 236, 0.08);
+}
+
+@keyframes table-lit {
+  from {
+    filter: brightness(0.72) saturate(0.9);
+    opacity: 0.94;
+  }
+  to {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+.animate-table-lit {
+  animation: table-lit 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-table-lit {
+    animation: none;
+  }
+}
+
+.brand-mark {
+  margin: 0;
+  font-family: "Newsreader", ui-serif, Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+.brand-mark--hero {
+  font-size: clamp(2.4rem, 8vw, 3.75rem);
+  letter-spacing: -0.03em;
+}
+
+.brand-mark__hit {
+  display: inline-block;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
 html {
   scroll-behavior: smooth;
-}
-
-/* Allow selection only for specific interactive elements */
-input,
-textarea,
-button {
-  user-select: text;
-  -webkit-user-select: text;
+  min-height: 100dvh;
+  background-color: #1a1714;
 }
 
 ::selection {
-  background-color: rgba(148, 163, 184, 0.35);
-  color: #F9FAFB;
+  background-color: rgba(247, 241, 230, 0.22);
+  color: #1a1714;
 }
 
-/* Enhanced image protection */
 .gallery-image {
   user-select: none;
   -webkit-user-select: none;
@@ -51,7 +144,6 @@ button {
   pointer-events: none;
 }
 
-/* Prevent image dragging globally */
 img {
   -webkit-user-drag: none;
   -khtml-user-drag: none;
@@ -60,36 +152,13 @@ img {
   user-drag: none;
 }
 
-/* Lightbox film-strip frame: slim borders, maximum picture visible */
-.lightbox-frame {
-  --frame: 2px;
-  position: relative;
-  padding: var(--frame);
-  background: #000;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-/* Perforations in top/bottom border area */
-.lightbox-frame::before,
-.lightbox-frame::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: var(--frame);
-  background: repeating-linear-gradient(
-    90deg,
-    #000 0,
-    #000 1px,
-    #222 1px,
-    #222 3px
-  );
-}
-
-.lightbox-frame::before {
-  top: 0;
-}
-
-.lightbox-frame::after {
-  bottom: 0;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

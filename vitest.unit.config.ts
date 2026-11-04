@@ -1,0 +1,48 @@
+import { defineConfig, mergeConfig } from 'vitest/config';
+import viteConfig from './vite.config';
+
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      include: [
+        'src/**/*.test.{ts,tsx}',
+        'tests/photo-budget.test.ts',
+        'tests/share-card.test.ts',
+        'tests/chrome-css.test.ts',
+        'tests/crawler-controls.test.ts',
+        'tests/photo-cache.test.ts',
+      ],
+      exclude: [
+        'src/App.test.tsx',
+        'src/components/**/*Flow.test.tsx',
+        'e2e/**',
+        'tests/inquire*.test.ts',
+      ],
+      coverage: {
+        reportsDirectory: './coverage/unit',
+        include: [
+          'src/data.ts',
+          'src/site.ts',
+          'src/gallery-layout.ts',
+          'src/gallery-sheet-order.ts',
+          'src/gallery-shuffle.ts',
+          'src/galleryJwt.ts',
+          'src/inquireStatic.ts',
+          'src/lib/utils.ts',
+          'src/utils/security.ts',
+          'src/components/AboutView.tsx',
+          'src/components/BackToTop.tsx',
+          'src/components/BrandMark.tsx',
+          'src/components/ContactModal.tsx',
+          'src/components/GalleryView.tsx',
+          'src/components/InquiryModal.tsx',
+          'src/components/LicensingDetails.tsx',
+          'src/components/PasswordGate.tsx',
+          'src/components/WatermarkedImage.tsx',
+          'src/components/ui/**',
+        ],
+      },
+    },
+  }),
+);
