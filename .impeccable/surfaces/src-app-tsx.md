@@ -2,25 +2,26 @@
 version: 1
 slug: "src-app-tsx"
 primary_target: "src/App.tsx"
-related_targets: ["src/components/PasswordGate.tsx","src/components/GalleryView.tsx","src/components/AboutView.tsx"]
+related_targets: ["src/components/PasswordGate.tsx","src/components/MakersSpaceView.tsx","src/components/AboutView.tsx","src/components/BrandMark.tsx"]
 ---
 
-# Lookbook (gate → Work → About)
+# Maker's space (gate → Work horseshoe → About)
 
 Mode: Experience
 Primary target: src/App.tsx
-Related: src/components/PasswordGate.tsx, src/components/GalleryView.tsx, src/components/AboutView.tsx, src/index.css, src/components/BrandMark.tsx
+Related: src/components/PasswordGate.tsx, src/components/MakersSpaceView.tsx, src/components/AboutView.tsx, src/index.css, src/components/BrandMark.tsx
+Spec: docs/superpowers/specs/2026-11-04-makers-space-horseshoe-design.md
 
 ## Direction contract
 
-THESIS: The unlocked lookbook is a glowing darkroom light table — proofs on a luminous plane — so the velvet-rope ink curtain opens onto light, not another white SaaS shell. Refuses cream-header-over-masonry and three skins for one ritual.
+THESIS: After the ink curtain, Work is one maker's space — seven works in a horseshoe on grain paper — so looking is the whole visit. Refuses the contact-sheet lookbook and too much choice.
 
-OWN-WORLD: Gate ink (#1a1714) + cream type (#f7f1e6). Work uses the same full-bleed still collage as the password curtain (2×2 / 4-col, object-cover cells) — interactive, no fake film edges. Brick (#a63c32) only for the desire-peak CTA. Lightbox on ink.
+OWN-WORLD: Gate ink (#1a1714). Work grain (#f4efe6). Logo white on ink / black on grain. Brick only for CTA.
 
-STORY: Visitor unlocks into the same photographic collage → taps a still → quotes. About is the maker’s proof on the same ink field. Believes: one continuous lookbook; acts: DM if locked, quote when ready.
+STORY: Unlock → today's seven → optional plate → About. Believes: quiet private share.
 
-FIRST VIEWPORT (Work): Gate-identical collage grid filling the viewport; slim cream rail. About: collage proof dominant, grease-pencil credit, cream voice.
+FIRST VIEWPORT (Work): Grain + horseshoe; slim rail. Mobile arc smash 3|5 / 2|4|6 / 1|7.
 
-FORM: Light-Table Contact Sheet (Impeccable’s pick; grounded #1). seed:9c76e05b384aa8bf
+FORM: Seven Card Horseshoe. See design spec for day-one seating and rotation.
 
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+FINISH: Ships on `develop` only until owner promotes.

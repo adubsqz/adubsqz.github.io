@@ -1,19 +1,20 @@
-# Lookbook (gate → Work → About)
+# Maker's space (gate → Work horseshoe → About)
 
 Mode: Experience
 Primary target: src/App.tsx
-Related: src/components/PasswordGate.tsx, src/components/GalleryView.tsx, src/components/AboutView.tsx, src/index.css, src/components/BrandMark.tsx
+Related: src/components/PasswordGate.tsx, src/components/MakersSpaceView.tsx, src/components/AboutView.tsx, src/index.css, src/components/BrandMark.tsx
+Spec: docs/superpowers/specs/2026-11-04-makers-space-horseshoe-design.md
 
 ## Direction contract
 
-THESIS: The unlocked lookbook is a glowing darkroom light table — proofs on a luminous plane — so the velvet-rope ink curtain opens onto light, not another white SaaS shell. Refuses cream-header-over-masonry and three skins for one ritual.
+THESIS: After the ink curtain, Work is one maker's space — seven works in a horseshoe on grain paper — so looking is the whole visit. Refuses the contact-sheet lookbook, indexed studio menus, and too much choice.
 
-OWN-WORLD: Frosted acrylic glow (#ebe3d4 → #f6f3ec field with soft backlight), deep film body (#0c0c0c) for the roll, grease-pencil mono labels on the glow edge, brick (#a63c32) only for the desire-peak CTA. Lacquer ink gate stays the closed lid; unlock dissolves into the table. Components: thin silver/graphite rails, no cards in the hero, lightbox as one isolated proof on black.
+OWN-WORLD: Gate ink (#1a1714) + cream type. Work grain (#f4efe6) with whisper tooth. Owner JPEG wordmark (white on ink, black on grain). Brick (#a63c32) only at desire-peak CTA. No tarot role labels on the page.
 
-STORY: Visitor unlocks → sees the table already lit with stills → scrolls the roll → opens a plate → requests a print quote. About is the maker’s own proof (portrait + skyline collage) with film-first voice beside it. Believes: this is real film, privately shared; acts: DM if locked, quote when ready.
+STORY: Visitor unlocks → meets today's seven → may open one plate → About for voice / contact. Believes: quiet private share; acts: DM if locked, inquire when ready.
 
-FIRST VIEWPORT (Work): Full-bleed light-table field; slim rail with adubsqz + Work/About; contact sheet film body sits ON the glow (not in a white paper card); no hero marketing block. About first viewport: collage plate dominant, ruled grease-pencil credit, voice under the plate. Gate unchanged in spirit (ink + still collage + hero mark) — only the unlock handoff softens into table light.
+FIRST VIEWPORT (Work): Grain field; slim rail with logo + Work/About; Seven Card Horseshoe (3 & 5 centered). Mobile: 2–3–2 arc smash. About: ink + collage proof.
 
-FORM: Light-Table Contact Sheet (Impeccable’s pick; grounded #1). seed:9c76e05b384aa8bf
+FORM: Seven Card Horseshoe on grain paper. Daily fixed rotation (91 frames / 13 days). Not Light-Table Contact Sheet.
 
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+FINISH: Spec + DESIGN.md + tests on `develop`; no `main` deploy until owner says so.

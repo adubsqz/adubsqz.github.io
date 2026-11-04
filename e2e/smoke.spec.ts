@@ -1,12 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('smoke', () => {
-  test('loads the app and switches between Work and About', async ({ page }) => {
+  test('loads the makers space and switches between Work and About', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.getByRole('button', { name: /^gallery$/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'adubsqz' })).toBeVisible();
     await expect(page.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('makers-space')).toBeVisible();
+    await expect(page.getByTestId('makers-seat')).toHaveCount(7);
     await expect(page.getByRole('button', { name: /about me/i })).toHaveCount(0);
     await expect(page.getByLabel(/password/i)).toHaveCount(0);
     await expect(page.getByRole('img', { name: /printable film photography/i })).toHaveCount(0);
@@ -20,5 +22,6 @@ test.describe('smoke', () => {
     await page.getByRole('button', { name: /^work$/i }).click();
     await expect(page.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
+    await expect(page.getByTestId('makers-seat')).toHaveCount(7);
   });
 });

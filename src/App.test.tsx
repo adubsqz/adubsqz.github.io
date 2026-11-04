@@ -11,9 +11,11 @@ describe('App', () => {
     expect(header).not.toHaveClass('sticky');
     expect(header?.className ?? '').not.toMatch(/\bsticky\b/);
     expect(header).toHaveAttribute('id', 'top');
-    expect(container.querySelector('.lookbook-ink')).toBeTruthy();
+    expect(container.querySelector('.makers-space-shell')).toBeTruthy();
+    expect(container.querySelector('.lookbook-ink')).toBeFalsy();
     expect(container.querySelector('.gallery-shell')).toBeTruthy();
     expect(container.querySelector('.lookbook-rail')).toBeTruthy();
+    expect(screen.getByTestId('makers-space')).toHaveAttribute('data-ground', 'grain-paper');
     expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
@@ -58,23 +60,25 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /^gallery$/i })).not.toBeInTheDocument();
   });
 
-  it('returns to the sheet from Work', async () => {
+  it('returns to the horseshoe from Work', async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: /^about$/i }));
     await user.click(screen.getByRole('button', { name: /^work$/i }));
     expect(screen.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByText(/I take 35mm and medium format film photography/i)).not.toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /open photo/i }).length).toBeGreaterThan(1);
+    expect(screen.getAllByTestId('makers-seat')).toHaveLength(7);
+    expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(7);
   });
 
-  it('returns to the sheet from the wordmark', async () => {
+  it('returns to the horseshoe from the wordmark', async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: /^about$/i }));
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(screen.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByText(/I take 35mm and medium format film photography/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId('makers-space')).toBeInTheDocument();
   });
 
   it('opens contact modal from About', async () => {

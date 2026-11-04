@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import type { PageView } from './types';
 import BrandMark from './components/BrandMark';
-import GalleryView from './components/GalleryView';
+import MakersSpaceView from './components/MakersSpaceView';
 import { RightsReservedBlock } from './components/LicensingDetails';
 import BackToTop from './components/BackToTop';
 
@@ -11,22 +11,38 @@ const ContactModal = lazy(() => import('./components/ContactModal'));
 export default function App() {
   const [view, setView] = useState<PageView>('gallery');
   const [showContact, setShowContact] = useState(false);
+  const onGrain = view === 'gallery';
 
   return (
-    <div className="lookbook-ink relative min-h-[100dvh] overflow-x-clip font-sans text-mcm-cream antialiased animate-table-lit">
+    <div
+      className={
+        onGrain
+          ? 'makers-space-shell relative min-h-[100dvh] overflow-x-clip font-sans antialiased animate-table-lit'
+          : 'lookbook-ink relative min-h-[100dvh] overflow-x-clip font-sans text-mcm-cream antialiased animate-table-lit'
+      }
+    >
       <div className="relative z-[1] min-h-[100dvh]">
         <header
           id="top"
           className="site-header lookbook-rail pt-[max(0.6rem,env(safe-area-inset-top))]"
         >
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3.5 sm:px-8">
-            <BrandMark onClick={() => setView('gallery')} />
+            <BrandMark
+              ground={onGrain ? 'light' : 'dark'}
+              onClick={() => setView('gallery')}
+            />
             <nav className="site-nav" aria-label="Site">
               <button
                 type="button"
                 aria-pressed={view === 'gallery'}
                 onClick={() => setView('gallery')}
-                className={`min-h-11 text-sm tracking-wide ${view === 'gallery' ? 'underline underline-offset-4' : 'text-mcm-cream/65 hover:text-mcm-cream'}`}
+                className={`min-h-11 text-sm tracking-wide ${
+                  view === 'gallery'
+                    ? 'underline underline-offset-4'
+                    : onGrain
+                      ? 'text-photo-muted hover:text-photo-fg'
+                      : 'text-mcm-cream/65 hover:text-mcm-cream'
+                }`}
               >
                 Work
               </button>
@@ -36,7 +52,13 @@ export default function App() {
                 aria-pressed={view === 'about'}
                 aria-controls="panel-about"
                 onClick={() => setView('about')}
-                className={`min-h-11 text-sm tracking-wide ${view === 'about' ? 'underline underline-offset-4' : 'text-mcm-cream/65 hover:text-mcm-cream'}`}
+                className={`min-h-11 text-sm tracking-wide ${
+                  view === 'about'
+                    ? 'underline underline-offset-4'
+                    : onGrain
+                      ? 'text-photo-muted hover:text-photo-fg'
+                      : 'text-mcm-cream/65 hover:text-mcm-cream'
+                }`}
               >
                 About
               </button>
@@ -56,7 +78,7 @@ export default function App() {
             aria-label={view === 'gallery' ? 'gallery' : undefined}
             aria-labelledby={view === 'about' ? 'tab-about' : undefined}
           >
-            {view === 'gallery' && <GalleryView />}
+            {view === 'gallery' && <MakersSpaceView />}
             {view === 'about' && (
               <Suspense fallback={<p className="text-base text-mcm-cream/60">Loading…</p>}>
                 <AboutView onContactClick={() => setShowContact(true)} />
@@ -66,7 +88,7 @@ export default function App() {
 
           {view === 'gallery' && (
             <footer className="px-4 py-8 sm:px-8">
-              <RightsReservedBlock plain className="text-mcm-cream/55 [&_a]:text-mcm-cream/70" />
+              <RightsReservedBlock plain className="text-photo-muted [&_a]:text-photo-fg/70" />
             </footer>
           )}
         </main>
