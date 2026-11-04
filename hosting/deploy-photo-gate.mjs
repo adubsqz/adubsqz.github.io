@@ -123,34 +123,62 @@ function buildConfigWithZoneId(zoneId, accountId) {
   if (accountId && !/^\s*account_id\s*=/m.test(next)) {
     next = next.replace(/^name = "adubs-photo-gate"/m, `name = "adubs-photo-gate"\naccount_id = "${accountId}"`);
   }
+  // Temp config lives outside hosting/photo-gate/, so pin main to an absolute path
+  // (Wrangler resolves main relative to the config file otherwise → missing entry-point).
+  const mainAbs = path.join(HERE, 'photo-gate', 'src', 'index.js');
+  next = next.replace(/^main\s*=\s*"src\/index\.js"\s*$/m, `main = ${JSON.stringify(mainAbs)}`);
   const dir = mkdtempSync(path.join(tmpdir(), 'adubs-photo-gate-'));
   const out = path.join(dir, 'wrangler.toml');
   writeFileSync(out, next, 'utf8');
   return out;
 }
 
+function looksLikeZoneMismatch(stderrText) {
+  return /could not find zone|zone_id|zone_name|authentication error|10000|1001/i.test(
+    stderrText || '',
+  );
+}
+
 function printZoneHelp() {
   console.error(`
 Could not attach routes for ${ZONE}.
 
-DNS can show Cloudflare (orange-cloud) while Wrangler is logged into a *different*
-account that does not own the zone.
+Common causes:
 
-Fix (pick one):
+1) API token can edit Workers Scripts but not Zone Workers Routes
+   (Account token with no zone resource → /zones returns empty; route attach 403).
+   Recreate the token with the "Edit Cloudflare Workers" template AND
+   Zone resources → Include → Specific zone → ${ZONE}
+   (needs Workers Scripts:Edit + Workers Routes:Edit on that zone).
+   https://dash.cloudflare.com/profile/api-tokens
 
-1) Confirm account owns the zone:
+2) Wrong account / zone IDs (DNS can still show cf-ray):
      npx wrangler whoami
-   In the Cloudflare dashboard, open the account that lists ${ZONE}.
-
-2) Pin IDs (Overview sidebar on ${ZONE}):
-     export CLOUDFLARE_ACCOUNT_ID='…'
+     export CLOUDFLARE_ACCOUNT_ID='…'   # Overview sidebar
      export CLOUDFLARE_ZONE_ID='…'
      npm run hosting:photo-gate:deploy -- --apply
 
-3) Or API token scoped to that zone/account:
-     export CLOUDFLARE_API_TOKEN='…'
-     npm run hosting:photo-gate:deploy -- --apply
+3) Or attach the four routes once in the dashboard, then re-run deploy:
+     https://dash.cloudflare.com → ${ZONE} → Workers Routes
+     patterns: ${ZONE}/photos/*, www.${ZONE}/photos/*,
+               ${ZONE}/api/gate-unlock, www.${ZONE}/api/gate-unlock
 `);
+}
+
+/** Fail fast when the token cannot read zone Workers Routes (route attach will 403). */
+async function preflightZoneRouteAccess(zoneId) {
+  const token = process.env.CLOUDFLARE_API_TOKEN?.trim();
+  if (!token || !zoneId) return { ok: true, skipped: true };
+
+  const res = await fetch(`${API}/zones/${zoneId}/workers/routes`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const json = await res.json().catch(() => ({}));
+  if (res.ok && json.success) {
+    return { ok: true, routeCount: (json.result || []).length };
+  }
+  const msg = (json.errors || []).map((e) => e.message || e.code).join('; ') || `HTTP ${res.status}`;
+  return { ok: false, msg };
 }
 
 async function main() {
@@ -186,6 +214,27 @@ async function main() {
     console.log(`CLOUDFLARE_ACCOUNT_ID set (${accountId}); zone_id not set — wrangler will use zone_name`);
   }
 
+  if (zoneId) {
+    const routeAccess = await preflightZoneRouteAccess(zoneId);
+    if (!routeAccess.skipped) {
+      if (routeAccess.ok) {
+        console.log(`zone Workers Routes readable (existing=${routeAccess.routeCount})`);
+      } else {
+        console.error(`zone Workers Routes NOT readable: ${routeAccess.msg}`);
+        console.error(
+          'Token can upload the Worker but cannot attach /photos/* routes without Zone → Workers Routes:Edit on adubs.site.',
+        );
+        if (apply && !force) {
+          printZoneHelp();
+          process.exit(1);
+        }
+        if (apply && force) {
+          console.warn('--force: deploying script anyway (routes will likely still fail)');
+        }
+      }
+    }
+  }
+
   const wranglerArgs = ['wrangler', 'deploy', '--config', configPath];
   if (dryRun) {
     console.log(`[dry-run] would run: npx ${wranglerArgs.join(' ')}`);
@@ -198,12 +247,17 @@ async function main() {
   if (accountId) env.CLOUDFLARE_ACCOUNT_ID = accountId;
 
   const result = spawnSync('npx', wranglerArgs, {
-    stdio: 'inherit',
+    encoding: 'utf8',
     env,
     cwd: path.resolve(HERE, '..'),
   });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
   if (result.status !== 0) {
-    printZoneHelp();
+    const errBlob = `${result.stderr || ''}${result.stdout || ''}${result.error || ''}`;
+    if (looksLikeZoneMismatch(errBlob)) {
+      printZoneHelp();
+    }
     process.exit(result.status ?? 1);
   }
   console.log('Deploy finished. Spot-check:');
