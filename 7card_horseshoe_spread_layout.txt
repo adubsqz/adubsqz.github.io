@@ -1,0 +1,11 @@
+[3] (Hidden Obstacles)          [5] (People's Attitudes)
+           \                               /
+             \                             /
+  [2] --------                                -------- [6]
+(Present)                                          (Challenges)
+    |                                                    |
+    |                                                    |
+  [1]                                                   [7]
+(Past)                                               (Outcome)
+                         [4]
+                     (The Advice)
