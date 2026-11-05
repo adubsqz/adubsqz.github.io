@@ -2,6 +2,16 @@
   "about": [
     "about-nyc-collage.jpg"
   ],
+  "shooks_run": [
+    {
+      "path": "shooks_run/tudor.jpg",
+      "orientation": "vertical"
+    },
+    {
+      "path": "shooks_run/drawn_tutor.jpg",
+      "orientation": "vertical"
+    }
+  ],
   "bw": [
     {
       "path": "bw/000220500009-otter.jpg",

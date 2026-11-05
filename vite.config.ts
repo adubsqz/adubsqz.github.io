@@ -75,7 +75,15 @@ function attachGalleryPhotoCacheControl(
 }
 
 function manifestAssetGuardPlugin(): Plugin {
-  const guard = (req: { url?: string }, res: { statusCode: number; end: (msg: string) => void }, next: () => void) => {
+  const guard = (
+    req: { url?: string },
+    res: {
+      statusCode: number;
+      setHeader?: (name: string, value: string) => void;
+      end: (msg: string) => void;
+    },
+    next: () => void,
+  ) => {
     const url = req.url ?? '';
     const pathname = decodeURIComponent(url.split('?')[0] ?? '');
 
@@ -103,6 +111,8 @@ function manifestAssetGuardPlugin(): Plugin {
     });
     if (!ok) {
       res.statusCode = 404;
+      // Do not inherit the week-long gallery Cache-Control from the prior middleware.
+      res.setHeader?.('Cache-Control', 'no-store');
       res.end('Not found');
       return;
     }

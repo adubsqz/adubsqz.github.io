@@ -5,17 +5,22 @@ import AboutView from './AboutView';
 import { SITE_HOST } from '../site';
 
 describe('AboutView', () => {
-  it('renders the human voice, portfolio pitch, contact CTA, and rights block', () => {
-    render(<AboutView />);
+  it('renders grain about with XL logo, borderless NYC proof, voice, and rights', () => {
+    const { container } = render(<AboutView />);
+    expect(screen.getByTestId('about-view')).toHaveClass('about-on-grain');
+    expect(screen.getByTestId('about-xl-logo').querySelector('.brand-mark--about')).toBeTruthy();
+    expect(screen.getByTestId('about-xl-logo').querySelector('.brand-mark--on-light')).toBeTruthy();
+
+    const frame = container.querySelector('.proof-plate__frame');
+    expect(frame).toBeTruthy();
+    expect(frame).not.toHaveClass('bg-mcm-ink');
+
     expect(screen.getByText(/I take 35mm and medium format film photography/i)).toBeInTheDocument();
     expect(screen.getByText(/print, license, and sell my work/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/AWS Certified AI Practitioner/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/AWS Certified AI Practitioner/i)).toBeInTheDocument();
     expect(screen.getByText(/portfolio sites like this for pictures, video, and music/i)).toBeInTheDocument();
     expect(screen.getByText(/Need a print, a license, or a site/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /let's talk/i }).querySelector('.graffiti-label')).toBeNull();
     expect(screen.getByText(/rights reserved/i)).toBeInTheDocument();
     expect(screen.getByText(/copyright © 2026 Alexander Ames/i)).toBeInTheDocument();
     expect(screen.getByAltText(/portrait|cayla|photographer/i)).toBeInTheDocument();

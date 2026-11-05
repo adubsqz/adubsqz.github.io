@@ -59,10 +59,44 @@ body {
   margin: 0;
 }
 
+/* No chrome around NYC proof — plate sits on grain, image only */
 .proof-plate__frame {
-  box-shadow:
-    0 0 0 1px rgba(247, 241, 230, 0.12),
-    0 0 56px 6px rgba(246, 243, 236, 0.08);
+  box-shadow: none;
+  border: 0;
+  background: transparent;
+}
+
+.about-on-grain {
+  color: #1a1714;
+}
+
+.about-on-grain .grease-pencil--on-ink {
+  color: rgba(26, 23, 20, 0.55);
+}
+
+.about-layout {
+  display: grid;
+  gap: 1.75rem 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .about-layout {
+    grid-template-columns: minmax(12rem, 0.85fr) minmax(0, 1.35fr);
+  }
+}
+
+.about-mark {
+  margin: 0;
+  padding-top: 0.25rem;
+}
+
+.about-mark .brand-mark--hero {
+  font-size: clamp(3.2rem, 14vw, 7.5rem);
+}
+
+.about-mark .brand-mark__img {
+  max-width: min(100%, 22em);
 }
 
 @keyframes table-lit {
@@ -88,17 +122,47 @@ body {
 
 .brand-mark {
   margin: 0;
-  font-family: "Newsreader", ui-serif, Georgia, serif;
+  line-height: 0;
   font-size: 1.35rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
 }
 
 .brand-mark--hero {
   font-size: clamp(2.4rem, 8vw, 3.75rem);
-  letter-spacing: -0.03em;
+}
+
+.brand-mark--about {
+  font-size: clamp(3.2rem, 14vw, 7.5rem);
+}
+
+.brand-mark--about .brand-mark__img {
+  max-width: min(100%, 22em);
+}
+
+.brand-mark__stack {
+  display: inline-grid;
+  vertical-align: top;
+}
+
+.brand-mark__img {
+  grid-area: 1 / 1;
+  display: block;
+  height: 1em;
+  width: auto;
+  max-width: min(100%, 14em);
+  object-fit: contain;
+}
+
+/* Default: white mark on ink. Light ground swaps to black. */
+.brand-mark__img--black {
+  visibility: hidden;
+}
+
+.brand-mark--on-light .brand-mark__img--white {
+  visibility: hidden;
+}
+
+.brand-mark--on-light .brand-mark__img--black {
+  visibility: visible;
 }
 
 .brand-mark__hit {
@@ -108,9 +172,6 @@ body {
   padding: 0;
   background: transparent;
   color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
   cursor: pointer;
 }
 
@@ -162,3 +223,140 @@ img {
     scroll-behavior: auto !important;
   }
 }
+
+/* Maker's space — grain paper + Seven Card Horseshoe (develop) */
+.makers-space-shell {
+  background-color: #f4efe6;
+  background-image: radial-gradient(rgba(40, 32, 24, 0.035) 0.6px, transparent 0.7px);
+  background-size: 3px 3px;
+  color: #1a1714;
+  min-height: 100dvh;
+}
+
+.makers-space-shell .lookbook-rail {
+  border-bottom-color: rgba(26, 23, 20, 0.12);
+  background: rgba(244, 239, 230, 0.88);
+}
+
+.makers-space-shell .site-nav button {
+  color: #1a1714;
+}
+
+.makers-space-shell .site-nav button.text-mcm-cream\/65,
+.makers-space-shell .site-nav button[aria-pressed='false'] {
+  color: rgba(26, 23, 20, 0.55);
+}
+
+.makers-space {
+  width: 100%;
+  padding: 0.5rem clamp(0.75rem, 2vw, 1.5rem) 2rem;
+}
+
+/*
+ * Desktop Seven Card Horseshoe as a grid (not absolute crumbs):
+ *     3     5
+ *   2    4    6
+ *     1     7
+ * Cards fill their column — natural aspect, no crop, no overlap.
+ */
+.makers-space__shoe {
+  display: grid;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  gap: clamp(0.55rem, 1.2vw, 1rem) clamp(0.75rem, 2vw, 1.35rem);
+  /* Three fat columns — less empty air than a 5-col horseshoe skeleton */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    's3 . s5'
+    's2 s4 s6'
+    's1 . s7';
+  align-items: center;
+  justify-items: stretch;
+}
+
+.makers-space__card {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  overflow: visible;
+  cursor: pointer;
+  background: transparent;
+  transform: none;
+  justify-self: center;
+  box-shadow:
+    0 1px 2px rgba(26, 23, 20, 0.12),
+    0 10px 22px rgba(26, 23, 20, 0.1);
+}
+
+.makers-space__card:focus-visible {
+  outline: 2px solid #a63c32;
+  outline-offset: 3px;
+}
+
+.makers-space__img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  /* Share the first viewport across 3 horseshoe rows; aspect still native (no crop) */
+  max-height: min(calc((100dvh - 8rem) / 3), 400px);
+  /* Never cover/crop/stretch — landscape stays landscape, portrait stays portrait */
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+}
+
+.makers-space__card--1 { grid-area: s1; }
+.makers-space__card--2 { grid-area: s2; }
+.makers-space__card--3 { grid-area: s3; }
+.makers-space__card--4 { grid-area: s4; }
+.makers-space__card--5 { grid-area: s5; }
+.makers-space__card--6 { grid-area: s6; }
+.makers-space__card--7 { grid-area: s7; }
+
+.makers-space__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 23, 20, 0.92);
+  padding: 1rem;
+}
+
+.makers-space__lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: 0;
+  background: transparent;
+  color: #f7f1e6;
+  font: inherit;
+  cursor: pointer;
+}
+
+.makers-space__lightbox-img {
+  max-height: 85dvh;
+  max-width: 92vw;
+  object-fit: contain;
+}
+
+@media (max-width: 767px) {
+  .makers-space__shoe {
+    gap: 0.55rem;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: start;
+    grid-template-areas:
+      's3 s3 s3 s5 s5 s5'
+      's2 s2 s4 s4 s6 s6'
+      's1 s1 s1 s7 s7 s7';
+  }
+}
+

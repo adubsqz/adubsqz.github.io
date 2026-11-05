@@ -39,3 +39,4 @@ __pycache__/
 .cursor-history/
 .cursor-history-local/
 .cursor-history-local-*/
+.superpowers/

@@ -19,7 +19,7 @@ vi.mock('../data', async (importOriginal) => {
   };
 });
 
-import App from '../App';
+import GalleryView from './GalleryView';
 import { contactPrefillForPhoto, FORMSUBMIT_FORM_ID } from '../inquireStatic';
 
 const fixturePhoto = {
@@ -27,6 +27,12 @@ const fixturePhoto = {
   alt: 'Photograph fixture_inquiry',
 };
 
+/**
+ * Invoice/licensing flow still lives on GalleryView lightbox.
+ * Work shell on develop is the horseshoe (MakersSpaceView); these tests keep
+ * the quote-sheet contract covered against GalleryView until the horseshoe
+ * lightbox gains the same CTAs.
+ */
 describe('Lightbox invoice flow (functional)', () => {
   beforeEach(() => {
     const location = window.location;
@@ -47,7 +53,7 @@ describe('Lightbox invoice flow (functional)', () => {
     'opens Request Invoice from a lightbox and submits via mailto:adubsqz@gmail.com',
     async () => {
     const user = userEvent.setup();
-    render(<App />);
+    render(<GalleryView />);
 
     await user.click(await screen.findByRole('button', { name: /open photo/i }));
     const lightbox = await screen.findByRole('dialog', { name: /image lightbox/i });
@@ -87,7 +93,7 @@ describe('Lightbox invoice flow (functional)', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
-    render(<App />);
+    render(<GalleryView />);
 
     await user.click(await screen.findByRole('button', { name: /open photo/i }));
     const lightbox = await screen.findByRole('dialog', { name: /image lightbox/i });
@@ -113,7 +119,7 @@ describe('Lightbox invoice flow (functional)', () => {
 
   it('opens Contact from Licensing or hire with photo prefill', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    render(<GalleryView />);
     const prefill = contactPrefillForPhoto(fixturePhoto);
 
     await user.click(await screen.findByRole('button', { name: /open photo/i }));
