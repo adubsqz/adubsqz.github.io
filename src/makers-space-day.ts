@@ -3,8 +3,8 @@ import { arrangeContactSheet, stillLifePathFromSrc } from './gallery-sheet-order
 import { buildMakersSpaceCycle, windowForDay } from './makers-space-cycle';
 import { CYCLE_DAYS } from './makers-space-day1';
 
-/** First calendar day of the rotation (America/Denver). */
-export const MAKERS_SPACE_EPOCH = '2026-11-04';
+/** Calendar day 1 of the rotation in America/Denver (ship day on main). */
+export const MAKERS_SPACE_EPOCH = '2026-11-05';
 
 const DENVER = 'America/Denver';
 
