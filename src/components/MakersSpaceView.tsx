@@ -56,9 +56,10 @@ export default function MakersSpaceView({ now = new Date() }: MakersSpaceViewPro
                 src={photo.src}
                 alt=""
                 className="makers-space__img"
-                wrapperClassName="relative block h-full w-full"
+                wrapperClassName="relative block w-full"
                 sizes="(max-width: 767px) 45vw, 18vw"
               />
+
             </button>
           );
         })}

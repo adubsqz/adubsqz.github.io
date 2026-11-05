@@ -1,7 +1,7 @@
 interface BrandMarkProps {
   onClick?: () => void;
-  /** Hero-scale mark for the password curtain; default is header size. */
-  size?: 'header' | 'hero';
+  /** Hero = gate; about = XL plate on the About grain page; default = header. */
+  size?: 'header' | 'hero' | 'about';
   /**
    * Dark ground → white mark; light ground → black mark.
    * Default dark matches the lookbook ink / gate.
@@ -39,13 +39,21 @@ export default function BrandMark({
     </span>
   );
 
-  const className = [
-    'brand-mark',
-    size === 'hero' ? 'brand-mark--hero' : '',
-    onLight ? 'brand-mark--on-light' : '',
-  ]
+  const sizeClass =
+    size === 'hero' ? 'brand-mark--hero' : size === 'about' ? 'brand-mark--about' : '';
+
+  const className = ['brand-mark', sizeClass, onLight ? 'brand-mark--on-light' : '']
     .filter(Boolean)
     .join(' ');
+
+  // About XL mark is decorative — the header already exposes the site name.
+  if (size === 'about') {
+    return (
+      <div className={className} aria-hidden="true">
+        {mark}
+      </div>
+    );
+  }
 
   return (
     <h1 className={className}>

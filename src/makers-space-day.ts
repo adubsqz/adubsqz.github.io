@@ -39,5 +39,6 @@ export function todaysMakersSpaceSeats(now: Date = new Date()): string[] {
 export function stillLifeUrl(relativePath: string): string {
   const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
   const root = (base.endsWith('/') ? base.slice(0, -1) : base) + '/photos/still-life';
-  return `${root}/${relativePath.replace(/^\//, '')}`;
+  // Cache-buster so browsers that stored earlier Vite allowlist 404s refetch publishes.
+  return `${root}/${relativePath.replace(/^\//, '')}?v=makers-1`;
 }

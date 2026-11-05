@@ -12,7 +12,7 @@ describe('MakersSpaceView', () => {
     expect(screen.getAllByRole('button', { name: /open photo/i })).toHaveLength(7);
   });
 
-  it('keeps CSS overlay watermarks on every seat and in the lightbox', async () => {
+  it('double-watermarks every seat: CSS overlay + drag-shield (JPEG burn-in is gallery-verified)', async () => {
     const user = userEvent.setup();
     const { container } = render(
       <MakersSpaceView now={new Date('2026-11-04T18:00:00-07:00')} />,
@@ -22,9 +22,12 @@ describe('MakersSpaceView', () => {
     expect(seatImgs).toHaveLength(7);
     for (const img of seatImgs) {
       expect(img).toHaveAttribute('draggable', 'false');
+      expect(img).toHaveClass('makers-space__img');
       fireEvent.load(img);
     }
+    // Soft CSS diagonal overlay on each seat (burn-in lives in the JPEG bytes).
     expect(screen.getAllByText(/^adubsqz$/i).length).toBeGreaterThanOrEqual(7);
+    expect(container.querySelectorAll('.absolute.inset-0.z-10')).toHaveLength(7);
 
     await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
     const lightbox = await screen.findByRole('dialog');

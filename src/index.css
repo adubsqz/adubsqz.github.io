@@ -59,10 +59,44 @@ body {
   margin: 0;
 }
 
+/* No chrome around NYC proof — plate sits on grain, image only */
 .proof-plate__frame {
-  box-shadow:
-    0 0 0 1px rgba(247, 241, 230, 0.12),
-    0 0 56px 6px rgba(246, 243, 236, 0.08);
+  box-shadow: none;
+  border: 0;
+  background: transparent;
+}
+
+.about-on-grain {
+  color: #1a1714;
+}
+
+.about-on-grain .grease-pencil--on-ink {
+  color: rgba(26, 23, 20, 0.55);
+}
+
+.about-layout {
+  display: grid;
+  gap: 1.75rem 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .about-layout {
+    grid-template-columns: minmax(12rem, 0.85fr) minmax(0, 1.35fr);
+  }
+}
+
+.about-mark {
+  margin: 0;
+  padding-top: 0.25rem;
+}
+
+.about-mark .brand-mark--hero {
+  font-size: clamp(3.2rem, 14vw, 7.5rem);
+}
+
+.about-mark .brand-mark__img {
+  max-width: min(100%, 22em);
 }
 
 @keyframes table-lit {
@@ -94,6 +128,14 @@ body {
 
 .brand-mark--hero {
   font-size: clamp(2.4rem, 8vw, 3.75rem);
+}
+
+.brand-mark--about {
+  font-size: clamp(3.2rem, 14vw, 7.5rem);
+}
+
+.brand-mark--about .brand-mark__img {
+  max-width: min(100%, 22em);
 }
 
 .brand-mark__stack {
@@ -207,28 +249,46 @@ img {
 
 .makers-space {
   width: 100%;
-  padding: 0.75rem 0.75rem 2rem;
+  padding: 0.5rem clamp(0.75rem, 2vw, 1.5rem) 2rem;
 }
 
+/*
+ * Desktop Seven Card Horseshoe as a grid (not absolute crumbs):
+ *     3     5
+ *   2    4    6
+ *     1     7
+ * Cards fill their column — natural aspect, no crop, no overlap.
+ */
 .makers-space__shoe {
-  position: relative;
+  display: grid;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
-  aspect-ratio: 16 / 10;
+  gap: clamp(0.55rem, 1.2vw, 1rem) clamp(0.75rem, 2vw, 1.35rem);
+  /* Three fat columns — less empty air than a 5-col horseshoe skeleton */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    's3 . s5'
+    's2 s4 s6'
+    's1 . s7';
+  align-items: center;
+  justify-items: stretch;
 }
 
 .makers-space__card {
-  position: absolute;
-  width: 18%;
-  aspect-ratio: 3 / 4;
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 3px;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
-  background: rgba(26, 23, 20, 0.06);
+  background: transparent;
+  transform: none;
+  justify-self: center;
   box-shadow:
     0 1px 2px rgba(26, 23, 20, 0.12),
     0 10px 22px rgba(26, 23, 20, 0.1);
@@ -240,20 +300,25 @@ img {
 }
 
 .makers-space__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  /* Share the first viewport across 3 horseshoe rows; aspect still native (no crop) */
+  max-height: min(calc((100dvh - 8rem) / 3), 400px);
+  /* Never cover/crop/stretch — landscape stays landscape, portrait stays portrait */
+  object-fit: contain;
+  object-position: center;
+  transform: none;
 }
 
-/* Desktop horseshoe — seats 3 & 5 pulled toward center */
-.makers-space__card--1 { left: 4%; bottom: 8%; }
-.makers-space__card--2 { left: 4%; bottom: 40%; }
-.makers-space__card--3 { left: 32%; top: 4%; }
-.makers-space__card--4 { left: 50%; bottom: 1%; width: 20%; transform: translateX(-50%); }
-.makers-space__card--5 { left: 50%; top: 4%; transform: translateX(10%); }
-.makers-space__card--6 { right: 4%; bottom: 40%; left: auto; }
-.makers-space__card--7 { right: 4%; bottom: 8%; left: auto; }
+.makers-space__card--1 { grid-area: s1; }
+.makers-space__card--2 { grid-area: s2; }
+.makers-space__card--3 { grid-area: s3; }
+.makers-space__card--4 { grid-area: s4; }
+.makers-space__card--5 { grid-area: s5; }
+.makers-space__card--6 { grid-area: s6; }
+.makers-space__card--7 { grid-area: s7; }
 
 .makers-space__lightbox {
   position: fixed;
@@ -285,32 +350,13 @@ img {
 
 @media (max-width: 767px) {
   .makers-space__shoe {
-    aspect-ratio: auto;
-    display: grid;
-    gap: 0.4rem;
-    grid-template-columns: repeat(6, 1fr);
+    gap: 0.55rem;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: start;
     grid-template-areas:
       's3 s3 s3 s5 s5 s5'
       's2 s2 s4 s4 s6 s6'
       's1 s1 s1 s7 s7 s7';
   }
-
-  .makers-space__card {
-    position: relative;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    bottom: auto !important;
-    width: 100% !important;
-    transform: none !important;
-  }
-
-  .makers-space__card--1 { grid-area: s1; }
-  .makers-space__card--2 { grid-area: s2; }
-  .makers-space__card--3 { grid-area: s3; }
-  .makers-space__card--4 { grid-area: s4; }
-  .makers-space__card--5 { grid-area: s5; }
-  .makers-space__card--6 { grid-area: s6; }
-  .makers-space__card--7 { grid-area: s7; }
 }
 

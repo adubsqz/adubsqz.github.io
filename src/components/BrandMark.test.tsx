@@ -38,4 +38,11 @@ describe('BrandMark', () => {
     await user.click(screen.getByRole('button', { name: 'adubsqz' }));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it('renders the about XL mark as decorative (not a second heading)', () => {
+    const { container } = render(<BrandMark size="about" ground="light" />);
+    expect(container.querySelector('.brand-mark--about')).toBeTruthy();
+    expect(container.querySelector('.brand-mark--about')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.queryByRole('heading', { name: 'adubsqz' })).not.toBeInTheDocument();
+  });
 });

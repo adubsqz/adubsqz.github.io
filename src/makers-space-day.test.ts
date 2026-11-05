@@ -16,7 +16,7 @@ describe('makers-space day window', () => {
 
   it('builds still-life URLs under /photos/still-life/', () => {
     expect(stillLifeUrl('color/driftwood-in-the-wash.jpg')).toBe(
-      '/photos/still-life/color/driftwood-in-the-wash.jpg',
+      '/photos/still-life/color/driftwood-in-the-wash.jpg?v=makers-1',
     );
   });
 });

@@ -38,25 +38,41 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
-  it('renders a plain wordmark and Work / About, without categories or the handwritten note', () => {
+  it('renders Work / Portfolio / About on grain without categories', () => {
     render(<App />);
     expect(screen.getByRole('heading', { level: 1, name: 'adubsqz' })).toHaveClass('brand-mark');
     expect(screen.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^portfolio$/i })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('button', { name: /^about$/i })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.queryByRole('img', { name: /printable film photography/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: /collections/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/about me/i)).not.toBeInTheDocument();
   });
 
-  it('opens About from the nav and keeps the written copy', async () => {
+  it('opens Portfolio with the full contact-sheet of publishes', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await user.click(screen.getByRole('button', { name: /^portfolio$/i }));
+    expect(screen.getByRole('button', { name: /^portfolio$/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.queryByTestId('makers-space')).not.toBeInTheDocument();
+    const opens = await screen.findAllByRole('button', { name: /open photo/i });
+    expect(opens.length).toBeGreaterThan(7);
+  });
+
+  it('opens About from the nav with XL logo on grain', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
     await user.click(screen.getByRole('button', { name: /^about$/i }));
     expect(screen.getByRole('button', { name: /^about$/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: /^work$/i })).toHaveAttribute('aria-pressed', 'false');
     expect(await screen.findByText(/I take 35mm and medium format film photography/i)).toBeInTheDocument();
     expect(screen.getByText(/AWS Certified AI Practitioner/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /let's talk/i })).toBeInTheDocument();
+    expect(screen.getByTestId('about-view')).toHaveClass('about-on-grain');
+    expect(screen.getByTestId('about-xl-logo').querySelector('.brand-mark--about')).toBeTruthy();
+    expect(container.querySelector('.makers-space-shell')).toBeTruthy();
+    expect(container.querySelector('.lookbook-ink')).toBeFalsy();
     expect(screen.queryByRole('button', { name: /^gallery$/i })).not.toBeInTheDocument();
   });
 
