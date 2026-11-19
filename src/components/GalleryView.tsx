@@ -183,14 +183,15 @@ function CollageCell({
           —
         </span>
       ) : loadSrc ? (
-        <img
+        <WatermarkedImage
           src={sheetHref(photo)}
           alt=""
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
           fetchPriority={eager ? 'high' : 'auto'}
-          draggable="false"
-          className="gallery-image absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+          sizes="(max-width: 639px) 50vw, 25vw"
+          wrapperClassName="absolute inset-0 block h-full w-full"
+          className="gallery-image h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
           onError={() => {
             if (!acceptErrorsRef.current) return;
             console.error('Gallery photo failed to load:', sheetHref(photo));

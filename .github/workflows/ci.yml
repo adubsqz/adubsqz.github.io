@@ -34,6 +34,16 @@ jobs:
       - name: Run integration tests (90% coverage)
         run: npm run test:integration
 
+      - name: Setup Python for gallery tooling
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Gallery pytest + publish burn-in verify
+        run: |
+          npm run gallery:test
+          npm run gallery:verify
+
       - name: Install Playwright Chromium
         run: npm run playwright:install
 

@@ -6,7 +6,14 @@ from gallery.manifest_store import append_if_absent, load_manifest, save_manifes
 
 
 def _minimal_manifest():
-    return {"about": [], "bw": [], "color": [], "redscale": [], "people": []}
+    return {
+        "about": [],
+        "shooks_run": [],
+        "bw": [],
+        "color": [],
+        "redscale": [],
+        "people": [],
+    }
 
 
 def test_manifest_key_order_stable(tmp_path, monkeypatch):
@@ -18,11 +25,12 @@ def test_manifest_key_order_stable(tmp_path, monkeypatch):
     save_manifest(repo, load_manifest(repo))
     text = m.read_text(encoding="utf-8")
     i_about = text.index('"about"')
+    i_shooks = text.index('"shooks_run"')
     i_bw = text.index('"bw"')
     i_co = text.index('"color"')
     i_rs = text.index('"redscale"')
     i_people = text.index('"people"')
-    assert i_about < i_bw < i_co < i_rs < i_people
+    assert i_about < i_shooks < i_bw < i_co < i_rs < i_people
 
 
 def test_append_duplicate_returns_false(tmp_path, monkeypatch):
