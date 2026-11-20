@@ -8,8 +8,10 @@ Full TLS / proxy hazard context: [docs/ai-crawler-controls.md](../docs/ai-crawle
 
 ## Prerequisites
 
-1. Cloudflare API token (`CLOUDFLARE_API_TOKEN`) with zone-scoped permissions for
-   `adubs.site` — see error text from `npm run hosting:orange-cloud`.
+1. Cloudflare API access (pick one):
+   - **Preferred for agents:** install the [Cloudflare plugin](https://cursor.com/marketplace/cloudflare) (`/add-plugin cloudflare`) or rely on repo `.cursor/mcp.json` → `https://mcp.cloudflare.com/mcp`, then complete OAuth in Chrome with **Workers Scripts** + **Workers Routes** on `adubs.site`.
+   - **CLI:** `npx cf auth login --no-browser` (approve the device code; keep Workers Routes scopes).
+   - **Token:** `CLOUDFLARE_API_TOKEN` from the **Edit Cloudflare Workers** template with Zone resources → Include → `adubs.site` (Workers Scripts:Edit **and** Workers Routes:Edit). See error text from `npm run hosting:orange-cloud` / photo-gate deploy preflight.
 2. Confirm GitHub Pages HTTPS is healthy **while still grey-clouded**.
 3. For Part 3: Wrangler login (`npx wrangler login`) and secrets set once:
 

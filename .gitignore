@@ -16,6 +16,7 @@ blob-report/
 .cursor/*
 !.cursor/agents/
 !.cursor/agents/**
+!.cursor/mcp.json
 .cursor-reference.md
 .vscode/
 personal_readme.md
