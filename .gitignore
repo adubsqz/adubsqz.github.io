@@ -25,7 +25,12 @@ scripts/**
 .env
 .env.local
 .env*.local
-tools/
+# Ignore ad-hoc local tools; keep committed gallery package + npm wrappers.
+tools/*
+!tools/gallery/
+!tools/gallery/**
+!tools/run_gallery_module.sh
+!tools/run_gallery_pytest.sh
 .secrets/
 .claude/
 .tmp/

@@ -1,4 +1,7 @@
-"""Day-1 maker's space publishes must carry JPEG © burn-in (durable half of double watermark)."""
+"""Day-1 maker's space publishes must carry JPEG © burn-in (durable half of double watermark).
+
+Full-manifest coverage lives in ``test_all_publish_burn_in.py``; this file pins the horseshoe seats.
+"""
 
 from __future__ import annotations
 

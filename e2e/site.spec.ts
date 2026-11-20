@@ -16,9 +16,26 @@ test.describe('site', () => {
     await expect(page.getByRole('region', { name: /portfolio/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /open photo/i }).first()).toBeVisible();
     expect(await page.getByRole('button', { name: /open photo/i }).count()).toBeGreaterThan(7);
+
+    // Sheet thumbs are small JPEGs without © burn-in; Portfolio cells must still show CSS overlays.
+    const portfolioImgs = page.locator('.lookbook-collage img.gallery-image');
+    const painted = await portfolioImgs.count();
+    expect(painted).toBeGreaterThan(0);
+    for (let i = 0; i < Math.min(painted, 8); i += 1) {
+      await portfolioImgs.nth(i).evaluate((img: HTMLImageElement) => {
+        if (img.complete) img.dispatchEvent(new Event('load'));
+      });
+    }
+    await expect(page.getByText(/^adubsqz$/i).first()).toBeVisible();
+
     await page.getByRole('button', { name: /open photo/i }).first().click();
     const lightbox = page.getByRole('dialog', { name: /image lightbox/i });
     await expect(lightbox).toBeVisible();
+    const lightboxImg = lightbox.locator('img');
+    await lightboxImg.evaluate((img: HTMLImageElement) => {
+      if (img.complete) img.dispatchEvent(new Event('load'));
+    });
+    await expect(lightbox.getByText(/^adubsqz$/i)).toHaveCount(1);
     await page.getByRole('button', { name: /^close$/i }).first().click();
     await expect(lightbox).toHaveCount(0);
 
