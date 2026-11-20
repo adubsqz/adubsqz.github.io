@@ -153,6 +153,31 @@ describe('GalleryView', () => {
     expect(eager[0]?.getAttribute('src')).toMatch(/\/photos\/sheet\//);
   });
 
+  it('CSS-watermarks every painted Portfolio cell (sheet thumbs lack JPEG burn-in)', () => {
+    if (allPhotos.length === 0) return;
+    const { container } = render(<GalleryView />);
+    const imgs = container.querySelectorAll('img.gallery-image');
+    expect(imgs.length).toBeGreaterThan(0);
+    for (const img of imgs) {
+      expect(img).toHaveAttribute('draggable', 'false');
+      fireEvent.load(img);
+    }
+    expect(screen.getAllByText(/^adubsqz$/i).length).toBe(imgs.length);
+    expect(container.querySelectorAll('.absolute.inset-0.z-10').length).toBe(imgs.length);
+  });
+
+  it('keeps CSS watermark on the lightbox full-res frame', async () => {
+    const user = userEvent.setup();
+    render(<GalleryView />);
+    if (allPhotos.length === 0) return;
+    await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
+    const dialog = screen.getByRole('dialog', { name: /image lightbox/i });
+    const img = dialog.querySelector('img');
+    expect(img).toBeTruthy();
+    fireEvent.load(img!);
+    expect(screen.getAllByText(/^adubsqz$/i).length).toBeGreaterThan(0);
+  });
+
   it('keeps off-viewport cells without a src until they intersect the collage', () => {
     const painted = eagerForJsdom();
     if (allPhotos.length <= painted) return;
