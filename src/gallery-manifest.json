@@ -283,7 +283,23 @@
     "color/railing-light-leak.jpg",
     "color/denver-skyline-pencil.jpg",
     "color/manhattan-east-river.jpg",
-    "color/creekside-mint-building.jpg"
+    "color/creekside-mint-building.jpg",
+    {
+      "path": "color/lic-rooftop-verizon-skyline.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "color/wet-court-cobbles.jpg",
+      "orientation": "vertical"
+    },
+    {
+      "path": "color/subway-globe-empire.jpg",
+      "orientation": "vertical"
+    },
+    {
+      "path": "color/gen-korean-bbq-dusk.jpg",
+      "orientation": "horizontal"
+    }
   ],
   "redscale": [
     {
@@ -430,6 +446,30 @@
       "path": "people/guardian-classic-layup.jpg",
       "orientation": "square"
     },
-    "people/bench-dog-waterfront.jpg"
+    "people/bench-dog-waterfront.jpg",
+    {
+      "path": "people/trojan-horns-exit-34.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "people/trojan-horns-trombone-sax.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "people/trojan-horns-trumpet-dutch.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "people/trojan-horns-sax-closeup.jpg",
+      "orientation": "vertical"
+    },
+    {
+      "path": "people/trojan-horns-band-floor.jpg",
+      "orientation": "horizontal"
+    },
+    {
+      "path": "people/sidewalk-dog-bike-share.jpg",
+      "orientation": "horizontal"
+    }
   ]
 }

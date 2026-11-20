@@ -102,7 +102,7 @@ describe('GalleryView', () => {
     render(<GalleryView />);
     if (allPhotos.length === 0) return;
     await user.click(screen.getAllByRole('button', { name: /open photo/i })[0]);
-    await user.click(screen.getByRole('button', { name: /close/i }));
+    await user.click(screen.getByRole('button', { name: /^close$/i }));
     expect(screen.queryByRole('dialog', { name: /image lightbox/i })).not.toBeInTheDocument();
   });
 
