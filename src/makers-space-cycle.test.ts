@@ -11,11 +11,10 @@ import {
   SEATS_PER_DAY,
 } from './makers-space-day1';
 import { buildMakersSpaceCycle, windowForDay } from './makers-space-cycle';
+import { sheetPathsInContactOrder } from './makers-space-day';
 
 describe('makers-space fixed cycle', () => {
-  const sheetPaths = arrangeContactSheet(COLLECTIONS).map((photo) =>
-    stillLifePathFromSrc(photo.src),
-  );
+  const sheetPaths = sheetPathsInContactOrder();
 
   it('exposes a day-one seating of seven with driftwood as the print', () => {
     expect(DAY1_SEATS).toHaveLength(SEATS_PER_DAY);
