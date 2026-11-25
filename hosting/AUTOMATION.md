@@ -100,7 +100,7 @@ Run workflow**). It:
 
 | Secret | Required | Purpose |
 | --- | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Yes | Token with Workers edit + zone read for `adubs.site` ([docs](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/)) |
+| `CLOUDFLARE_API_TOKEN` | Yes | **Edit Cloudflare Workers** template with Zone resources → Include → `adubs.site` (needs Workers Scripts:Edit **and** Workers Routes:Edit on that zone). Account-only tokens that list zero zones will upload the script then 403 on route attach. ([docs](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/)) |
 | `CLOUDFLARE_ACCOUNT_ID` | Yes | Account that owns the zone |
 | `CLOUDFLARE_ZONE_ID` | Recommended | Pins routes when Wrangler cannot resolve `zone_name` |
 | `VITE_EDGE_PHOTO_GATE` | For SPA unlock | Set to `1` so Pages builds call `/api/gate-unlock` (wired in `pages.yml`) |
