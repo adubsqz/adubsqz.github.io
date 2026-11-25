@@ -24,6 +24,5 @@ export const DAY1_SHEET_PATHS = [
 
 export const CYCLE_CLOSER_PATH = 'people/brass_trojan.jpg';
 
-export const CYCLE_LENGTH = 91;
-export const CYCLE_DAYS = 13;
+/** Seats shown each calendar day. Cycle length/days grow with the sheet. */
 export const SEATS_PER_DAY = 7;

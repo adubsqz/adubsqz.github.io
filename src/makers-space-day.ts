@@ -1,7 +1,6 @@
 import { COLLECTIONS } from './data';
 import { arrangeContactSheet, stillLifePathFromSrc } from './gallery-sheet-order';
-import { buildMakersSpaceCycle, windowForDay } from './makers-space-cycle';
-import { CYCLE_DAYS } from './makers-space-day1';
+import { buildMakersSpaceCycle, cycleDays, windowForDay } from './makers-space-cycle';
 
 /** Calendar day 1 of the rotation in America/Denver (ship day on main). */
 export const MAKERS_SPACE_EPOCH = '2026-11-05';
@@ -17,22 +16,28 @@ function denverDateKey(d: Date): string {
   }).format(d);
 }
 
-/** 1-based day in the 13-day cycle for `now` (Denver calendar). */
-export function makersSpaceDayNumber(now: Date = new Date()): number {
-  const today = denverDateKey(now);
-  const epochMs = Date.parse(`${MAKERS_SPACE_EPOCH}T12:00:00-07:00`);
-  const todayMs = Date.parse(`${today}T12:00:00-07:00`);
-  const diffDays = Math.floor((todayMs - epochMs) / 86_400_000);
-  const index = ((diffDays % CYCLE_DAYS) + CYCLE_DAYS) % CYCLE_DAYS;
-  return index + 1;
-}
-
 export function sheetPathsInContactOrder(): string[] {
   return arrangeContactSheet(COLLECTIONS).map((photo) => stillLifePathFromSrc(photo.src));
 }
 
+export function makersSpaceCycle(): string[] {
+  return buildMakersSpaceCycle(sheetPathsInContactOrder());
+}
+
+/** 1-based day in the current horseshoe cycle for `now` (Denver calendar). */
+export function makersSpaceDayNumber(now: Date = new Date()): number {
+  const days = cycleDays(makersSpaceCycle());
+  if (days < 1) return 1;
+  const today = denverDateKey(now);
+  const epochMs = Date.parse(`${MAKERS_SPACE_EPOCH}T12:00:00-07:00`);
+  const todayMs = Date.parse(`${today}T12:00:00-07:00`);
+  const diffDays = Math.floor((todayMs - epochMs) / 86_400_000);
+  const index = ((diffDays % days) + days) % days;
+  return index + 1;
+}
+
 export function todaysMakersSpaceSeats(now: Date = new Date()): string[] {
-  const cycle = buildMakersSpaceCycle(sheetPathsInContactOrder());
+  const cycle = makersSpaceCycle();
   return windowForDay(cycle, makersSpaceDayNumber(now));
 }
 
