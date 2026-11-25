@@ -35,6 +35,22 @@ describe('PasswordGate', () => {
     expect(document.body.textContent ?? '').not.toMatch(/(^|[^a-z0-9])sqz([^a-z0-9]|$)/i);
   });
 
+  it('links open-bench under the Instagram DM invite in the same link style', async () => {
+    render(
+      <PasswordGate>
+        <p>gallery</p>
+      </PasswordGate>,
+    );
+
+    const invite = await screen.findByRole('link', { name: 'wanna make stuff together?' });
+    expect(invite).toHaveAttribute('href', 'https://the-adub-squeeze.github.io/open-bench/');
+    expect(invite).toHaveAttribute('target', '_blank');
+    expect(invite).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(invite.className).toBe(
+      screen.getByRole('link', { name: 'Need the lookbook password? DM @adubsqz.' }).className,
+    );
+  });
+
   it('asks for the password until sqz mints a JWT', async () => {
     const user = userEvent.setup();
     render(

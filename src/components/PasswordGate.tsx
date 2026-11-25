@@ -171,14 +171,24 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         <Button type="submit" className="h-12 text-base" disabled={submitting}>
           {submitting ? 'Checking…' : 'Enter lookbook'}
         </Button>
-        <a
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-center text-sm text-mcm-cream/70 underline-offset-4 hover:text-mcm-cream hover:underline sm:text-left"
-        >
-          Need the lookbook password? DM @adubsqz.
-        </a>
+        <div className="flex flex-col gap-2">
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-center text-sm text-mcm-cream/70 underline-offset-4 hover:text-mcm-cream hover:underline sm:text-left"
+          >
+            Need the lookbook password? DM @adubsqz.
+          </a>
+          <a
+            href="https://the-adub-squeeze.github.io/open-bench/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-center text-sm text-mcm-cream/70 underline-offset-4 hover:text-mcm-cream hover:underline sm:text-left"
+          >
+            wanna make stuff together?
+          </a>
+        </div>
       </form>
     </div>
   );
