@@ -16,7 +16,7 @@ This repo is a Vite/React lookbook on **GitHub Pages** (adubs.site), with Playwr
 - Do not add the Vercel CLI to `package.json`. You do not need `vercel dev` to exercise the live shop.
 - Put local secrets in `.env.local`. Useful keys:
   - Gallery tooling: `GALLERY_PHOTO_PROMPT`, `GALLERY_ORIGINALS`, `GALLERY_IMPORT_SKIP_AUTO_PROMPT`
-  - Optional inquiry overrides: `VITE_FORMSUBMIT_ID`, `VITE_WEB3FORMS_ACCESS_KEY`
+  - Optional inquiry: `VITE_WEB3FORMS_ACCESS_KEY` (mailto fallback when unset)
 - `VITE_E2E=1` skips the client JWT password gate for Playwright.
 
 ## Frontend app
@@ -24,7 +24,7 @@ This repo is a Vite/React lookbook on **GitHub Pages** (adubs.site), with Playwr
 - Run the UI with `npm run dev` (password gate, Request Invoice, Contact).
 - Build and preview with `npm run build` then `npm run preview`.
 - The live gate is a client JWT in `localStorage` (`src/galleryJwt.ts`), not `/api/auth`.
-- Inquiry submit is FormSubmit / Web3Forms / mailto (`src/inquireStatic.ts`). `api/` is unused on Pages.
+- Inquiry submit is Web3Forms / mailto (`src/inquireStatic.ts`). `api/` is unused on Pages.
 - There is no general feature-flag framework. Existing toggle: `VITE_E2E=1`.
 
 ## JavaScript and React tests
@@ -32,7 +32,7 @@ This repo is a Vite/React lookbook on **GitHub Pages** (adubs.site), with Playwr
 - Unit/component tests: `npm run test:run`.
 - Watch mode while editing: `npm run test`.
 - Type checks: `npm run lint`.
-- Tests use Vitest with jsdom and `src/test/setup.ts`. Inquiry tests mock FormSubmit or mailto; they do not need Resend.
+- Tests use Vitest with jsdom and `src/test/setup.ts`. Inquiry tests mock Web3Forms or mailto; they do not need Resend.
 - For a focused run, pass a file or name through Vitest, for example `npm run test:run -- src/components/InquiryModal.test.tsx`.
 
 ## Headless browser clicking tests
@@ -69,7 +69,7 @@ CI does not currently run Playwright e2e. For UI or navigation changes, run `npm
 ## Suggested verification matrix
 
 - JS-only change: `npm run lint` and `npm run test:run`; add `npm run test:e2e` for rendered UI behavior.
-- Inquiry/contact change: `npm run lint`, `npm run test:run` (FormSubmit mocks); e2e if the dialog flow changed.
+- Inquiry/contact change: `npm run lint`, `npm run test:run` (Web3Forms / mailto mocks); e2e if the dialog flow changed.
 - Python gallery change: `npm run gallery:test` plus `npm run gallery:doctor` or `npm run gallery:verify` when paths or manifests are involved.
 - Photo import workflow: dry run or stage-only import, review generated outputs, then ask before committing photos or manifest edits.
 - Release-confidence sweep: CI matrix commands plus `npm run playwright:install` and `npm run test:e2e`.

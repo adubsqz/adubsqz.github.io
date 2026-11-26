@@ -25,7 +25,7 @@
 - Dual clear-bg logos live at `public/adubsqz_logo_{black,white}.png` (BrandMark ground). Photo fidelity / double-watermark coverage: CSS overlay `WatermarkedImage` + JPEG © burn-in via `burn_resize_watermark`; tests in `makers-space-fidelity`, `gallery_tests/test_makers_space_burn_in.py`, and `e2e/makers-space.spec.ts`.
 - Root package `build` runs `vite build` only. E2E entry is `playwright-cli.mjs` (pins `PLAYWRIGHT_BROWSERS_PATH` to `.pw-browsers/`); agents: `node playwright-cli.mjs --wrapper-help` for copy-paste examples; all other args pass through to Playwright.
 - Cloud-agent onboarding: `skills/cloud-agent-starter/SKILL.md`. Live shop is GitHub Pages (not Vercel). Run: `npm ci`; `npm run dev` (Vite); `VITE_E2E=1` for Playwright gate bypass; `npm run test:run`; `npm run gallery:test`; `npm run playwright:install && npm run test:e2e`; CI does not run Playwright.
-- Inquiry on Pages uses FormSubmit / Web3Forms / mailto via `src/inquireStatic.ts`. `api/` is unused at runtime. Do not add the Vercel CLI to app dependencies.
+- Inquiry on Pages uses Web3Forms / mailto via `src/inquireStatic.ts`. `api/` is unused at runtime. Do not add the Vercel CLI to app dependencies.
 
 ## Cursor Cloud specific instructions
 
@@ -38,14 +38,14 @@
 
 ### Running the app
 
-- `npm run dev` serves the React SPA, client JWT password gate, and FormSubmit inquiry forms. You do not need `vercel dev` for the live shop path.
+- `npm run dev` serves the React SPA, client JWT password gate, and Web3Forms / mailto inquiry forms. You do not need `vercel dev` for the live shop path.
 - Set `VITE_E2E=1` to bypass the password gate. There is no `GALLERY_PASSWORD` cookie on Pages.
 - No database or external service is required to start the frontend.
 
 ### Lint / Test / Build
 
 - **Lint:** `npm run lint` (runs `tsc --noEmit` against both `tsconfig.json` and `tsconfig.api.json`)
-- **Unit tests:** `npm run test:run` (Vitest; inquiry tests mock FormSubmit / mailto)
+- **Unit tests:** `npm run test:run` (Vitest; inquiry tests mock Web3Forms / mailto)
 - **Gallery tests:** `npm run gallery:test` (pytest)
 - **E2E:** `npm run playwright:install` (one-time), then `npm run test:e2e` (starts its own Vite server with `VITE_E2E=1`)
 - **Build:** `npm run build` (Vite production build → `dist/`)

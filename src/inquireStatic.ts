@@ -1,9 +1,6 @@
 import { ABOUT } from './data';
 import type { Photo } from './types';
 
-/** FormSubmit hash from the activation email — required after confirm, not the naked inbox. */
-export const FORMSUBMIT_FORM_ID = '9e5f95e3027a5d9d5fd6e84de3e2ebf4';
-
 export type InquirePayload = {
   photo: Photo;
   name: string;
@@ -41,10 +38,6 @@ export function newInquiryCode(): string {
   return Array.from(bytes, (b) => INQUIRY_CODE_CHARS[b % INQUIRY_CODE_CHARS.length]!).join('');
 }
 
-export function confirmationAutoresponse(name: string, code: string): string {
-  return `Hi ${name}, we received your message. Your inquiry number is ${code}. Keep this code to track the conversation. — adubsqz`;
-}
-
 /** After send, tell the visitor to look in *their* inbox — not the studio recipient. */
 export function sentConfirmationHint(visitorEmail: string): string {
   const inbox = visitorEmail.trim();
@@ -75,19 +68,6 @@ function inbox(): string {
   return ABOUT.contactEmail;
 }
 
-export function formsubmitEndpoint(): string {
-  const id = import.meta.env.VITE_FORMSUBMIT_ID?.trim();
-  if (id) return id;
-  const email = import.meta.env.VITE_FORMSUBMIT_EMAIL?.trim();
-  if (email) return email;
-  return FORMSUBMIT_FORM_ID;
-}
-
-function formsubmitAjaxUrl(endpoint: string): string {
-  const slug = endpoint.includes('@') ? encodeURIComponent(endpoint) : endpoint;
-  return `https://formsubmit.co/ajax/${slug}`;
-}
-
 function mailtoHref(subject: string, body: string): string {
   return `mailto:${inbox()}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
@@ -99,34 +79,7 @@ function remoteSucceeded(res: Response, data: unknown): boolean {
   return success === true || success === 'true';
 }
 
-/** FormSubmit AJAX. After activation, POST to the hash — email URLs stop delivering. */
-async function formsubmit(
-  to: string,
-  name: string,
-  email: string,
-  subject: string,
-  message: string,
-  inquiryCode: string,
-): Promise<boolean> {
-  const res = await fetch(formsubmitAjaxUrl(to), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      name,
-      email,
-      inquiry_number: inquiryCode,
-      _replyto: email,
-      _subject: `${subject} [${inquiryCode}]`,
-      _captcha: 'false',
-      _autoresponse: confirmationAutoresponse(name, inquiryCode),
-      message,
-    }),
-  });
-  const data: unknown = await res.json().catch(() => null);
-  return remoteSucceeded(res, data);
-}
-
-/** Web3Forms. Access key is meant for the browser. */
+/** Web3Forms. Access key is meant for the browser; free tier has no sponsor ads. */
 async function web3forms(
   accessKey: string,
   name: string,
@@ -159,13 +112,9 @@ async function tryRemoteSubmit(
   inquiryCode: string,
 ): Promise<boolean> {
   const web3 = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim();
+  if (!web3) return false;
   try {
-    if (web3) {
-      if (await web3forms(web3, name, email, subject, message, inquiryCode)) return true;
-    } else {
-      const to = formsubmitEndpoint();
-      if (to && (await formsubmit(to, name, email, subject, message, inquiryCode))) return true;
-    }
+    if (await web3forms(web3, name, email, subject, message, inquiryCode)) return true;
   } catch {
     // Fall through to mailto so a static host never eats a sale.
   }

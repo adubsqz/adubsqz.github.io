@@ -27,6 +27,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
+          VITE_WEB3FORMS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS_ACCESS_KEY }}
           VITE_CF_BEACON_TOKEN: ${{ secrets.VITE_CF_BEACON_TOKEN }}
           # Set to 1 after photo-gate Worker is live (see hosting/AUTOMATION.md).
           VITE_EDGE_PHOTO_GATE: ${{ secrets.VITE_EDGE_PHOTO_GATE }}

@@ -20,7 +20,7 @@ vi.mock('../data', async (importOriginal) => {
 });
 
 import GalleryView from './GalleryView';
-import { contactPrefillForPhoto, FORMSUBMIT_FORM_ID } from '../inquireStatic';
+import { contactPrefillForPhoto } from '../inquireStatic';
 
 const fixturePhoto = {
   id: 'fixture-1',
@@ -46,6 +46,7 @@ describe('Lightbox invoice flow (functional)', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
 
@@ -85,7 +86,8 @@ describe('Lightbox invoice flow (functional)', () => {
     expect(await screen.findByText(/quote request sent/i)).toBeInTheDocument();
   });
 
-  it('posts lightbox Request Invoice to FormSubmit when fetch succeeds', async () => {
+  it('posts lightbox Request Invoice to Web3Forms when the access key is set', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', 'wk');
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
@@ -105,11 +107,11 @@ describe('Lightbox invoice flow (functional)', () => {
     await user.click(screen.getByRole('button', { name: /send quote request/i }));
 
     expect(fetchMock).toHaveBeenCalledWith(
-      `https://formsubmit.co/ajax/${FORMSUBMIT_FORM_ID}`,
+      'https://api.web3forms.com/submit',
       expect.objectContaining({ method: 'POST' }),
     );
     const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
-    expect(body._subject).toMatch(/print inquiry/i);
+    expect(body.subject).toMatch(/print inquiry/i);
     expect(body.message).toContain(fixturePhoto.id);
     expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/stripe/i);
     expect(window.location.href).not.toMatch(/^mailto:/);

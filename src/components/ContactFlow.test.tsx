@@ -15,7 +15,6 @@ vi.mock('../data', async (importOriginal) => {
 
 import App from '../App';
 import { ABOUT } from '../data';
-import { FORMSUBMIT_FORM_ID } from '../inquireStatic';
 
 describe('Contact me flow (functional)', () => {
   beforeEach(() => {
@@ -33,7 +32,8 @@ describe('Contact me flow (functional)', () => {
     vi.restoreAllMocks();
   });
 
-  it('submits contact via mailto:adubsqz@gmail.com when FormSubmit fails', async () => {
+  it('submits contact via mailto:adubsqz@gmail.com when Web3Forms is unset or fails', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', '');
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     const user = userEvent.setup();
     render(<App />);
@@ -63,7 +63,8 @@ describe('Contact me flow (functional)', () => {
     expect(screen.queryByText(/check adubsqz@gmail.com/i)).not.toBeInTheDocument();
   });
 
-  it('posts CONTACT ME to the activated FormSubmit hash when fetch succeeds', async () => {
+  it('posts CONTACT ME to Web3Forms when the access key is set', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', 'wk');
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
@@ -81,7 +82,7 @@ describe('Contact me flow (functional)', () => {
     await user.click(screen.getByRole('button', { name: /send/i }));
 
     expect(fetchMock).toHaveBeenCalledWith(
-      `https://formsubmit.co/ajax/${FORMSUBMIT_FORM_ID}`,
+      'https://api.web3forms.com/submit',
       expect.objectContaining({ method: 'POST' }),
     );
     expect(window.location.href).not.toMatch(/^mailto:/);
