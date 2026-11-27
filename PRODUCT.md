@@ -16,14 +16,14 @@ adubsqz is a password-gated maker's space on GitHub Pages. Visitors unlock grain
 
 ## Positioning
 
-One quiet page of owned, pre-cleared work — not a stock masonry shop, not an indexed studio, not a contact-sheet dump of eighty-nine choices. Password and Instagram DM are the access ritual; FormSubmit / Web3Forms / mailto carry inquiry without a server cart.
+One quiet page of owned, pre-cleared work — not a stock masonry shop, not an indexed studio, not a contact-sheet dump of eighty-nine choices. Password and Instagram DM are the access ritual; Web3Forms / mailto carry inquiry without a server cart.
 
 ## Operating Context
 
 - Password curtain (client JWT; optional Cloudflare edge photo-gate) → Work horseshoe (grain) → lightbox → About / contact.
 - Design contract: `docs/superpowers/specs/2026-11-04-makers-space-horseshoe-design.md` (ships on `develop` first; live `main` until owner promotes).
 - Gallery publishing is offline: masters under `~/photography/originals/` stay untouched; web JPEGs land via gallery import into `public/photos/still-life/`.
-- Live shop is GitHub Pages; inquiry uses FormSubmit / Web3Forms / mailto to adubsqz@gmail.com.
+- Live shop is GitHub Pages; inquiry uses Web3Forms / mailto to adubsqz@gmail.com.
 
 ## Capabilities and Constraints
 

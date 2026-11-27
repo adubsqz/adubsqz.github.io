@@ -15,13 +15,13 @@ Live site: GitHub Pages at `https://adubs.site`. Instagram: `https://www.instagr
 - **No Stripe, no cart, no Shopify checkout.**
 - Gate **stays**. Instagram **bio stays password-free**. Share `sqz` in Stories/DMs until biz cards arrive 25 Sep 2026.
 - Analytics: **Cloudflare Web Analytics** (`VITE_CF_BEACON_TOKEN`), not GoatCounter, not a homemade counter.
-- Production is **Pages + Cloudflare DNS**. `api/` may remain unused. Do not call Resend from the browser. Outreach uses FormSubmit / Web3Forms / mailto via `src/inquireStatic.ts` (see `pages-shop-email`).
+- Production is **Pages + Cloudflare DNS**. `api/` may remain unused. Do not call Resend from the browser. Outreach uses Web3Forms / mailto via `src/inquireStatic.ts` (see `pages-shop-email`).
 
 ## Architecture
 
 ```text
 IG Story/DM or card → PasswordGate(sqz) → lookbook
-  lightbox Request Invoice → InquiryModal (size/medium/ship-to) → FormSubmit/mailto
+  lightbox Request Invoice → InquiryModal (size/medium/ship-to) → Web3Forms/mailto
   quieter Licensing or hire → ContactModal
   About let's talk → ContactModal
 ```

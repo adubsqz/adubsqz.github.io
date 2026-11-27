@@ -19,7 +19,7 @@ You are the **progress checker** for the inquiry-to-invoice shop loop. You do no
 ## Gotchas to always probe (map to current task)
 
 - Gate: JWT expiry at TTL+1ms; storage cleared; `sqz` not in gate text; IG link is `INSTAGRAM_URL`; `VITE_E2E=1` still bypasses; wrong password still errors.
-- Invoice: missing master pixels → conservative sizes only; 40×60/house hidden without enough long-edge px; custom always present; Request Invoice still uses `submitPrintInquiry` / FormSubmit; no Stripe.
+- Invoice: missing master pixels → conservative sizes only; 40×60/house hidden without enough long-edge px; custom always present; Request Invoice still uses `submitPrintInquiry` / Web3Forms / mailto; no Stripe.
 - Master px: dry-run default; never write originals; basename match; `--write` JSON only.
 - About: two blocks; no old “AI robot” hero; e2e About lines still match.
 - Brand: no `adubs.shop` in `src/` or `tests/`.

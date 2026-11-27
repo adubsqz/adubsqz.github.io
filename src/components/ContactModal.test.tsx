@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ContactModal from './ContactModal';
 import { ABOUT } from '../data';
-import { FORMSUBMIT_FORM_ID } from '../inquireStatic';
 
 describe('ContactModal', () => {
   const onClose = vi.fn();
@@ -97,7 +96,8 @@ describe('ContactModal', () => {
     expect(window.location.href).toContain(encodeURIComponent('Hi there'));
   });
 
-  it('posts to the activated FormSubmit hash when fetch succeeds', async () => {
+  it('posts to Web3Forms when the access key is set', async () => {
+    vi.stubEnv('VITE_WEB3FORMS_ACCESS_KEY', 'wk');
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
@@ -111,7 +111,7 @@ describe('ContactModal', () => {
     await user.type(screen.getByLabelText(/message/i), 'Hi there');
     await user.click(screen.getByRole('button', { name: /send/i }));
     expect(fetchMock).toHaveBeenCalledWith(
-      `https://formsubmit.co/ajax/${FORMSUBMIT_FORM_ID}`,
+      'https://api.web3forms.com/submit',
       expect.objectContaining({ method: 'POST' }),
     );
     expect(window.location.href).not.toMatch(/^mailto:/);

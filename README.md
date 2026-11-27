@@ -25,7 +25,7 @@ actually blocks non-compliant AI crawlers and why it is not active yet.
 
 **Production is GitHub Pages + Cloudflare DNS at [adubs.site](https://adubs.site).** There is no Vercel production app, no `adubs.shop` origin, and no live `/api/auth` or `/api/inquire`. `api/` may remain in the repo for unused experiments; the published shop does not call it.
 
-Inquiries go from the browser through FormSubmit (then Web3Forms, then `mailto:adubsqz@gmail.com`). See [SETUP.md](./SETUP.md).
+Inquiries go from the browser through Web3Forms when `VITE_WEB3FORMS_ACCESS_KEY` is set, otherwise `mailto:adubsqz@gmail.com`. See [SETUP.md](./SETUP.md).
 
 ### Password gate
 
@@ -136,7 +136,7 @@ Maps use **`{ "entries": [ { "source", "bucket", "link_mode", "dest_basename"?, 
 
 ## More
 
-See [SETUP.md](./SETUP.md) for the Pages inquiry path (FormSubmit / mailto) and DNS / www TLS.
+See [SETUP.md](./SETUP.md) for the Pages inquiry path (Web3Forms / mailto) and DNS / www TLS.
 
 See [docs/ai-crawler-controls.md](./docs/ai-crawler-controls.md) for the AI crawler posture
 and the Cloudflare runbook.

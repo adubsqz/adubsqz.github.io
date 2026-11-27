@@ -196,7 +196,7 @@ describe('InquiryModal (unit)', () => {
     expect(window.location.href).toContain(encodeURIComponent('house 8x10 ft'));
   });
 
-  it('submits through submitPrintInquiry (FormSubmit path), never Stripe', async () => {
+  it('submits through submitPrintInquiry (Web3Forms / mailto path), never Stripe', async () => {
     const submitSpy = vi.spyOn(inquireStatic, 'submitPrintInquiry').mockResolvedValueOnce();
     const user = userEvent.setup();
     render(<InquiryModal photo={photo} onClose={onClose} />);
