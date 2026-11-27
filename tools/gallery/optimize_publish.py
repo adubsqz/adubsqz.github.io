@@ -1,10 +1,12 @@
-"""Resize + burn-in text watermark before publishing (aligned with scripts/optimize_images.py defaults)."""
+"""Resize + burn-in watermark before publishing (text © or Polaroid margin logo)."""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Tuple
+from typing import Literal, Tuple
+
+import numpy as np
 
 try:
     from PIL import Image, ImageDraw, ImageFont
@@ -13,6 +15,9 @@ except ImportError as e:  # pragma: no cover
         "gallery-import requires Pillow for resize/watermark. "
         'Install deps: pip install -r requirements-gallery.txt (or rerun any "npm run gallery:*").'
     ) from e
+
+LogoInk = Literal["black", "silver"]
+_ALLOWED_LOGO_INK = frozenset({"black", "silver"})
 
 
 def _int_env(key: str, default: int) -> int:
@@ -25,12 +30,34 @@ def _int_env(key: str, default: int) -> int:
         raise ValueError(f"environment variable {key!r} must be an integer, got {raw!r}") from e
 
 
+def _float_env(key: str, default: float) -> float:
+    raw = os.environ.get(key, "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError as e:
+        raise ValueError(f"environment variable {key!r} must be a number, got {raw!r}") from e
+
+
 def _truthy_env(key: str) -> bool:
     return os.environ.get(key, "").strip().lower() in ("1", "true", "yes")
 
 
+def _normalize_logo_ink(raw: str | None) -> LogoInk | None:
+    if raw is None:
+        return None
+    ink = str(raw).strip().lower()
+    if not ink:
+        return None
+    if ink not in _ALLOWED_LOGO_INK:
+        raise ValueError(f'logo_ink must be "black" or "silver", got {raw!r}')
+    return ink  # type: ignore[return-value]
+
+
 def _publish_options() -> dict:
     wm_pos = os.environ.get("GALLERY_WATERMARK_POSITION", "bottom-right").strip() or "bottom-right"
+    env_ink = _normalize_logo_ink(os.environ.get("GALLERY_LOGO_INK"))
     return {
         # Defaults tuned for ~400–500KB typical color JPEGs at 2400px long edge when sources are full-res scans.
         "max_width": _int_env("GALLERY_MAX_WIDTH", 2400),
@@ -42,6 +69,12 @@ def _publish_options() -> dict:
         "watermark_opacity": max(0, min(255, _int_env("GALLERY_WATERMARK_OPACITY", 215))),
         "watermark_position": wm_pos,
         "preserve_exif": os.environ.get("GALLERY_STRIP_EXIF", "").strip().lower() not in ("1", "true", "yes"),
+        # Polaroid margin logo (sharpie look). Map ``logo_ink`` overrides env.
+        # Width/margin fracs are caps / fallbacks — placement fills the safe bottom band.
+        "logo_ink": env_ink,
+        "logo_width_frac": max(0.40, min(0.95, _float_env("GALLERY_LOGO_WIDTH_FRAC", 0.92))),
+        "logo_margin_frac": max(0.12, min(0.40, _float_env("GALLERY_LOGO_MARGIN_FRAC", 0.20))),
+        "logo_opacity": max(0, min(255, _int_env("GALLERY_LOGO_OPACITY", 235))),
     }
 
 
@@ -152,9 +185,251 @@ def watermark_label_screen_rect(
     return l, t, r, b
 
 
-def burn_resize_watermark(src: Path, dest: Path) -> None:
-    """Read image from ``src``, resize (max dims), embed watermark, write ``dest`` (suffix controls format)."""
+def polaroid_logo_screen_rect(
+    image_width: int,
+    image_height: int,
+    *,
+    logo_width_frac: float = 0.92,
+    logo_margin_frac: float = 0.20,
+    left_reserve_frac: float = 0.03,
+    right_reserve_frac: float = 0.03,
+    logo_aspect: float = 254 / 1024,
+) -> tuple[int, int, int, int]:
+    """Approximate huge logo box in the bottom Polaroid margin (centered in the safe band)."""
+    band_h = max(8, int(image_height * logo_margin_frac))
+    band_top = image_height - band_h
+    left_pad = int(image_width * left_reserve_frac)
+    right_pad = int(image_width * right_reserve_frac)
+    avail_w = max(8, image_width - left_pad - right_pad)
+    target_w = max(8, min(avail_w, int(image_width * logo_width_frac)))
+    pad = max(2, int(band_h * 0.03))
+    max_h = max(4, band_h - 2 * pad)
+    target_h = max(4, int(target_w * logo_aspect))
+    if target_h > max_h:
+        target_h = max_h
+        target_w = max(8, int(target_h / max(logo_aspect, 1e-6)))
+    left = left_pad + max(0, (avail_w - target_w) // 2)
+    top = band_top + max(0, (band_h - target_h) // 2)
+    right = min(image_width, left + target_w)
+    bottom = min(image_height, top + target_h)
+    if right <= left + 2 or bottom <= top + 2:
+        raise ValueError("polaroid logo region degenerate for this image size")
+    return left, top, right, bottom
+
+
+def _estimate_polaroid_emulsion_bottom(rgb) -> int:
+    """Return the first row index of the empty bottom margin (below the emulsion)."""
+    h, w, _ = rgb.shape
+    gray = (0.299 * rgb[..., 0] + 0.587 * rgb[..., 1] + 0.114 * rgb[..., 2]).astype(np.float32)
+
+    def _side_depth(side: str) -> int:
+        y0, y1 = int(h * 0.22), int(h * 0.50)
+        if side == "left":
+            for x in range(0, w // 3):
+                if float(gray[y0:y1, x].std()) > 10.0:
+                    return max(1, x)
+            return int(w * 0.06)
+        for x in range(w - 1, (w * 2) // 3, -1):
+            if float(gray[y0:y1, x].std()) > 10.0:
+                return max(1, w - 1 - x)
+        return int(w * 0.06)
+
+    def _top_depth() -> int:
+        x0, x1 = int(w * 0.28), int(w * 0.72)
+        for y in range(0, h // 3):
+            if float(gray[y, x0:x1].std()) > 10.0:
+                return max(1, y)
+        return int(h * 0.06)
+
+    left = _side_depth("left")
+    right = _side_depth("right")
+    top = _top_depth()
+    if left < 4 and right < 4:
+        left = right = max(2, int(w * 0.035))
+    em_w = max(8, w - left - right)
+    square_bottom = top + em_w
+
+    x0, x1 = int(w * 0.38), int(w * 0.62)
+    row_std = gray[:, x0:x1].std(axis=1)
+    base = float(np.median(row_std[int(h * 0.93) :]))
+    scan = int(h * 0.82)
+    for y in range(h - 3, int(h * 0.50), -1):
+        if row_std[y] > max(16.0, base * 2.8 + 6) and float(row_std[max(0, y - 8) : y].mean()) > max(
+            14.0, base * 2.2
+        ):
+            scan = y + 1
+            break
+
+    if abs(square_bottom - scan) < 0.12 * h and 0.55 * h < square_bottom < 0.92 * h:
+        eb = square_bottom
+    elif 0.55 * h < scan < 0.92 * h:
+        eb = scan
+    elif 0.55 * h < square_bottom < 0.92 * h:
+        eb = square_bottom
+    else:
+        eb = int(h * 0.80)
+    return int(np.clip(eb, int(h * 0.55), int(h * 0.92)))
+
+
+def _sticker_side_reserves(rgb, emulsion_bottom: int) -> tuple[float, float]:
+    """Width fractions to keep clear of colorful corner stickers (Pokémon, etc.).
+
+    Measures the colorful blob anchored to each bottom corner and reserves that
+    span (plus a little pad) so a huge centered logo never covers it.
+    """
+    h, w, _ = rgb.shape
+    margin = rgb[emulsion_bottom:].astype(np.float32)
+    if margin.size == 0:
+        return 0.03, 0.03
+    mh = margin.shape[0]
+    cx0, cx1 = int(w * 0.36), int(w * 0.64)
+    med = np.median(margin[:, cx0:cx1].reshape(-1, 3), axis=0)
+    dist = np.linalg.norm(margin - med, axis=2)
+    chroma = margin.max(axis=2) - margin.min(axis=2)
+    # Stickers sit toward the bottom of the margin band.
+    y0 = int(mh * 0.25)
+    mask = (dist[y0:] > 60.0) & (chroma[y0:] > 35.0)
+
+    def _reserve(side: str) -> float:
+        cw = int(w * 0.45)
+        if side == "left":
+            col = mask[:, :cw].mean(axis=0)
+            hits = np.where(col > 0.08)[0]
+            if hits.size == 0 or int(hits.min()) > int(w * 0.12):
+                return 0.03
+            extent = int(hits.max()) + 1
+            return float(np.clip((extent + int(w * 0.025)) / w, 0.03, 0.42))
+        col = mask[:, w - cw :].mean(axis=0)
+        hits = np.where(col > 0.08)[0]
+        if hits.size == 0 or int(hits.max()) < cw - int(w * 0.12):
+            return 0.03
+        extent = cw - int(hits.min())
+        return float(np.clip((extent + int(w * 0.025)) / w, 0.03, 0.42))
+
+    return _reserve("left"), _reserve("right")
+
+
+def compute_polaroid_logo_box(
+    img: Image.Image,
+    *,
+    logo_aspect: float,
+    logo_width_frac: float = 0.92,
+    logo_margin_frac: float = 0.20,
+) -> tuple[int, int, int, int]:
+    """Return ``(left, top, right, bottom)`` for a huge logo that stays in the safe margin."""
+    rgb = np.asarray(img.convert("RGB"))
+    h, w, _ = rgb.shape
+    try:
+        emulsion_bottom = _estimate_polaroid_emulsion_bottom(rgb)
+        left_reserve, right_reserve = _sticker_side_reserves(rgb, emulsion_bottom)
+        band_h = h - emulsion_bottom
+        if band_h < int(h * 0.08):
+            # Detection too aggressive — fall back to fixed bottom band.
+            band_h = max(8, int(h * logo_margin_frac))
+            left_reserve = right_reserve = 0.03
+    except (ValueError, OSError, ArithmeticError):
+        band_h = max(8, int(h * logo_margin_frac))
+        left_reserve = right_reserve = 0.03
+
+    return polaroid_logo_screen_rect(
+        w,
+        h,
+        logo_width_frac=logo_width_frac,
+        logo_margin_frac=band_h / h,
+        left_reserve_frac=left_reserve,
+        right_reserve_frac=right_reserve,
+        logo_aspect=logo_aspect,
+    )
+
+
+def _resolve_logo_path(ink: LogoInk, repo_root: Path | None) -> Path:
+    env_key = "GALLERY_LOGO_BLACK" if ink == "black" else "GALLERY_LOGO_WHITE"
+    env_path = os.environ.get(env_key, "").strip()
+    if env_path:
+        p = Path(env_path).expanduser()
+        if p.is_file():
+            return p.resolve()
+        raise FileNotFoundError(f"{env_key}={env_path!r} is not a file")
+
+    # Silver uses the white mark tinted toward metallic ink.
+    name = "adubsqz_logo_black.png" if ink == "black" else "adubsqz_logo_white.png"
+    candidates: list[Path] = []
+    if repo_root is not None:
+        candidates.append(repo_root / "public" / name)
+    # Fallback when burn is called without an explicit repo (tests / one-shots).
+    here = Path(__file__).resolve()
+    candidates.append(here.parents[2] / "public" / name)
+    for c in candidates:
+        if c.is_file():
+            return c
+    raise FileNotFoundError(f"logo asset not found for ink={ink!r}; tried {[str(c) for c in candidates]}")
+
+
+def _tint_logo_rgba(logo: Image.Image, ink: LogoInk, opacity: int) -> Image.Image:
+    """Apply sharpie-style ink: black mark as-is; silver = cool-grey tint of the white mark."""
+    rgba = logo.convert("RGBA")
+    r, g, b, a = rgba.split()
+    if ink == "black":
+        rgb = Image.merge("RGB", (r, g, b))
+    else:
+        # Metallic silver sharpie on dark borders (not pure white).
+        silver = Image.new("RGB", rgba.size, (198, 202, 210))
+        rgb = silver
+    # Scale alpha for sharpie opacity while preserving logo silhouette.
+    scale = max(0, min(255, opacity)) / 255.0
+    a_scaled = a.point(lambda p: int(p * scale))
+    out = Image.merge("RGBA", (*rgb.split(), a_scaled))
+    return out
+
+
+def _polaroid_logo_overlay(
+    img: Image.Image,
+    *,
+    logo_ink: LogoInk,
+    logo_width_frac: float,
+    logo_margin_frac: float,
+    logo_opacity: int,
+    repo_root: Path | None = None,
+) -> Image.Image:
+    """Burn a huge adubsqz logo into the empty Polaroid margin (clear of emulsion + stickers)."""
+    if img.mode not in ("RGB", "RGBA"):
+        img = img.convert("RGBA")
+
+    logo_path = _resolve_logo_path(logo_ink, repo_root)
+    with Image.open(logo_path) as raw_logo:
+        logo = _tint_logo_rgba(raw_logo, logo_ink, logo_opacity)
+
+    aspect = logo.height / max(1, logo.width)
+    left, top, right, bottom = compute_polaroid_logo_box(
+        img,
+        logo_aspect=aspect,
+        logo_width_frac=logo_width_frac,
+        logo_margin_frac=logo_margin_frac,
+    )
+    target_w = max(8, right - left)
+    target_h = max(4, bottom - top)
+    logo = logo.resize((target_w, target_h), _lanczos())
+
+    base = img if img.mode == "RGBA" else img.convert("RGBA")
+    layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
+    layer.paste(logo, (left, top), logo)
+    return Image.alpha_composite(base, layer)
+
+
+def burn_resize_watermark(
+    src: Path,
+    dest: Path,
+    *,
+    logo_ink: str | None = None,
+    repo_root: Path | None = None,
+) -> None:
+    """Read image from ``src``, resize (max dims), embed watermark, write ``dest`` (suffix controls format).
+
+    When ``logo_ink`` is ``black`` or ``silver`` (or ``GALLERY_LOGO_INK`` is set), burns the
+    adubsqz logo into the bottom Polaroid margin instead of the corner © text plate.
+    """
     opts = _publish_options()
+    ink = _normalize_logo_ink(logo_ink) if logo_ink is not None else opts["logo_ink"]
     dest.parent.mkdir(parents=True, exist_ok=True)
     suffix = dest.suffix.lower()
 
@@ -172,12 +447,22 @@ def burn_resize_watermark(src: Path, dest: Path) -> None:
 
         # One-shot re-encode of already-watermarked web JPEGs: avoids a second burn-in.
         if not _truthy_env("GALLERY_SKIP_WATERMARK"):
-            im = _watermark_overlay(
-                im,
-                watermark_text=opts["watermark_text"],
-                watermark_opacity=opts["watermark_opacity"],
-                watermark_position=opts["watermark_position"],
-            )
+            if ink is not None:
+                im = _polaroid_logo_overlay(
+                    im,
+                    logo_ink=ink,
+                    logo_width_frac=opts["logo_width_frac"],
+                    logo_margin_frac=opts["logo_margin_frac"],
+                    logo_opacity=opts["logo_opacity"],
+                    repo_root=repo_root,
+                )
+            else:
+                im = _watermark_overlay(
+                    im,
+                    watermark_text=opts["watermark_text"],
+                    watermark_opacity=opts["watermark_opacity"],
+                    watermark_position=opts["watermark_position"],
+                )
 
         if im.mode == "RGBA" and suffix in (".jpg", ".jpeg"):
             rgb = Image.new("RGB", im.size, (255, 255, 255))

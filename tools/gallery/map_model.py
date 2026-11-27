@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+
+LogoInk = Literal["black", "silver"]
+ALLOWED_LOGO_INK: frozenset[str] = frozenset({"black", "silver"})
 
 
 @dataclass(frozen=True)
@@ -13,6 +16,7 @@ class MapEntry:
     link_mode: str
     dest_basename: str
     photo_prompt: str | None
+    logo_ink: LogoInk | None = None
 
 
 def load_map(map_path: Path) -> list[MapEntry]:
@@ -26,6 +30,19 @@ def load_map(map_path: Path) -> list[MapEntry]:
     for i, row in enumerate(rows):
         out.append(_row_to_entry(row, i + 1))
     return out
+
+
+def _parse_logo_ink(raw: Any, lineno: int) -> LogoInk | None:
+    if raw is None:
+        return None
+    ink = str(raw).strip().lower()
+    if not ink:
+        return None
+    if ink not in ALLOWED_LOGO_INK:
+        raise ValueError(
+            f'entries[{lineno}] logo_ink must be "black" or "silver", got {raw!r}'
+        )
+    return ink  # type: ignore[return-value]
 
 
 def _row_to_entry(row: Any, lineno: int) -> MapEntry:
@@ -60,4 +77,5 @@ def _row_to_entry(row: Any, lineno: int) -> MapEntry:
         link_mode=link_mode,
         dest_basename=basename,
         photo_prompt=photo_prompt,
+        logo_ink=_parse_logo_ink(row.get("logo_ink"), lineno),
     )

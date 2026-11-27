@@ -117,7 +117,10 @@ def process_entry(repo: Path, entry, dry_run: bool, *, replace: bool, stage_only
         if effective_prompt:
             src = "map photo_prompt" if explicit_prompt else "auto_prompt"
             steps.append(f"photo-prompt ({src})")
-        steps.append("resize+watermark")
+        if entry.logo_ink:
+            steps.append(f"resize+polaroid-logo({entry.logo_ink})")
+        else:
+            steps.append("resize+watermark")
         tail = f"HITL stage -> {dest} (not public/manifest yet)" if stage_only else f"publish ({entry.link_mode}) -> {dest} manifest={token!r}"
         steps.append(tail)
         verb = " + ".join(steps[:-1]) + " | " + steps[-1]
@@ -167,8 +170,11 @@ def process_entry(repo: Path, entry, dry_run: bool, *, replace: bool, stage_only
     opt_abs = _optimized_stage_path(repo, entry.dest_basename)
     if opt_abs.exists():
         opt_abs.unlink()
-    burn_resize_watermark(work_abs, opt_abs)
-    print(f"[import] optimized: {opt_abs}")
+    burn_resize_watermark(work_abs, opt_abs, logo_ink=entry.logo_ink, repo_root=repo)
+    if entry.logo_ink:
+        print(f"[import] optimized (polaroid logo ink={entry.logo_ink}): {opt_abs}")
+    else:
+        print(f"[import] optimized: {opt_abs}")
 
     _install_publish(repo, opt_abs, dest, entry.link_mode, dry_run=False, replace=replace)
     if stage_only:
