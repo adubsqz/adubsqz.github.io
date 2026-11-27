@@ -299,7 +299,12 @@
     {
       "path": "color/gen-korean-bbq-dusk.jpg",
       "orientation": "horizontal"
-    }
+    },
+    "color/polaroid-river-balcony.jpg",
+    "color/polaroid-split-glow.jpg",
+    "color/polaroid-street-obey-vulpix.jpg",
+    "color/polaroid-skyline-charmander.jpg",
+    "color/polaroid-lamp-bulbasaur.jpg"
   ],
   "redscale": [
     {
@@ -470,6 +475,8 @@
     {
       "path": "people/sidewalk-dog-bike-share.jpg",
       "orientation": "horizontal"
-    }
+    },
+    "people/polaroid-portrait-squirtle.jpg",
+    "people/polaroid-bed-laptops.jpg"
   ]
 }
