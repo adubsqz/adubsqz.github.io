@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MAKERS_SPACE_EPOCH,
   makersSpaceDayNumber,
+  sheetUrl,
   stillLifeUrl,
   todaysMakersSpaceSeats,
 } from './makers-space-day';
@@ -19,6 +20,12 @@ describe('makers-space day window', () => {
   it('builds still-life URLs under /photos/still-life/', () => {
     expect(stillLifeUrl('color/driftwood-in-the-wash.jpg')).toBe(
       '/photos/still-life/color/driftwood-in-the-wash.jpg?v=makers-1',
+    );
+  });
+
+  it('builds sheet thumb URLs under /photos/sheet/', () => {
+    expect(sheetUrl('color/driftwood-in-the-wash.jpg')).toBe(
+      '/photos/sheet/color/driftwood-in-the-wash.jpg?v=makers-1',
     );
   });
 });

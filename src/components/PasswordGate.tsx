@@ -36,16 +36,15 @@ export default function PasswordGate({ children }: PasswordGateProps) {
   useEffect(() => {
     if (bypass) return;
     let cancelled = false;
-    void hasValidGallerySession().then(async (ok) => {
+    void hasValidGallerySession().then((ok) => {
       if (cancelled) return;
-      if (ok) {
-        // Session restore has no password — mint edge cookie via lookbook JWT.
-        const jwt = readStoredGalleryJwt();
-        if (jwt) await unlockEdgePhotoGate({ jwt });
-      }
-      if (cancelled) return;
+      // Unlock UI as soon as the lookbook JWT verifies — do not wait on edge cookie.
       setUnlocked(ok);
       setReady(true);
+      if (ok) {
+        const jwt = readStoredGalleryJwt();
+        if (jwt) void unlockEdgePhotoGate({ jwt });
+      }
     });
     return () => {
       cancelled = true;
@@ -95,9 +94,10 @@ export default function PasswordGate({ children }: PasswordGateProps) {
         return;
       }
       writeStoredGalleryJwt(token);
-      await unlockEdgePhotoGate({ password, jwt: token });
       setPassword('');
       setUnlocked(true);
+      // Edge cookie is best-effort; never block the lookbook paint on it.
+      void unlockEdgePhotoGate({ password, jwt: token });
     } catch {
       setError('Could not check the password. Try again.');
     } finally {

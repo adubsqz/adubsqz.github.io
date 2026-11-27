@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Photo } from '../types';
-import { stillLifeUrl, todaysMakersSpaceSeats } from '../makers-space-day';
+import { sheetUrl, stillLifeUrl, todaysMakersSpaceSeats } from '../makers-space-day';
 import WatermarkedImage from './WatermarkedImage';
 
 type MakersSpaceViewProps = {
@@ -8,11 +8,15 @@ type MakersSpaceViewProps = {
   now?: Date;
 };
 
-function seatPhoto(path: string, seat: number): Photo {
+type SeatCard = Photo & { fullSrc: string };
+
+function seatPhoto(path: string, seat: number): SeatCard {
   const stem = path.split('/').pop()?.replace(/\.[^.]+$/, '') ?? `seat-${seat}`;
   return {
     id: `makers-${seat}-${stem}`,
-    src: stillLifeUrl(path),
+    // Grid uses sheet thumbs (~640px); lightbox opens the publish still-life.
+    src: sheetUrl(path),
+    fullSrc: stillLifeUrl(path),
     alt: stem.replace(/[-_]/g, ' '),
   };
 }
@@ -29,7 +33,7 @@ export default function MakersSpaceView({ now = new Date() }: MakersSpaceViewPro
     () => paths.map((path, i) => seatPhoto(path, i + 1)),
     [paths],
   );
-  const [active, setActive] = useState<Photo | null>(null);
+  const [active, setActive] = useState<SeatCard | null>(null);
 
   return (
     <section
@@ -41,6 +45,7 @@ export default function MakersSpaceView({ now = new Date() }: MakersSpaceViewPro
       <div className="makers-space__shoe" data-testid="makers-space-mobile">
         {seats.map((photo, i) => {
           const seat = i + 1;
+          const prioritize = seat === 1 || seat === 4;
           return (
             <button
               key={photo.id}
@@ -58,8 +63,9 @@ export default function MakersSpaceView({ now = new Date() }: MakersSpaceViewPro
                 className="makers-space__img"
                 wrapperClassName="relative block w-full"
                 sizes="(max-width: 767px) 45vw, 18vw"
+                loading={prioritize ? 'eager' : 'lazy'}
+                fetchPriority={prioritize ? 'high' : 'auto'}
               />
-
             </button>
           );
         })}
@@ -83,10 +89,12 @@ export default function MakersSpaceView({ now = new Date() }: MakersSpaceViewPro
           </button>
           <div className="makers-space__lightbox-frame" onClick={(e) => e.stopPropagation()}>
             <WatermarkedImage
-              src={active.src}
+              src={active.fullSrc}
               alt={active.alt}
               className="makers-space__lightbox-img"
               wrapperClassName="relative max-h-[85dvh] max-w-[92vw]"
+              loading="eager"
+              fetchPriority="high"
             />
           </div>
         </div>
