@@ -98,10 +98,15 @@ def test_polaroid_logo_black_ink_darkens_light_margin(monkeypatch, tmp_path: Pat
     frame.paste(emulsion, (40, 40))
     frame.save(src, quality=95)
 
+    from gallery.optimize_publish import compute_polaroid_logo_box, polaroid_logo_screen_rect
+
+    # Placement is decided on the source (burned output confuses emulsion detection).
+    with Image.open(src) as src_img:
+        planned = compute_polaroid_logo_box(src_img, logo_aspect=50 / 200)
+    assert (planned[2] - planned[0]) / 500 >= 0.70
+
     dst = tmp_path / "out.jpg"
     burn_resize_watermark(src, dst, logo_ink="black", repo_root=repo)
-
-    from gallery.optimize_publish import polaroid_logo_screen_rect
 
     with Image.open(dst) as img:
         assert img.size == (500, 600)
@@ -129,10 +134,14 @@ def test_polaroid_logo_silver_ink_lightens_dark_margin(monkeypatch, tmp_path: Pa
     frame.paste(emulsion, (40, 40))
     frame.save(src, quality=95)
 
+    from gallery.optimize_publish import compute_polaroid_logo_box, polaroid_logo_screen_rect
+
+    with Image.open(src) as src_img:
+        planned = compute_polaroid_logo_box(src_img, logo_aspect=50 / 200)
+    assert (planned[2] - planned[0]) / 500 >= 0.70
+
     dst = tmp_path / "out.jpg"
     burn_resize_watermark(src, dst, logo_ink="silver", repo_root=repo)
-
-    from gallery.optimize_publish import polaroid_logo_screen_rect
 
     with Image.open(dst) as img:
         l, t, r, b = polaroid_logo_screen_rect(500, 600)
@@ -185,7 +194,7 @@ def test_env_gallery_logo_ink_enables_polaroid_mode(monkeypatch, tmp_path: Path)
 
 def test_polaroid_mode_skips_corner_copyright_plate(monkeypatch, tmp_path: Path):
     """logo_ink burns margin logo only — corner © dark pad must not appear."""
-    from gallery.optimize_publish import watermark_label_screen_rect
+    from gallery.optimize_publish import compute_polaroid_logo_box, polaroid_logo_screen_rect, watermark_label_screen_rect
 
     monkeypatch.delenv("GALLERY_SKIP_WATERMARK", raising=False)
     monkeypatch.delenv("GALLERY_LOGO_INK", raising=False)
@@ -218,9 +227,27 @@ def test_polaroid_mode_skips_corner_copyright_plate(monkeypatch, tmp_path: Path)
             pixels = list(crop.getdata())
             return sum(0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2] for p in pixels) / len(pixels)
 
-    # © mode darkens the corner plate; polaroid mode leaves that corner near flat gray.
+    # © mode darkens the corner plate. Polaroid mode uses a huge centered margin logo —
+    # plan placement on the flat source, then sample the right gutter outside that box.
     assert _corner_mean(copyright_dst) < 80
-    assert _corner_mean(logo_dst) > 140
+    with Image.open(src) as src_img:
+        box = compute_polaroid_logo_box(src_img, logo_aspect=50 / 200)
+    assert (box[2] - box[0]) / 500 >= 0.70
+    with Image.open(logo_dst) as img:
+        gutter = img.crop((min(img.width - 8, box[2] + 1), box[1], img.width, box[3]))
+        pixels = list(gutter.getdata())
+        gutter_mean = sum(0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2] for p in pixels) / max(
+            1, len(pixels)
+        )
+        assert gutter_mean > 140
+        # Fixed verify band should also show the burn-in.
+        l, t, r, b = polaroid_logo_screen_rect(500, 600)
+        band = img.crop((l, t, r, b))
+        band_pixels = list(band.getdata())
+        band_mean = sum(
+            0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2] for p in band_pixels
+        ) / len(band_pixels)
+        assert band_mean < 120
 
 
 def test_missing_logo_asset_raises(monkeypatch, tmp_path: Path):

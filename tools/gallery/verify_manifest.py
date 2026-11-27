@@ -47,13 +47,27 @@ def _text_label_ok(crop: Image.Image) -> bool:
     return std >= 8.0 and low_frac >= 0.03 and high_frac >= 0.015
 
 
-def _polaroid_logo_ok(crop: Image.Image) -> bool:
-    """Bottom-margin logo burn-in: silhouette adds local contrast vs a flat frame."""
+def _gray_mean(crop: Image.Image) -> float:
     arr = np.asarray(crop, dtype=np.float32)
     gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+    return float(np.mean(gray))
+
+
+def _polaroid_logo_ok(im: Image.Image, box: tuple[int, int, int, int]) -> bool:
+    """Bottom-margin logo: glyph contrast, or a strong mean shift vs the strip above."""
+    pl, pt, pr, pb = box
+    logo_crop = im.crop((pl, pt, pr, pb))
+    arr = np.asarray(logo_crop, dtype=np.float32)
+    gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
     std = float(np.std(gray))
-    # Sharpie logo on light or dark margin should not be near-flat.
-    return std >= 6.0
+    if std >= 6.0:
+        return True
+    # Huge near-solid sharpie fill: margin mean shifts vs the rows just above the band.
+    ref_top = max(0, pt - max(8, (pb - pt) // 3))
+    if ref_top >= pt:
+        return False
+    ref = im.crop((pl, ref_top, pr, pt))
+    return abs(_gray_mean(logo_crop) - _gray_mean(ref)) >= 22.0
 
 
 def _check_watermark_heuristic(path: Path, opts: dict) -> str | None:
@@ -72,19 +86,21 @@ def _check_watermark_heuristic(path: Path, opts: dict) -> str | None:
             if _text_label_ok(text_crop):
                 return None
 
+            # Use the fixed huge-band rect (not content-aware): re-detecting on an
+            # already-burned publish confuses emulsion edges with the logo itself.
             pl, pt, pr, pb = polaroid_logo_screen_rect(
                 w,
                 h,
-                logo_width_frac=float(opts.get("logo_width_frac", 0.30)),
-                logo_margin_frac=float(opts.get("logo_margin_frac", 0.16)),
+                logo_width_frac=float(opts.get("logo_width_frac", 0.92)),
+                logo_margin_frac=float(opts.get("logo_margin_frac", 0.20)),
             )
-            logo_crop = im.crop((pl, pt, pr, pb))
-            if _polaroid_logo_ok(logo_crop):
+            if _polaroid_logo_ok(im, (pl, pt, pr, pb)):
                 return None
 
             arr = np.asarray(text_crop, dtype=np.float32)
             gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
             std = float(np.std(gray))
+            logo_crop = im.crop((pl, pt, pr, pb))
             logo_std = float(
                 np.std(
                     0.299 * np.asarray(logo_crop, dtype=np.float32)[..., 0]
