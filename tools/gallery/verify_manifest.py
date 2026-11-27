@@ -11,7 +11,11 @@ from PIL import Image, UnidentifiedImageError
 from gallery.config import PUBLISH_STILL_LIFE_REL
 from gallery.manifest_entry import entry_token
 from gallery.manifest_store import load_manifest
-from gallery.optimize_publish import _publish_options, watermark_label_screen_rect
+from gallery.optimize_publish import (
+    _publish_options,
+    polaroid_logo_screen_rect,
+    watermark_label_screen_rect,
+)
 
 _IMAGE_EXT = re.compile(r"\.(jpe?g|png|webp)$", re.I)
 
@@ -34,8 +38,26 @@ def _check_publish_dimensions(path: Path, max_w: int, max_h: int) -> str | None:
     return None
 
 
+def _text_label_ok(crop: Image.Image) -> bool:
+    arr = np.asarray(crop, dtype=np.float32)
+    gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+    low_frac = float(np.mean(gray < 95.0))
+    high_frac = float(np.mean(gray > 180.0))
+    std = float(np.std(gray))
+    return std >= 8.0 and low_frac >= 0.03 and high_frac >= 0.015
+
+
+def _polaroid_logo_ok(crop: Image.Image) -> bool:
+    """Bottom-margin logo burn-in: silhouette adds local contrast vs a flat frame."""
+    arr = np.asarray(crop, dtype=np.float32)
+    gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+    std = float(np.std(gray))
+    # Sharpie logo on light or dark margin should not be near-flat.
+    return std >= 6.0
+
+
 def _check_watermark_heuristic(path: Path, opts: dict) -> str | None:
-    """Heuristic: bottom-right label plate should show dark pad + bright glyphs (burn-in)."""
+    """Heuristic: © text plate OR Polaroid margin logo burn-in must be present."""
     try:
         with Image.open(path) as im:
             im = im.convert("RGB")
@@ -46,23 +68,39 @@ def _check_watermark_heuristic(path: Path, opts: dict) -> str | None:
                 watermark_text=opts["watermark_text"],
                 watermark_position=opts["watermark_position"],
             )
-            crop = im.crop((l, t, r, b))
+            text_crop = im.crop((l, t, r, b))
+            if _text_label_ok(text_crop):
+                return None
+
+            pl, pt, pr, pb = polaroid_logo_screen_rect(
+                w,
+                h,
+                logo_width_frac=float(opts.get("logo_width_frac", 0.30)),
+                logo_margin_frac=float(opts.get("logo_margin_frac", 0.16)),
+            )
+            logo_crop = im.crop((pl, pt, pr, pb))
+            if _polaroid_logo_ok(logo_crop):
+                return None
+
+            arr = np.asarray(text_crop, dtype=np.float32)
+            gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+            std = float(np.std(gray))
+            logo_std = float(
+                np.std(
+                    0.299 * np.asarray(logo_crop, dtype=np.float32)[..., 0]
+                    + 0.587 * np.asarray(logo_crop, dtype=np.float32)[..., 1]
+                    + 0.114 * np.asarray(logo_crop, dtype=np.float32)[..., 2]
+                )
+            )
     except (OSError, UnidentifiedImageError, ValueError) as exc:
         return f"watermark check failed for {path.as_posix()!r}: {exc}"
 
-    arr = np.asarray(crop, dtype=np.float32)
-    gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
-    low_frac = float(np.mean(gray < 95.0))
-    high_frac = float(np.mean(gray > 180.0))
-    std = float(np.std(gray))
-    if std < 8.0 or low_frac < 0.03 or high_frac < 0.015:
-        return (
-            f"missing or very faint burn-in watermark in label region for {path.as_posix()} "
-            f"(std={std:.1f}, dark_frac={low_frac:.3f}, bright_frac={high_frac:.3f}); "
-            "expected © label from optimize_publish — re-import with watermark enabled or set "
-            "GALLERY_VERIFY_SKIP_WATERMARK=1 to skip this check"
-        )
-    return None
+    return (
+        f"missing or very faint burn-in watermark for {path.as_posix()} "
+        f"(text_std={std:.1f}, logo_std={logo_std:.1f}); "
+        "expected © label or polaroid margin logo from optimize_publish — re-import with "
+        "watermark enabled or set GALLERY_VERIFY_SKIP_WATERMARK=1 to skip this check"
+    )
 
 
 def verify_publish_assets(repo: Path) -> list[str]:
