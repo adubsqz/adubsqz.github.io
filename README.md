@@ -37,9 +37,17 @@ The live lookbook uses a **client JWT** in `localStorage` (`src/galleryJwt.ts`),
 
 GitHub Pages custom domain must list **both** `adubs.site` and `www.adubs.site`. Apex A/AAAA → GitHub Pages IPs; `www` CNAME → `adubsqz.github.io`. Cloudflare DNS should be DNS-only (grey cloud) for those records until you intentionally proxy. Enforce HTTPS in the Pages settings after GitHub issues the cert. If `www` shows a certificate error, the Pages custom-domain list is incomplete.
 
-### Analytics
+### Analytics + performance (visits / Core Web Vitals)
 
-Cloudflare Web Analytics (not GoatCounter, not Vercel Speed Insights). Create a beacon token for `adubs.site`, put it in GitHub Actions secret `VITE_CF_BEACON_TOKEN`, and it is baked in at `npm run build` via `.github/workflows/pages.yml`. Locally, set `VITE_CF_BEACON_TOKEN` in `.env.local`. Empty token means no beacon.
+**Use Cloudflare Web Analytics** (already wired) — not GoatCounter, not Vercel Speed Insights, and not a self-hosted OpenTelemetry collector for this static Pages shop.
+
+- The live build already bakes `VITE_CF_BEACON_TOKEN` into the SPA and loads `beacon.min.js` after idle. That beacon reports **visits, page views, page load time, and Core Web Vitals** (LCP / INP / CLS) without cookies.
+- Dashboard: [Cloudflare → Web Analytics](https://dash.cloudflare.com/?to=/:account/web-analytics) → site `adubs.site`. Orange-cloud zones also show edge analytics under the zone **Analytics** tab.
+- Empty `VITE_CF_BEACON_TOKEN` (GitHub Actions secret / `.env.local`) means **no beacon** and no RUM visits — check the secret if the dashboard stays empty.
+- Password gate still allows the beacon (it mounts in `main.tsx` before unlock). Low visit counts usually mean few unlocked sessions, not a missing SDK.
+- **OpenTelemetry:** great for apps with a backend/collector. For this GitHub Pages + Cloudflare SPA, CF Web Analytics already ships the open `web-vitals` RUM path; adding browser OTel would need a separate collector/endpoint and would not replace CF visit charts.
+
+Horseshoe **grid** images load `/photos/sheet/` thumbs; lightbox still uses full `/photos/still-life/` publishes (mobile bandwidth).
 
 These terms are asserted to crawlers by `public/robots.txt` (Content Signals) and
 `public/.well-known/tdmrep.json` (EU Article 4 opt-out). Those are stated preferences, not

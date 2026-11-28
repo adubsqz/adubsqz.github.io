@@ -41,9 +41,17 @@ export function todaysMakersSpaceSeats(now: Date = new Date()): string[] {
   return windowForDay(cycle, makersSpaceDayNumber(now));
 }
 
-export function stillLifeUrl(relativePath: string): string {
+function photosRoot(kind: 'still-life' | 'sheet'): string {
   const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
-  const root = (base.endsWith('/') ? base.slice(0, -1) : base) + '/photos/still-life';
+  return (base.endsWith('/') ? base.slice(0, -1) : base) + `/photos/${kind}`;
+}
+
+export function stillLifeUrl(relativePath: string): string {
   // Cache-buster so browsers that stored earlier Vite allowlist 404s refetch publishes.
-  return `${root}/${relativePath.replace(/^\//, '')}?v=makers-1`;
+  return `${photosRoot('still-life')}/${relativePath.replace(/^\//, '')}?v=makers-1`;
+}
+
+/** Contact-sheet / horseshoe grid thumb (~640px). Lightbox keeps {@link stillLifeUrl}. */
+export function sheetUrl(relativePath: string): string {
+  return `${photosRoot('sheet')}/${relativePath.replace(/^\//, '')}?v=makers-1`;
 }

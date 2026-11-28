@@ -23,6 +23,7 @@ describe('MakersSpaceView', () => {
     for (const img of seatImgs) {
       expect(img).toHaveAttribute('draggable', 'false');
       expect(img).toHaveClass('makers-space__img');
+      expect(img.getAttribute('src')).toMatch(/\/photos\/sheet\//);
       fireEvent.load(img);
     }
     // Soft CSS diagonal overlay on each seat (burn-in lives in the JPEG bytes).
@@ -33,6 +34,7 @@ describe('MakersSpaceView', () => {
     const lightbox = await screen.findByRole('dialog');
     const lightboxImg = within(lightbox).getByRole('img');
     fireEvent.load(lightboxImg);
+    expect(lightboxImg.getAttribute('src')).toMatch(/\/photos\/still-life\//);
     expect(within(lightbox).getAllByText(/^adubsqz$/i).length).toBeGreaterThanOrEqual(1);
     expect(lightboxImg).toHaveAttribute('draggable', 'false');
   });
